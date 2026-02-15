@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刘钢 - 2025-2026竞赛可视化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .award-gold { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
+        .award-silver { background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%); }
+        .award-bronze { background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%); }
+        .timeline-line { background: linear-gradient(to bottom, #667eea, #764ba2); }
+        .tech-card { backdrop-filter: blur(10px); background: rgba(255,255,255,0.9); }
+        
+        /* Markdown Reader Styles */
+        .markdown-body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+        }
+        .markdown-body h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 24px; margin-bottom: 16px; font-weight: 600; }
+        .markdown-body h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 24px; margin-bottom: 16px; font-weight: 600; }
+        .markdown-body h3 { font-size: 1.25em; margin-top: 24px; margin-bottom: 16px; font-weight: 600; }
+        .markdown-body p { margin-bottom: 16px; }
+        .markdown-body ul, .markdown-body ol { padding-left: 2em; margin-bottom: 16px; }
+        .markdown-body li { margin-bottom: 0.25em; }
+        .markdown-body code {
+            background-color: rgba(27,31,35,0.05);
+            border-radius: 3px;
+            font-size: 85%;
+            margin: 0;
+            padding: 0.2em 0.4em;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+        }
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            font-size: 85%;
+            line-height: 1.45;
+            overflow: auto;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            line-height: inherit;
+            margin: 0;
+            overflow: visible;
+            padding: 0;
+            word-wrap: normal;
+        }
+        .markdown-body blockquote {
+            border-left: 0.25em solid #dfe2e5;
+            color: #6a737d;
+            padding: 0 1em;
+            margin-bottom: 16px;
+        }
+        .markdown-body table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            display: block;
+            overflow: auto;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .markdown-body table th, .markdown-body table td {
+            border: 1px solid #dfe2e5;
+            padding: 6px 13px;
+        }
+        .markdown-body table th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+        .markdown-body img { max-width: 100%; height: auto; }
+        .markdown-body hr { height: 0.25em; padding: 0; margin: 24px 0; background-color: #e1e4e8; border: 0; }
+        
+        /* Modal Styles */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">🏆 竞赛战绩可视化</h1>
+            <p class="text-xl md:text-2xl opacity-90">刘钢 - 2025-2026 中国研究生创新实践系列大赛</p>
+            <div class="mt-8 flex justify-center gap-8 flex-wrap">
+                <div class="bg-white/20 rounded-lg px-6 py-3 backdrop-blur">
+                    <div class="text-3xl font-bold">9</div>
+                    <div class="text-sm opacity-80">参赛项目</div>
+                </div>
+                <div class="bg-white/20 rounded-lg px-6 py-3 backdrop-blur">
+                    <div class="text-3xl font-bold">5</div>
+                    <div class="text-sm opacity-80">获奖项目</div>
+                </div>
+                <div class="bg-white/20 rounded-lg px-6 py-3 backdrop-blur">
+                    <div class="text-3xl font-bold">56%</div>
+                    <div class="text-sm opacity-80">获奖率</div>
+                </div>
+                <div class="bg-white/20 rounded-lg px-6 py-3 backdrop-blur">
+                    <div class="text-3xl font-bold">1</div>
+                    <div class="text-sm opacity-80">二等奖</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2025 Awards Overview -->
+    <section class="py-16 container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">📊 2025年获奖总览</h2>
+        
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Award Distribution Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-gray-700">获奖分布</h3>
+                <canvas id="awardChart" width="400" height="300"></canvas>
+            </div>
+            
+            <!-- Tech Field Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-gray-700">技术领域覆盖</h3>
+                <canvas id="techChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Award Cards -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 二等奖 - 数学建模 -->
+            <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-yellow-400">
+                <div class="award-silver h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">🥈</span>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full">二等奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">第二十二届数学建模竞赛</h3>
+                    <p class="text-gray-600 text-sm mb-3">赛题E | 团队：建模国一手</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">数学建模</span>
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">数据驱动</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三等奖 - 网络安全 -->
+            <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-orange-400">
+                <div class="award-bronze h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">🥉</span>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">三等奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">第四届网络安全创新大赛</h3>
+                    <p class="text-gray-600 text-sm mb-3">题目5 | 团队：AI前卫队</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">网络安全</span>
+                        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded">大模型</span>
+                        <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded">多智能体</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三等奖 - EDA -->
+            <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-orange-400">
+                <div class="award-bronze h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">🥉</span>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">三等奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">EDA精英挑战赛</h3>
+                    <p class="text-gray-600 text-sm mb-3">赛题二 | 团队：码上优队</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">EDA</span>
+                        <span class="bg-cyan-100 text-cyan-700 text-xs px-2 py-1 rounded">目标检测</span>
+                        <span class="bg-teal-100 text-teal-700 text-xs px-2 py-1 rounded">电路识别</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三等奖 - AI创新 -->
+            <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-orange-400">
+                <div class="award-bronze h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">🥉</span>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">三等奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">第七届AI创新大赛</h3>
+                    <p class="text-gray-600 text-sm mb-3">大模型和智能体 | 团队：智研四象</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded">大模型</span>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded">智能体</span>
+                        <span class="bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded">教育应用</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三等奖 - 电子设计 -->
+            <div class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-orange-400">
+                <div class="award-bronze h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">🥉</span>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">三等奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">第二十届电子设计竞赛</h3>
+                    <p class="text-gray-600 text-sm mb-3">电路与嵌入式 | 团队：银河技术先锋</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded">嵌入式</span>
+                        <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded">硬件设计</span>
+                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">物联网</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 未获奖项目总结 -->
+            <div class="card-hover bg-gray-50 rounded-2xl shadow-lg overflow-hidden border-l-4 border-gray-400">
+                <div class="bg-gray-400 h-2"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl">📋</span>
+                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">未获奖</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">其他参赛项目</h3>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• 金融科技创新大赛</li>
+                        <li>• 智慧城市大赛</li>
+                        <li>• 双碳创新大赛</li>
+                        <li>• 数学建模21届（参与奖）</li>
+                    </ul>
+                    <div class="mt-3 text-xs text-gray-500">2026年优化重点</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">🛠️ 技术栈分布</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="tech-card rounded-xl p-6 text-center shadow-lg">
+                    <div class="text-4xl mb-3">🤖</div>
+                    <h3 class="font-bold text-gray-800">AI/深度学习</h3>
+                    <p class="text-gray-600 text-sm mt-2">PyTorch, TensorFlow, 大模型</p>
+                    <div class="mt-3 text-2xl font-bold text-purple-600">4项</div>
+                </div>
+                <div class="tech-card rounded-xl p-6 text-center shadow-lg">
+                    <div class="text-4xl mb-3">📊</div>
+                    <h3 class="font-bold text-gray-800">数学建模</h3>
+                    <p class="text-gray-600 text-sm mt-2">优化算法, 预测模型</p>
+                    <div class="mt-3 text-2xl font-bold text-blue-600">2项</div>
+                </div>
+                <div class="tech-card rounded-xl p-6 text-center shadow-lg">
+                    <div class="text-4xl mb-3">🔒</div>
+                    <h3 class="font-bold text-gray-800">网络安全/嵌入式</h3>
+                    <p class="text-gray-600 text-sm mt-2">多智能体, EDA, 物联网</p>
+                    <div class="mt-3 text-2xl font-bold text-red-600">3项</div>
+                </div>
+                <div class="tech-card rounded-xl p-6 text-center shadow-lg">
+                    <div class="text-4xl mb-3">💰</div>
+                    <h3 class="font-bold text-gray-800">金融科技/双碳</h3>
+                    <p class="text-gray-600 text-sm mt-2">推荐系统, 能源管理</p>
+                    <div class="mt-3 text-2xl font-bold text-green-600">2项</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2026 Timeline -->
+    <section class="py-16 container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">📅 2026年作战计划</h2>
+        
+        <div class="relative">
+            <!-- Timeline Line -->
+            <div class="absolute left-1/2 transform -translate-x-1/2 w-1 h-full timeline-line rounded"></div>
+            
+            <!-- Timeline Items -->
+            <div class="space-y-12">
+                <!-- Q1 -->
+                <div class="flex items-center justify-between">
+                    <div class="w-5/12 text-right pr-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                            <h3 class="font-bold text-xl text-purple-700">Q1 (3-5月)</h3>
+                            <h4 class="font-semibold text-gray-800 mt-2">开局期 - 冲一等奖</h4>
+                            <ul class="text-gray-600 text-sm mt-3 space-y-1">
+                                <li>🔌 电子设计竞赛（一等奖）</li>
+                                <li>🤖 AI创新大赛（一等奖）</li>
+                                <li>📊 数学建模准备</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-2/12 flex justify-center">
+                        <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg z-10">Q1</div>
+                    </div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="flex items-center justify-between">
+                    <div class="w-5/12 pr-8"></div>
+                    <div class="w-2/12 flex justify-center">
+                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg z-10">Q2</div>
+                    </div>
+                    <div class="w-5/12 text-left pl-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                            <h3 class="font-bold text-xl text-blue-700">Q2 (6-8月)</h3>
+                            <h4 class="font-semibold text-gray-800 mt-2">复用优化期</h4>
+                            <ul class="text-gray-600 text-sm mt-3 space-y-1">
+                                <li>🏙️ 智慧城市大赛（升级）</li>
+                                <li>🔒 网络安全大赛（升级）</li>
+                                <li>💰 金融科技大赛（升级）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="flex items-center justify-between">
+                    <div class="w-5/12 text-right pr-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                            <h3 class="font-bold text-xl text-green-700">Q3 (9月)</h3>
+                            <h4 class="font-semibold text-gray-800 mt-2">冲刺期</h4>
+                            <ul class="text-gray-600 text-sm mt-3 space-y-1">
+                                <li>📊 数学建模竞赛（一等奖）</li>
+                                <li>🎯 集中3天攻坚</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-2/12 flex justify-center">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg z-10">Q3</div>
+                    </div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="flex items-center justify-between">
+                    <div class="w-5/12 pr-8"></div>
+                    <div class="w-2/12 flex justify-center">
+                        <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg z-10">Q4</div>
+                    </div>
+                    <div class="w-5/12 text-left pl-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                            <h3 class="font-bold text-xl text-orange-700">Q4 (10-11月)</h3>
+                            <h4 class="font-semibold text-gray-800 mt-2">收官期</h4>
+                            <ul class="text-gray-600 text-sm mt-3 space-y-1">
+                                <li>🌱 双碳创新大赛（备选）</li>
+                                <li>🔧 EDA精英挑战赛（备选）</li>
+                                <li>📜 软著申请提交</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2026 Goals -->
+    <section class="py-16 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-8">🎯 2026年目标</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/20 rounded-2xl p-6 backdrop-blur">
+                    <div class="text-5xl mb-3">🥇</div>
+                    <h3 class="text-xl font-bold mb-2">冲刺一等奖</h3>
+                    <p class="opacity-90">数学建模、AI创新、网络安全</p>
+                    <div class="mt-4 text-3xl font-bold">1-2项</div>
+                </div>
+                <div class="bg-white/20 rounded-2xl p-6 backdrop-blur">
+                    <div class="text-5xl mb-3">🥈</div>
+                    <h3 class="text-xl font-bold mb-2">保底二等奖+</h3>
+                    <p class="opacity-90">EDA、电设、金融科技、智慧城市</p>
+                    <div class="mt-4 text-3xl font-bold">4-5项</div>
+                </div>
+                <div class="bg-white/20 rounded-2xl p-6 backdrop-blur">
+                    <div class="text-5xl mb-3">📜</div>
+                    <h3 class="text-xl font-bold mb-2">软著申请</h3>
+                    <p class="opacity-90">灵犀引擎、违章检测、智慧能源</p>
+                    <div class="mt-4 text-3xl font-bold">5个</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Document Reader Section -->
+    <section class="py-12 container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">📚 文档资料库</h2>
+        <p class="text-center text-gray-600 mb-8">点击按钮直接在网页中查看文档</p>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button onclick="loadMarkdown('2025获奖总结.md')" class="bg-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>📄</span> 2025获奖总结
+            </button>
+            <button onclick="loadMarkdown('2026参赛完整方案.md')" class="bg-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-purple-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>📋</span> 2026完整方案
+            </button>
+            <button onclick="loadMarkdown('docs/AI科研绘图完全指南.md')" class="bg-green-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-green-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>🎨</span> AI绘图指南
+            </button>
+            <button onclick="loadMarkdown('START_HERE.md')" class="bg-orange-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-orange-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>🚀</span> 快速开始
+            </button>
+            <button onclick="loadMarkdown('docs/每个项目优化建议.md')" class="bg-red-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-red-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>💡</span> 项目优化建议
+            </button>
+            <button onclick="loadMarkdown('docs/2025项目深度分析报告.md')" class="bg-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>📊</span> 深度分析报告
+            </button>
+            <button onclick="loadMarkdown('2026竞赛时间线.md')" class="bg-cyan-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-cyan-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>📅</span> 竞赛时间线
+            </button>
+            <button onclick="loadMarkdown('AI提示词模板库.md')" class="bg-pink-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-pink-700 transition shadow-lg flex items-center justify-center gap-2">
+                <span>📝</span> 提示词模板库
+            </button>
+        </div>
+    </section>
+
+    <!-- Markdown Reader Modal -->
+    <div id="markdownModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+        <div class="absolute inset-4 md:inset-10 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-gray-100 px-6 py-4 flex items-center justify-between border-b">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-800">文档查看</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-auto p-6 bg-white">
+                <div id="modalContent" class="markdown-body max-w-4xl mx-auto">
+                    <div class="text-center text-gray-500 py-12">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 text-center">
+        <p>刘钢 - 上海工程技术大学 - 2025-2026竞赛之旅</p>
+        <p class="text-gray-400 text-sm mt-2">单兵作战 + AI辅助 + 外包协作 = 一等奖！</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Award Distribution Chart
+        const awardCtx = document.getElementById('awardChart').getContext('2d');
+        new Chart(awardCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['二等奖', '三等奖', '未获奖'],
+                datasets: [{
+                    data: [1, 4, 4],
+                    backgroundColor: ['#FFD700', '#CD7F32', '#9CA3AF'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Tech Field Chart
+        const techCtx = document.getElementById('techChart').getContext('2d');
+        new Chart(techCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AI/深度学习', '数学建模', '网络安全', 'EDA', '电子设计', '金融科技'],
+                datasets: [{
+                    label: '项目数量',
+                    data: [2, 2, 1, 1, 1, 1],
+                    backgroundColor: [
+                        'rgba(147, 51, 234, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(16, 185, 129, 0.8)'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Markdown Reader Functions
+        async function loadMarkdown(filePath) {
+            const modal = document.getElementById('markdownModal');
+            const content = document.getElementById('modalContent');
+            const title = document.getElementById('modalTitle');
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Set title
+            title.textContent = filePath.split('/').pop().replace('.md', '');
+            content.innerHTML = '<div class="text-center text-gray-500 py-12">加载中...</div>';
+            
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error('文件加载失败');
+                }
+                const markdown = await response.text();
+                
+                // Convert markdown to HTML
+                const html = marked.parse(markdown);
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="text-center text-red-500 py-12">
+                        <p class="text-xl mb-4">⚠️ 无法加载文件</p>
+                        <p class="text-gray-600">${error.message}</p>
+                        <p class="text-sm text-gray-500 mt-4">文件路径: ${filePath}</p>
+                        <button onclick="closeModal()" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">关闭</button>
+                    </div>
+                `;
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('markdownModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
