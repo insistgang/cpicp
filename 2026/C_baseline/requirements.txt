@@ -1,0 +1,28 @@
+# C_baseline 依赖
+# 文档解析（择一主用；MinerU 为主，PP-Structure 备选）
+mineru>=2.0.0              # 招股书 PDF→结构化(版面+表格)，命令行 `mineru`。亦可: pip install magic-pdf
+# paddleocr>=2.7          # 备选：PP-StructureV3（中文表格强）
+
+# 索引 + 检索（图 RAG）
+lightrag-hku>=1.5.0       # LightRAG，原生可接 MinerU/Docling 解析结果
+# nano-vectordb / networkx 由 lightrag 依赖带入
+
+# 多智能体编排
+langgraph>=0.2.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0   # OpenAI 兼容端点(DeepSeek/通义)
+
+# API
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.5
+
+# 通用
+python-dotenv>=1.0
+numpy>=1.24
+pandas>=2.0
+openai>=1.30              # OpenAI 兼容客户端（供 LightRAG / 直接调用）
+
+# 时序/市场情绪（W7/W8 用，可后装）
+# scikit-learn>=1.3
+# statsmodels>=0.14

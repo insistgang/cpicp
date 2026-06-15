@@ -1,0 +1,10 @@
+datasets/
+runs/
+out/
+*.pt
+*.onnx
+*.engine
+.venv/
+__pycache__/
+*.pyc
+.git/

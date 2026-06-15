@@ -1,0 +1,15 @@
+# C_baseline · 轻量验机镜像（评审快速验"可运行性"）
+# 几分钟构建：仅含 API + 多智能体 demo + 评测自检；
+# 不含 MinerU/LightRAG（无 torch）。完整解析/RAG/真实 LLM 链路请用 Dockerfile（完整版）。
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements-slim.txt .
+RUN pip install --no-cache-dir -r requirements-slim.txt
+
+COPY . .
+
+EXPOSE 8000
+# 启动即拉起预警 API（占位管线可运行）；无需 .env（不调云 LLM）
+CMD ["uvicorn", "api_app:app", "--host", "0.0.0.0", "--port", "8000"]

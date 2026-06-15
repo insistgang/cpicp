@@ -1,0 +1,26 @@
+# B_baseline 依赖（RTX4070S 训练端）
+# 训练/检测
+ultralytics>=8.3.0          # 含 YOLO11；P2 头通过自定义 yaml
+torch>=2.1                  # 按 CUDA 版本装对应 wheel（见 pytorch.org）
+torchvision>=0.16
+# 数据/评测
+numpy>=1.24
+opencv-python>=4.8
+pyyaml>=6.0
+tqdm>=4.66
+pandas>=2.0
+matplotlib>=3.7
+# 小目标切片推理（可选，eval/推理增强）
+sahi>=0.11.0
+# ONNX 导出/校验（PC 端）
+onnx>=1.15
+onnxsim>=0.4.36
+onnxruntime>=1.17           # PC 上验证 ONNX 正确性
+# 跨域迁移评价（特征分布/MMD，scikit-learn 提供基础工具）
+scikit-learn>=1.3
+scipy>=1.11
+
+# ===== 仅 Jetson Orin Nano 端（不要在 PC 装，用 JetPack 自带）=====
+# tensorrt            （JetPack 随附）
+# pycuda>=2022.2      （Orin 上 pip 安装，用于 trt_infer_orin.py）
+# 说明：Orin Nano 上 torch/torchvision 需用 NVIDIA 提供的 Jetson 专版 wheel

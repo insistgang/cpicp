@@ -1,0 +1,11 @@
+# C_baseline 轻量版依赖：仅 API + 多智能体 demo + 评测自检
+# 去掉 MinerU/LightRAG/PaddleOCR 等重依赖（不含 torch），几分钟即可构建，供评审快速验机。
+# 完整解析/RAG/真实 LLM 链路请用 requirements.txt + Dockerfile。
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.5
+python-dotenv>=1.0
+numpy>=1.24
+pandas>=2.0
+langgraph>=0.2.0
+langchain-core>=0.3.0
