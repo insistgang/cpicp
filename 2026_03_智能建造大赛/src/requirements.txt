@@ -1,10 +1,10 @@
-# B_baseline 依赖（RTX4070S 训练端）
+# 智能建造赛题7 src 依赖（RTX4070S 训练端）
 # 训练/检测
-ultralytics>=8.3.0          # 含 YOLO11；P2 头通过自定义 yaml
+ultralytics>=8.3.0          # 含 YOLOv12/YOLO11；P2 头通过自定义 yaml
 torch>=2.1                  # 按 CUDA 版本装对应 wheel（见 pytorch.org）
 torchvision>=0.16
 # 数据/评测
-numpy>=1.24
+numpy>=1.24,<2.0           # 钉 <2.0：numpy 2.x 与 torch 2.x 编译期 ABI 冲突，干净环境必装下界
 opencv-python>=4.8
 pyyaml>=6.0
 tqdm>=4.66

@@ -19,7 +19,8 @@ def main():
     ap.add_argument("--weights", required=True)
     ap.add_argument("--imgsz", type=int, default=1024)
     ap.add_argument("--opset", type=int, default=12)
-    ap.add_argument("--simplify", action="store_true", default=True)
+    ap.add_argument("--simplify", action=argparse.BooleanOptionalAction, default=True,
+                    help="onnxsim 简化（默认开；--no-simplify 关闭）")
     a = ap.parse_args()
 
     from ultralytics import YOLO

@@ -1,0 +1,19 @@
+# 数据集配置 · 低空水上救援（SeaDronesSee + AFO 合并的"海域"目标域）
+# 由 prepare_data.py 生成对应目录结构后使用。
+#
+# 目录约定（prepare_data.py 输出）:
+#   datasets/searescue/images/{train,val,test}
+#   datasets/searescue/labels/{train,val,test}    # YOLO txt: cls cx cy w h (归一化)
+path: ../datasets/searescue
+train: images/train
+val: images/val
+test: images/test
+
+# 官方赛题7 识别目标（《参赛指南》P80：落水人员、船只、浮标 三类）
+#   已据官方核实，与 prepare_data.py 的 CLASS_MAP 保持一致。
+#   SeaDronesSee 的 swimmer/floater 统一并入「落水人员」，life_jacket 不在官方目标内（丢弃）。
+names:
+  0: person_in_water   # 落水人员（救援核心目标，small 桶重点）
+  1: boat              # 船只
+  2: buoy              # 浮标
+# nc=3 由 names 自动推断（ultralytics 新版无需显式 nc）

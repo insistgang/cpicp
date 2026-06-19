@@ -3,7 +3,7 @@
 # 结构按 ultralytics YOLO11 backbone + YOLOv8-P2 head 模式改写。
 # ⚠️ 若你的 ultralytics 版本解析报错，train.py 会自动回退到内置 yolo11n.yaml（见 README）。
 
-nc: 5  # 占位，实际由 data yaml 的 names 覆盖；TODO[登录核对] 赛题真实类别数
+nc: 3  # 官方赛题7 三类：落水人员/船只/浮标（实际由 data yaml 的 names 覆盖）
 scales:
   # [depth, width, max_channels]
   n: [0.50, 0.25, 1024]
