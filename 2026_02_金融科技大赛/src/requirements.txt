@@ -1,0 +1,14 @@
+# 赛题#23 金融影像分类+相似度去重 依赖
+# 核心:CLIP(官方现有基础)+ 度量学习 + 向量检索
+torch>=2.1                  # 按 CUDA 版本装对应 wheel
+torchvision>=0.16
+open_clip_torch>=2.24       # CLIP 特征提取/零样本分类
+timm>=0.9                   # 备选骨干(DINOv2/ViT)
+faiss-cpu>=1.8              # 向量检索(大规模换 faiss-gpu)
+numpy>=1.24,<2.0            # 钉 <2.0 避免与 torch ABI 冲突
+pillow>=10.0
+scikit-learn>=1.3           # 度量/AUC/降维可视化
+pandas>=2.0
+matplotlib>=3.7             # PR曲线/阈值曲线作图
+gradio>=4.0                 # 检测汇总视图 demo(官方要求"汇总视图")
+tqdm>=4.66
