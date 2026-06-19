@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>赛题#23 自测报告</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 40px; background: #f5f5f7; }
+  .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 1200px; margin: 0 auto; }
+  h1 { margin-top: 0; }
+  .summary { font-size: 1.2em; margin: 16px 0; padding: 12px 16px; border-radius: 8px; background: #d4edda; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 0.9em; }
+  th { background: #f0f0f5; }
+  pre { background: #f8f8fa; padding: 8px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; margin: 0; }
+  .timestamp { color: #888; font-size: 0.85em; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>赛题#23 金融影像智能相似度检测 · 全模块自测报告</h1>
+  <div class="summary">
+    <b>4/4</b> 模块通过 · 状态: ✅ 全部通过
+  </div>
+  <table>
+    <tr><th>模块</th><th>状态</th><th>耗时</th><th>输出(末尾500字)</th><th>错误</th></tr>
+    
+        <tr>
+          <td><b>prepare_data</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.04s</td>
+          <td><pre>  ✅ 合成清单 103 条影像
+  ✅ 分类集:面签 16/103(正负都有)
+  ✅ 相似度对:正 92 / 负 184
+  ✅ 所有正样本对同 group_id
+  ✅ 所有负样本对跨 group_id
+  ✅ 含跨客户套用正样本 43 对(可训/可评)
+  ✅ only_face 子集 27≤全量 276
+
+✅ prepare_data 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>metrics</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.13s</td>
+          <td><pre>  ✅ 可分场景 AUC≈1(=1.0000)
+  ✅ 最优F1阈值 F1>0.9(thr=0.580, F1=1.000)
+  ✅ 目标精度≥0.99 可满足(P=0.990, R=1.000)
+  ✅ 阈值↑→precision↑(0.913→1.000)
+  ✅ 全同分 AUC=0.5
+  ✅ 对角最高 → top1=100%(=1.00)
+
+✅ metrics 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>similarity</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.09s</td>
+          <td><pre>  ✅ 跨客户套用(base↔reused,客户A↔B)被标为 cross_customer_misuse
+  ✅ 同客户重复(base↔dup,都客户A)被标为 same_customer_repeat
+  ✅ 不相干影像未被误报
+  ✅ 汇总:跨客户套用 2 对,最高相似 1.000
+  ✅ 阈值↑可疑对不增(3→3)
+
+✅ similarity 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>app_demo</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.10s</td>
+          <td><pre>### 检测汇总(阈值 0.9)
+- 可疑相似对总数:**3**
+- ⚠️ 跨客户套用(最严重):**2**
+- 同客户重复提交:**1**
+- 最高相似度:**1.000**
+
+可疑对(top):
+  same_customer_repeat   IMG_base↔IMG_dup (A/A) sim=1.000
+  cross_customer_misuse  IMG_base↔IMG_reuse (A/B) sim=1.000
+  cross_customer_misuse  IMG_reuse↔IMG_dup (B/A) sim=1.000
+
+✅ app_demo 数据层逻辑自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+  </table>
+  <div class="timestamp">生成时间: 2026-06-19 23:25:41</div>
+</div>
+</body>
+</html>

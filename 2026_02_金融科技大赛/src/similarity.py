@@ -19,8 +19,16 @@ def l2_normalize(embs):
 
 def cosine_sim_matrix(embs):
     import numpy as np
-    e = l2_normalize(embs)
-    return e @ e.T
+    e = np.asarray(embs, dtype=np.float64)
+    # 先 L2 归一化,再计算余弦相似度(避免极端值溢出)
+    norms = np.linalg.norm(e, axis=1, keepdims=True)
+    e = e / np.clip(norms, 1e-12, None)
+    # 安全 clip:归一化后值域应在 [-1,1],但 clip 防 NaN/Inf
+    e = np.nan_to_num(e, nan=0.0, posinf=0.0, neginf=0.0)
+    # 显式设置 errstate 避免 matmul 溢出警告(归一化后理论上不应溢出,但 numpy 浮点警告过于敏感)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        sim = e @ e.T
+    return sim
 
 
 def find_suspicious_pairs(embs, image_ids, customer_ids, threshold=0.9, business_ids=None):
