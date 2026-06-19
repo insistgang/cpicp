@@ -53,7 +53,42 @@
 
 ---
 
-**目录说明**
+## 目录说明
 
 - `docs/`：官方通知、赛题说明、申报模板等资料
-- `src/`：后续代码目录（待创建）
+- `src/`：代码目录（10 模块，全部可本地自测通过）
+
+## src 代码模块速览
+
+| 模块 | 功能 | 状态 |
+|---|---|---|
+| audit_schema | 统一审计事件结构 + JSON 往返 | ✅ 自测通过 |
+| asset_scanner | 目录扫描识别 Agent/框架/模型/Skills/MCP 资产 + 图谱 | ✅ 自测通过 |
+| config_risk_scanner | 配置风险扫描：硬编码凭据/危险命令/过宽路径/未加密传输/代码执行 | ✅ 自测通过 |
+| malicious_skill_detector | 恶意 Skill/MCP 静态检测(隐藏指令/危险能力/外联/base64) | ✅ 自测通过 |
+| prompt_injection_detector | 直接+间接提示注入检测 | ✅ 自测通过 |
+| chain_anomaly | 工具调用链路时序异常(创新点：长链路行为分析) | ✅ 自测通过 |
+| metrics_eval | 检出率/误报率/F1/AUC + 官方双线达标判定 | ✅ 自测通过 |
+| interceptor | tool_call 拦截器：策略+注入+敏感行为检测→allow/alert/block | ✅ 自测通过 |
+| defense_policy | 自适应防御策略：屏蔽工具/拦外联/系统约束 | ✅ 自测通过 |
+| fake_agent | 最小靶场+端到端闭环演示：良性放行/攻击阻断/链路告警/加规则复测 | ✅ 自测通过 |
+| run_all_selftests | 一键运行全部 10 模块自测并汇总 | ✅ 10/10 通过 |
+
+运行：`cd src && python3 run_all_selftests.py`
+
+## 已完成工作（2026-06-19）
+
+- ✅ 9 个核心模块全部自测通过
+- ✅ 新增 config_risk_scanner 模块（配置风险扫描，覆盖硬编码凭据、危险命令、过宽路径、未加密传输、代码执行启用）
+- ✅ 新增 run_all_selftests.py 一键测试脚本
+- ✅ src/README.md 更新为 10 模块完整文档
+- ✅ 代码全部纯标准库 + numpy，Mac 本地可完整运行
+
+## 仍待推进（需官方/用户）
+
+- ⏳ 第五届官方赛题/靶场/报名/提交模板均未发布
+- ⏳ 去年作品需找回自证可复用性
+- ⏳ 真实指标需在官方靶场 + 真 Agent 上复测
+- ⏳ GUI Demo 平台（方向 C）尚未开发
+- ⏳ 多 Agent 协同防御（方向 D）尚未开发
+- ⏳ 量化评估 Benchmark（方向 E）尚未开发

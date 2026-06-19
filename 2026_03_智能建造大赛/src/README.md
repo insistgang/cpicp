@@ -67,12 +67,22 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `losses_smalltarget.py` | **NWD**(归一化Wasserstein)+Wise-IoU+Inner-IoU + ultralytics 接入说明;`python losses_smalltarget.py` 自测 |
 | `stream_qgc.py` | 实时闭环→QGC 融合 demo 骨架(推理→滤波→画框+GPS+遥测→H265软编→RTSP);`--selftest` |
 | `crossdomain_eval.py` | 陆→海 域差评估模板（MMD/特征分布占位接口）|
+| `run_all_selftests.py` | **一键本地自测总控**：运行所有 Mac 可测模块 + YAML 语法检查，返回汇总报告 |
 
 ## 数据来源
 - SeaDronesSee：https://github.com/Ben93kie/SeaDronesSee ｜ https://seadronessee.cs.uni-tuebingen.de/
 - AFO：https://universe.roboflow.com/large-benchmark-datasets/afo-aerial-dataset-of-floating-object （选 YOLOv8 格式导出，含 data.yaml）
 
+## 快速自测（Mac 本地，无 GPU/数据）
+
+```bash
+cd src
+python3 run_all_selftests.py
+```
+
+覆盖：geolocate(8项) / track_filter(5项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / configs YAML 语法 —— **10 项全通过**即本地可推进部分就绪。
+
 ## 注意事项
-- **模型回退要看日志**：`train.py` 启动会打印 `[model] ✓ 实际加载: ...`。若不是 “YOLOv12 + P2” 而是回退项，说明你的 ultralytics 版本解析自定义 yaml 失败，先排查再正式训练（别用回退结果当成绩）。
+- **模型回退要看日志**：`train.py` 启动会打印 `[model] ✓ 实际加载: ...`。若不是 "YOLOv12 + P2" 而是回退项，说明你的 ultralytics 版本解析自定义 yaml 失败，先排查再正式训练（别用回退结果当成绩）。
 - **Orin 端 TRT API**：`trt_infer_orin.py` 已**同时兼容 TensorRT 8.x 与 10.x**（自动探测 `num_io_tensors`/`execute_async_v3`，回退 `num_bindings`/`execute_async_v2`），解码+NMS 后处理已补齐，端到端三档计时。测速务必带 `--source 真实视频`（合成帧后处理不真实）；报告以「③ 含编码」为准——Orin Nano **无硬件 NVENC**，实战软编码更重,含编码端到端请最终用 `stream_qgc.py` 实测 + `tegrastats` 记功耗。
 - 小目标强烈建议 `--imgsz 1024` 起步并启用 P2 头；INT8 对小目标敏感，端侧默认 **FP16**，FPS 不够再评估 INT8（需做精度回归）。

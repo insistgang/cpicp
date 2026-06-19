@@ -13,7 +13,9 @@ def nn_distance(test_feats, bank):
     import numpy as np
     t = np.asarray(test_feats, float); b = np.asarray(bank, float)
     # (N,M) 距离平方 = |t|^2 + |b|^2 - 2 t·b
-    d2 = (t * t).sum(1)[:, None] + (b * b).sum(1)[None, :] - 2 * t @ b.T
+    # numpy 2.0+ 在 matmul 中可能报 false positive divide-by-zero/overflow 警告，不影响结果正确性
+    with np.errstate(divide='ignore', over='ignore', invalid='ignore'):
+        d2 = (t * t).sum(1)[:, None] + (b * b).sum(1)[None, :] - 2 * t @ b.T
     return np.sqrt(np.clip(d2.min(1), 0, None))
 
 

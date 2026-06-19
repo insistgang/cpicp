@@ -28,9 +28,11 @@ def mmd_rbf(X: np.ndarray, Y: np.ndarray, gamma: float = 1.0) -> float:
         # ||a-b||^2
         aa = (A**2).sum(1)[:, None]
         bb = (B**2).sum(1)[None, :]
-        d2 = aa + bb - 2 * A @ B.T
+        d2 = aa + bb - 2.0 * A @ B.T
+        # 数值安全: 避免负零导致的 exp 溢出
+        d2 = np.clip(d2, 0.0, None)
         return np.exp(-gamma * d2)
-    return float(rbf(X, X).mean() + rbf(Y, Y).mean() - 2 * rbf(X, Y).mean())
+    return float(rbf(X, X).mean() + rbf(Y, Y).mean() - 2.0 * rbf(X, Y).mean())
 
 
 def coral_distance(X: np.ndarray, Y: np.ndarray) -> float:

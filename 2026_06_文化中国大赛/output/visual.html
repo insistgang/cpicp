@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>《颜氏家训》书籍生命史 · 数字人文可视化</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: "Noto Serif SC", "SimSun", serif; margin: 0; padding: 0; background: #f7f3eb; color: #333; }
+  .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+  h1 { text-align: center; border-bottom: 2px solid #8b4513; padding-bottom: 12px; color: #5a2d0c; }
+  h2 { color: #5a2d0c; margin-top: 32px; border-left: 4px solid #c19a6b; padding-left: 12px; }
+  .card { background: #fff; border-radius: 8px; padding: 16px; margin: 12px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .timeline { position: relative; padding-left: 24px; border-left: 3px solid #c19a6b; margin: 16px 0; }
+  .timeline-item { margin: 16px 0; position: relative; }
+  .timeline-item::before { content: ""; position: absolute; left: -31px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #8b4513; }
+  .era { font-weight: bold; color: #5a2d0c; }
+  .year { color: #888; font-size: 0.9em; margin-left: 8px; }
+  .tag { display: inline-block; background: #c19a6b; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin-left: 8px; }
+  .wordcloud { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+  .word { display: inline-block; padding: 4px 10px; border-radius: 4px; background: #e8dcc8; color: #5a2d0c; transition: transform 0.2s; }
+  .word:hover { transform: scale(1.1); background: #d4c4a8; }
+  .network { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 16px 0; }
+  .node { padding: 8px 16px; border-radius: 20px; border: 2px solid #8b4513; background: #fff; color: #5a2d0c; font-weight: bold; }
+  .node.core { background: #8b4513; color: #fff; }
+  .edge-list { font-size: 0.9em; color: #666; }
+  .diffusion { display: flex; flex-wrap: wrap; gap: 12px; }
+  .diff-step { flex: 1 1 200px; background: #faf8f3; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
+  .diff-step h4 { margin: 0 0 8px; color: #8b4513; }
+  .footer { text-align: center; margin-top: 40px; color: #999; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>《颜氏家训》书籍生命史</h1>
+  <p style="text-align:center;color:#666;">数字人文可视化 · 赛题2「典籍与日常」</p>
+
+  <h2>一、版本流变时间轴</h2>
+  <div class="timeline" id="timeline"></div>
+
+  <h2>二、传播下沉路径</h2>
+  <div class="diffusion" id="diffusion"></div>
+
+  <h2>三、教化主题词云</h2>
+  <div class="wordcloud" id="wordcloud"></div>
+
+  <h2>四、互文知识网络</h2>
+  <div class="network" id="network"></div>
+  <div class="edge-list" id="edge-list"></div>
+
+  <div class="footer">本作品为数字人文展示,技术仅作辅助,文化内涵为核心。</div>
+</div>
+<script>
+// ============ 数据(内嵌,无需外部JSON) ============
+const TIMELINE = [{"era": "南北朝·梁陈", "year": "约589", "form": "手写抄本", "desc": "颜之推于乱世成书,以抄本在士族间流传", "note": "成书"}, {"era": "唐", "year": "7-9世纪", "form": "宫廷/寺院抄本", "desc": "《颜氏家训》入《隋书·经籍志》,为士族家学教材", "note": "官方著录"}, {"era": "宋", "year": "约960-1279", "form": "雕版刻本", "desc": "首次雕版印刷,成本降低,开始走出士族", "note": "刻本起点"}, {"era": "明", "year": "1368-1644", "form": "坊刻普及本", "desc": "民间书坊大量翻刻,价格亲民,进入蒙学/家塾", "note": "下沉关键"}, {"era": "清", "year": "1644-1912", "form": "家刻/族谱引用", "desc": "家训条文被族谱、家规直接引用,融入日常家礼", "note": "民间日用"}, {"era": "民国", "year": "1912-1949", "form": "标点排印本", "desc": "现代标点排印,白话注释,面向大众读者", "note": "现代转型"}, {"era": "当代", "year": "1950-至今", "form": "数字化/数据库", "desc": "中华经典古籍库、爱如生等数字化,全球可检索", "note": "数字活化"}];
+const DIFFUSION = [{"level": "士族家学", "audience": "门阀士族", "channel": "手抄/家传", "example": "颜氏家族内部传承,作为教子教材"}, {"level": "蒙学读物", "audience": "私塾学童", "channel": "坊刻/书坊", "example": "与《三字经》《弟子规》并列家塾教材"}, {"level": "族谱家规", "audience": "宗族成员", "channel": "族谱刻印/口头", "example": "家训条文被摘录进各姓族谱、家规"}, {"level": "民间日用", "audience": "普通百姓", "channel": "乡规民约/节庆", "example": "治家、教子理念融入婚丧嫁娶、年节礼仪"}];
+const WORDCLOUD = [{"text": "可", "weight": 0.4947}, {"text": "自", "weight": 0.454}, {"text": "教", "weight": 0.342}, {"text": "学", "weight": 0.2504}, {"text": "忧", "weight": 0.2504}, {"text": "可学", "weight": 0.2504}, {"text": "可忧", "weight": 0.2504}, {"text": "身", "weight": 0.2136}, {"text": "后", "weight": 0.2102}, {"text": "如", "weight": 0.2061}, {"text": "风", "weight": 0.1926}, {"text": "化", "weight": 0.1926}, {"text": "上", "weight": 0.1926}, {"text": "行", "weight": 0.1926}, {"text": "下", "weight": 0.1926}, {"text": "先", "weight": 0.1926}, {"text": "施", "weight": 0.1926}, {"text": "风化", "weight": 0.1926}, {"text": "自上", "weight": 0.1926}, {"text": "自先", "weight": 0.1926}, {"text": "孝", "weight": 0.1843}, {"text": "慎", "weight": 0.1843}, {"text": "伎", "weight": 0.1789}, {"text": "妇", "weight": 0.1669}, {"text": "初", "weight": 0.1669}, {"text": "来", "weight": 0.1669}, {"text": "儿", "weight": 0.1669}, {"text": "婴", "weight": 0.1669}, {"text": "孩", "weight": 0.1669}, {"text": "教妇", "weight": 0.1669}, {"text": "妇初", "weight": 0.1669}, {"text": "初来", "weight": 0.1669}, {"text": "来教", "weight": 0.1669}, {"text": "教儿", "weight": 0.1669}, {"text": "儿婴", "weight": 0.1669}, {"text": "婴孩", "weight": 0.1669}, {"text": "生", "weight": 0.1654}, {"text": "善", "weight": 0.1565}, {"text": "居", "weight": 0.1565}, {"text": "入", "weight": 0.1565}, {"text": "芝", "weight": 0.1565}, {"text": "兰", "weight": 0.1565}, {"text": "室", "weight": 0.1565}, {"text": "久", "weight": 0.1565}, {"text": "芳", "weight": 0.1565}, {"text": "居如", "weight": 0.1565}, {"text": "如入", "weight": 0.1565}, {"text": "入芝", "weight": 0.1565}, {"text": "芝兰", "weight": 0.1565}, {"text": "室久", "weight": 0.1565}];
+const NETWORK = {"nodes": [{"id": "颜氏家训", "group": "核心", "era": "南北朝"}, {"id": "朱子家训", "group": "家训", "era": "清"}, {"id": "弟子规", "group": "蒙书", "era": "清"}, {"id": "三字经", "group": "蒙书", "era": "宋"}, {"id": "温公家范", "group": "家训", "era": "宋"}, {"id": "袁氏世范", "group": "家训", "era": "宋"}], "edges": [{"source": "颜氏家训", "target": "朱子家训", "relation": "主题继承", "strength": 0.8}, {"source": "颜氏家训", "target": "弟子规", "relation": "教化理念影响", "strength": 0.6}, {"source": "颜氏家训", "target": "三字经", "relation": "蒙学共现", "strength": 0.5}, {"source": "颜氏家训", "target": "温公家范", "relation": "体例借鉴", "strength": 0.7}, {"source": "颜氏家训", "target": "袁氏世范", "relation": "主题继承", "strength": 0.75}, {"source": "朱子家训", "target": "弟子规", "relation": "蒙学共现", "strength": 0.55}]};
+
+// ============ 渲染 ============
+function renderTimeline() {
+  const el = document.getElementById('timeline');
+  el.innerHTML = TIMELINE.map(item => `
+    <div class="timeline-item">
+      <span class="era">${item.era}</span>
+      <span class="year">${item.year}</span>
+      <span class="tag">${item.form}</span>
+      <div>${item.desc}</div>
+    </div>
+  `).join('');
+}
+
+function renderDiffusion() {
+  const el = document.getElementById('diffusion');
+  el.innerHTML = DIFFUSION.map(d => `
+    <div class="diff-step">
+      <h4>${d.level}</h4>
+      <div><b>受众:</b> ${d.audience}</div>
+      <div><b>渠道:</b> ${d.channel}</div>
+      <div><b>例:</b> ${d.example}</div>
+    </div>
+  `).join('');
+}
+
+function renderWordcloud() {
+  const el = document.getElementById('wordcloud');
+  const maxW = Math.max(...WORDCLOUD.map(w => w.weight));
+  const minW = Math.min(...WORDCLOUD.map(w => w.weight));
+  el.innerHTML = WORDCLOUD.map(w => {
+    const size = 0.8 + 1.4 * (w.weight - minW) / (maxW - minW || 1);
+    return `<span class="word" style="font-size:${size.toFixed(2)}em">${w.text}</span>`;
+  }).join('');
+}
+
+function renderNetwork() {
+  const el = document.getElementById('network');
+  const edgesEl = document.getElementById('edge-list');
+  el.innerHTML = NETWORK.nodes.map(n =>
+    `<span class="node ${n.group === '核心' ? 'core' : ''}">${n.id}</span>`
+  ).join('');
+  edgesEl.innerHTML = '<b>互文关系:</b> ' + NETWORK.edges.map(e =>
+    `${e.source}→${e.target} (${e.relation})`
+  ).join(' · ');
+}
+
+renderTimeline();
+renderDiffusion();
+renderWordcloud();
+renderNetwork();
+</script>
+</body>
+</html>

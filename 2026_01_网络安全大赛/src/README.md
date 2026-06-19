@@ -15,6 +15,7 @@
 |---|---|---|
 | `audit_schema.py` | 统一审计事件/trace + JSON round-trip | 证据链基础(评分②) |
 | `asset_scanner.py` | 扫描目录识别 Agent/框架/模型/Skills/MCP 资产 + 图谱 | 任务1 资产识别 |
+| `config_risk_scanner.py` | 扫描配置文件识别 硬编码凭据/危险命令/过宽路径/未加密传输/代码执行启用 | 任务1 配置风险(新增) |
 | `malicious_skill_detector.py` | 恶意 Skill/MCP 静态检测(隐藏指令/危险能力/外联/base64),带证据 span | 任务1 供应链(评分①②) |
 | `prompt_injection_detector.py` | 直接+间接提示注入检测,区分来源 | 任务2(评分①) |
 | `chain_anomaly.py` | 工具调用链路时序异常(频率+转移基线+去抖告警) | **创新点(评分⑤)**,复用 03 track_filter 思想 |
@@ -22,11 +23,17 @@
 | `interceptor.py` | tool_call 拦截器:策略+注入+敏感行为检测→allow/alert/block,测<1s | 任务2 阻断(评分①②③) |
 | `defense_policy.py` | 自适应防御策略(屏蔽工具/拦外联/系统约束),从检测结果加规则 | 闭环防御侧 |
 | `fake_agent.py` | **最小靶场+端到端闭环演示**:良性放行/攻击阻断/链路告警/加规则复测被挡 | 官方靶场未到手前的近似 |
+| `run_all_selftests.py` | 一键运行全部 10 模块自测并汇总 | 质量门禁 |
 
 ## 运行
 ```bash
-for f in audit_schema asset_scanner malicious_skill_detector prompt_injection_detector \
-         chain_anomaly metrics_eval interceptor defense_policy fake_agent; do python $f.py; done
+# 一键全测
+python3 run_all_selftests.py
+
+# 或逐个运行
+for f in audit_schema asset_scanner config_risk_scanner malicious_skill_detector \
+         prompt_injection_detector chain_anomaly metrics_eval interceptor \
+         defense_policy fake_agent; do python3 $f.py; done
 ```
 
 ## 阻塞(只能你来/等官方)

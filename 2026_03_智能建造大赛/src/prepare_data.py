@@ -64,23 +64,23 @@ def remap_label_text(text: str, src_names: dict) -> str:
         out.append(" ".join(parts))
     return "\n".join(out)
 
-GUIDE = """
+GUIDE = r"""
 ================ 数据下载指引（手动） ================
 [1] SeaDronesSee（海上搜救基准，COCO 标注）
     主页:  https://seadronessee.cs.uni-tuebingen.de/
     代码:  https://github.com/Ben93kie/SeaDronesSee
     下载 Object Detection v2 的 images + annotations(COCO json)，放到:
-      {root}/raw/seadronessee/{images, annotations}
+      {root}/raw/seadronessee/images, annotations
 
 [2] AFO（航拍漂浮目标，推荐 Roboflow 导出 YOLOv8 格式，免转换）
     Roboflow: https://universe.roboflow.com/large-benchmark-datasets/afo-aerial-dataset-of-floating-object
     选择 "YOLOv8" 格式导出，解压到:
-      {root}/raw/afo/{train,valid,test}/{images,labels}
+      {root}/raw/afo/train,valid,test/images,labels
 
 [3] 陆域 source（用于跨域迁移评价，可选其一）
     - 你的无人机违建数据集（最贴合你的论文），或
     - VisDrone (https://github.com/VisDrone/VisDrone-Dataset) 取 person/people 类
-    放到: {root}/raw/source_land/{images,labels}（YOLO 格式）
+    放到: {root}/raw/source_land/images,labels（YOLO 格式）
 =====================================================
 """
 

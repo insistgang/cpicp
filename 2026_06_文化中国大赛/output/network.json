@@ -1,0 +1,72 @@
+{
+  "nodes": [
+    {
+      "id": "颜氏家训",
+      "group": "核心",
+      "era": "南北朝"
+    },
+    {
+      "id": "朱子家训",
+      "group": "家训",
+      "era": "清"
+    },
+    {
+      "id": "弟子规",
+      "group": "蒙书",
+      "era": "清"
+    },
+    {
+      "id": "三字经",
+      "group": "蒙书",
+      "era": "宋"
+    },
+    {
+      "id": "温公家范",
+      "group": "家训",
+      "era": "宋"
+    },
+    {
+      "id": "袁氏世范",
+      "group": "家训",
+      "era": "宋"
+    }
+  ],
+  "edges": [
+    {
+      "source": "颜氏家训",
+      "target": "朱子家训",
+      "relation": "主题继承",
+      "strength": 0.8
+    },
+    {
+      "source": "颜氏家训",
+      "target": "弟子规",
+      "relation": "教化理念影响",
+      "strength": 0.6
+    },
+    {
+      "source": "颜氏家训",
+      "target": "三字经",
+      "relation": "蒙学共现",
+      "strength": 0.5
+    },
+    {
+      "source": "颜氏家训",
+      "target": "温公家范",
+      "relation": "体例借鉴",
+      "strength": 0.7
+    },
+    {
+      "source": "颜氏家训",
+      "target": "袁氏世范",
+      "relation": "主题继承",
+      "strength": 0.75
+    },
+    {
+      "source": "朱子家训",
+      "target": "弟子规",
+      "relation": "蒙学共现",
+      "strength": 0.55
+    }
+  ]
+}

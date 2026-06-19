@@ -29,7 +29,10 @@ def run_once(img, bank, patch=50):
     feats = np.array(feats) if feats else np.zeros((1, small.shape[2]))
     stages["feature"] = (time.perf_counter() - t) * 1000; t = time.perf_counter()
 
-    d2 = (feats*feats).sum(1)[:, None] + (bank*bank).sum(1)[None, :] - 2*feats@bank.T
+    f2 = np.clip((feats*feats).sum(1), -1e6, 1e6)
+    b2 = np.clip((bank*bank).sum(1), -1e6, 1e6)
+    with np.errstate(divide='ignore', over='ignore', invalid='ignore'):
+        d2 = f2[:, None] + b2[None, :] - 2*feats@bank.T
     score = float(np.sqrt(np.clip(d2.min(1), 0, None)).max())  # 异常打分(最近邻)
     stages["score"] = (time.perf_counter() - t) * 1000; t = time.perf_counter()
 

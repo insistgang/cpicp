@@ -33,7 +33,10 @@ def add_defect(img, kind="scratch", rng=None):
     elif kind == "missing":                      # 缺件(填充均值块)
         bw, bh = rng.randint(W//12, W//5), rng.randint(H//12, H//5)
         x1, y1 = rng.randint(0, W-bw), rng.randint(0, H-bh)
-        out[y1:y1+bh, x1:x1+bw] = out.mean()
+        # 确保均值与当前块不同,否则图像无变化
+        block_mean = out[y1:y1+bh, x1:x1+bw].mean()
+        fill_val = block_mean + 20.0 if block_mean < 128 else block_mean - 20.0
+        out[y1:y1+bh, x1:x1+bw] = fill_val
         bbox = (x1, y1, x1+bw, y1+bh)
     else:                                        # discolor 色变(局部偏色)
         bw, bh = rng.randint(W//10, W//4), rng.randint(H//10, H//4)
