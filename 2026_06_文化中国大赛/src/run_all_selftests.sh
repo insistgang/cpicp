@@ -7,6 +7,21 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 SRC_DIR="src"
 
+# 选解释器: render_figures/build_pptx 依赖 matplotlib+pptx(本机仅装在某个 python3 上)。
+# 探测候选 python, 选第一个能 import matplotlib 与 pptx 的; 找不到则回退 python3。
+pick_python() {
+    local probe='import matplotlib, pptx'
+    for cand in python3 /usr/bin/python3 /usr/local/bin/python3 /opt/homebrew/bin/python3; do
+        if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "$probe" >/dev/null 2>&1; then
+            echo "$cand"; return 0
+        fi
+    done
+    echo python3
+}
+PY="$(pick_python)"
+echo "使用解释器: $PY ($("$PY" --version 2>&1))"
+echo ""
+
 PASS=0
 FAIL=0
 
@@ -15,7 +30,7 @@ run_test() {
     echo "========================================"
     echo "Testing: $mod"
     echo "========================================"
-    if python3 "$SRC_DIR/$mod"; then
+    if "$PY" "$SRC_DIR/$mod"; then
         echo ""
         echo "  ✅ $mod 通过"
         ((PASS++))

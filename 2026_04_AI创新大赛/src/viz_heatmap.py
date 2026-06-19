@@ -164,11 +164,13 @@ def generate_all(pipeline_result=None, out_dir=OUT_DIR):
     os.makedirs(out_dir, exist_ok=True)
 
     # 选 1 张正常 + 每类 1 张缺陷做叠加图(用与训练不重叠的展示 seed)
+    # 展示件 seed 段(88800..)落在 gen_dataset 各 seed 段之外,且对每个 kind 用其
+    # 固定下标派生 seed —— 不能用内置 hash(),那是按进程随机化的,会导致每次运行展示件不同。
     size = 160
     normal_img = make_normal(size, seed=99999)
     defect_samples = []
-    for k in DEFECT_KINDS:
-        dimg, bbox, kk = make_defect(size, seed=88800 + hash(k) % 1000, kind=k)
+    for ki, k in enumerate(DEFECT_KINDS):
+        dimg, bbox, kk = make_defect(size, seed=88800 + ki, kind=k)
         defect_samples.append((dimg, kk, bbox))
 
     # 统一热力图色标:用正常 patch 距离的高分位 + 缺陷峰值的折中,使正常偏冷、缺陷偏热
@@ -208,8 +210,10 @@ def _selftest():
     up = _upsample(nmap, 128)
     check(up.shape == (128, 128), f"异常图上采样到原图尺寸 {up.shape}")
 
-    # 全部图生成且非空
-    paths = generate_all(pipeline_result=r, out_dir=OUT_DIR)
+    # 全部图生成且非空。落盘到独立的 selftest 子目录,**不覆盖** output/ 下标准规模
+    # 交付物 PNG(那些由 `python viz_heatmap.py` 用 600 测试集生成,与 README 对应)。
+    selftest_dir = os.path.join(OUT_DIR, "selftest")
+    paths = generate_all(pipeline_result=r, out_dir=selftest_dir)
     for p in paths:
         check(os.path.exists(p) and os.path.getsize(p) > 1000, f"PNG 非空:{os.path.basename(p)} ({os.path.getsize(p)} bytes)")
 

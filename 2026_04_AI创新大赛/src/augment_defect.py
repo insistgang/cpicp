@@ -18,12 +18,20 @@ def add_defect(img, kind="scratch", rng=None):
     H, W = img.shape[:2]
     if kind == "scratch":                       # 细长划痕(暗线)
         x1, y1 = rng.randint(0, W // 2), rng.randint(0, H)
-        x2, y2 = min(W - 1, x1 + rng.randint(W // 6, W // 2)), min(H - 1, y1 + rng.randint(-H // 8, H // 8))
+        # 端点夹在 [0,W-1]/[0,H-1] 内,避免出界(y 的随机增量可能为负把 y2 推到 <0)
+        x2 = min(W - 1, x1 + rng.randint(W // 6, W // 2))
+        y2 = min(H - 1, max(0, y1 + rng.randint(-H // 8, H // 8)))
         n = max(2, abs(x2 - x1))
         xs = np.linspace(x1, x2, n).astype(int); ys = np.linspace(y1, y2, n).astype(int)
         for x, y in zip(xs, ys):
             out[max(0, y-1):y+2, max(0, x-1):x+2] *= 0.3
-        bbox = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+        # 保证 bbox 非退化(x 方向天然 x2>x1;y 方向同值时给 1px 高度)
+        bx1, bx2 = min(x1, x2), max(x1, x2)
+        by1, by2 = min(y1, y2), max(y1, y2)
+        if by2 == by1:
+            by2 = min(H - 1, by1 + 1) if by1 + 1 <= H - 1 else by1
+            by1 = by2 - 1 if by2 > 0 else by1
+        bbox = (bx1, by1, bx2, by2)
     elif kind == "spot":                         # 圆形污点(暗高斯)
         cx, cy = rng.randint(0, W), rng.randint(0, H); r = rng.randint(max(3, W//40), max(6, W//15))
         yy, xx = np.mgrid[0:H, 0:W]
@@ -68,6 +76,21 @@ def _selftest():
     a1, b1, _ = add_defect(base, "spot", np.random.RandomState(7))
     a2, b2, _ = add_defect(base, "spot", np.random.RandomState(7))
     check(np.array_equal(a1, a2) and b1 == b2, "同 seed 可复现")
+
+    # 鲁棒性:多 seed × 多尺寸下 bbox 必须始终在界内且非退化、图像必变。
+    # (scratch 的 y 随机增量可能为负曾把 y2 推到 <0 或与 y1 相等 → 退化/出界 bbox)
+    bad = 0
+    for hw in (256, 128, 64):
+        b2_ = np.full((hw, hw, 3), 160, np.uint8)
+        for s in range(300):
+            for kk in KINDS:
+                aug2, bb, _ = add_defect(b2_, kk, np.random.RandomState(s))
+                bx1, by1, bx2, by2 = bb
+                if not (0 <= bx1 < bx2 <= hw and 0 <= by1 < by2 <= hw):
+                    bad += 1
+                if np.array_equal(aug2, b2_):
+                    bad += 1
+    check(bad == 0, f"多 seed×尺寸 bbox 全部在界内非退化且图像必变(异常={bad})")
 
     print("\n" + ("✅ augment_defect 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

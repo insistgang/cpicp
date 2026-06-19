@@ -73,16 +73,23 @@ def make_defect(size=256, seed=0, kind=None):
 
 def gen_dataset(n_normal=60, n_defect=40, size=256, seed=0):
     """生成内存数据集。返回 (images list[(H,W,3)], labels list[int], metas list[dict])。
-    label: 0=正常, 1=缺陷;meta 含 kind / bbox(缺陷件)。"""
-    rng = np.random.RandomState(seed)
+    label: 0=正常, 1=缺陷;meta 含 kind / bbox(缺陷件)。
+
+    每张图的 seed 由顶层 seed 派生且分段隔离:不同的顶层 seed 产出**互不重叠**的件
+    (训练/测试用不同 seed 调本函数即可保证无泄漏)。同一 seed 可完全复现。
+    """
+    # 顶层 seed 派生出正常/缺陷两条互不相交的件级 seed 序列;
+    # 不同顶层 seed 的件级 seed 段不重叠(每段预留 1e6 容量,远大于任何数据集规模)。
+    normal_base = 1_000_000 + seed * 1_000_000
+    defect_base = 500_000_000 + seed * 1_000_000
     images, labels, metas = [], [], []
     for i in range(n_normal):
-        images.append(make_normal(size, seed=1000 + i))
+        images.append(make_normal(size, seed=normal_base + i))
         labels.append(0)
         metas.append({"kind": "normal", "bbox": None})
     for j in range(n_defect):
         kind = DEFECT_KINDS[j % len(DEFECT_KINDS)]   # 4 类均匀覆盖
-        img, bbox, k = make_defect(size, seed=5000 + j, kind=kind)
+        img, bbox, k = make_defect(size, seed=defect_base + j, kind=kind)
         images.append(img)
         labels.append(1)
         metas.append({"kind": k, "bbox": bbox})
@@ -146,6 +153,18 @@ def _selftest():
     check(len(imgs) == 20 and sum(labs) == 8, "数据集数量/标签正确(12正+8缺)")
     kinds = {m["kind"] for m, l in zip(metas, labs) if l == 1}
     check(kinds == set(DEFECT_KINDS), f"缺陷件覆盖全部 4 类:{kinds}")
+
+    # 关键:不同顶层 seed 的数据集**逐张互不重叠**(防训练/测试泄漏回归;
+    # 之前 gen_dataset 忽略 seed 导致 train(seed=0)与 test(seed=777)件完全相同)
+    a_imgs, a_labs, _ = gen_dataset(n_normal=20, n_defect=20, size=64, seed=0)
+    b_imgs, b_labs, _ = gen_dataset(n_normal=20, n_defect=20, size=64, seed=777)
+    a_set = {im.tobytes() for im in a_imgs}
+    overlap = sum(1 for im in b_imgs if im.tobytes() in a_set)
+    check(overlap == 0, f"不同 seed 数据集逐张无重叠(seed0 vs seed777 重叠={overlap})")
+    # 同 seed 必须完全复现
+    c_imgs, _, _ = gen_dataset(n_normal=5, n_defect=5, size=64, seed=0)
+    d_imgs, _, _ = gen_dataset(n_normal=5, n_defect=5, size=64, seed=0)
+    check(all(np.array_equal(x, y) for x, y in zip(c_imgs, d_imgs)), "同 seed 数据集可复现")
 
     print("\n" + ("✅ synth_aoi 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

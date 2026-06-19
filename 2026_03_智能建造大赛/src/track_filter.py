@@ -76,7 +76,11 @@ class TrackFilter:
                 self._next_id += 1
         # 删除久未命中的
         self._tracks = [t for t in self._tracks if t.misses <= self.max_age]
-        return [t for t in self._tracks if t.confirmed and t.misses == 0]
+        # 显示集 = 已确认 且 仍在滑行窗口内(misses<=max_age)。
+        # 漏检帧用上一帧 EMA 平滑框继续画(coast),避免目标闪烁丢失——
+        # 这正是 docstring 承诺的"确认目标偶尔漏检也滑行保留 max_age 帧"。
+        # (misses>max_age 的已在上一行被删除,故等价于"未被删除的已确认轨迹"。)
+        return [t for t in self._tracks if t.confirmed]
 
 
 def _selftest():
@@ -103,12 +107,19 @@ def _selftest():
     empty2 = tf2.update([])
     check(len(blip) == 0 and len(empty1) == 0 and len(empty2) == 0, "单帧反光闪点被滤除(从不确认)")
 
-    # 场景3:确认后漏检1帧仍滑行保留
+    # 场景3:确认后漏检仍滑行保留并继续显示(coast),超过 max_age 才彻底消失
     tf3 = TrackFilter(min_hits=2, max_age=3, iou_thr=0.3)
     tf3.update([[10, 10, 30, 30, 0.9, 1]]); c = tf3.update([[11, 11, 31, 31, 0.9, 1]])
     check(len(c) == 1, "min_hits=2 第2帧确认")
+    tid = c[0].tid
     miss = tf3.update([])  # 漏检1帧
-    check(any(t.tid == c[0].tid for t in tf3._tracks), "确认目标漏检1帧仍在(滑行保留)")
+    check(any(t.tid == tid for t in tf3._tracks), "确认目标漏检1帧仍在(滑行保留)")
+    # 关键:滑行帧必须仍在【显示集】里(用上一帧框继续画),否则就是 docstring 要消除的闪烁
+    check(any(t.tid == tid for t in miss), "滑行帧仍被显示(coast 画上一帧框,不闪烁)")
+    tf3.update([]); tf3.update([])          # 累计 misses=3 (== max_age),仍应保留
+    still = tf3.update([])                   # misses=4 (> max_age),应被删除并不再显示
+    check(all(t.tid != tid for t in still) and all(t.tid != tid for t in tf3._tracks),
+          "滑行超过 max_age 帧后目标被删除(不再显示)")
 
     print("\n" + ("✅ track_filter 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

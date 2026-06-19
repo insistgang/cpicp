@@ -199,7 +199,7 @@ def render_wordcloud(name="fig_wordcloud.png", topk=30):
     import random
     data = _load("wordcloud.json")[:topk]
     weights = [d["weight"] for d in data]
-    wmin, wmax = min(weights), max(weights)
+    wmin, wmax = (min(weights), max(weights)) if weights else (0.0, 1.0)
 
     FIG_W, FIG_H = 11.0, 6.2
     fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
@@ -304,10 +304,13 @@ def render_network(name="fig_network.png"):
         ax.text(x, y - 0.05, attr["era"], fontproperties=fp(7),
                 color="#fdf6ea", ha="center", va="center", zorder=4)
 
-    # 图例
-    leg_y = max(p[1] for p in pos.values()) + 0.30
+    # 图例(空图时 pos 为空, 用默认坐标避免 max()/min() 空序列崩溃)
+    ys = [p[1] for p in pos.values()]
+    xs = [p[0] for p in pos.values()]
+    leg_y = (max(ys) if ys else 0.0) + 0.30
+    leg_x0 = min(xs) if xs else 0.0
     for i, (grp, col) in enumerate(group_color.items()):
-        lx = min(p[0] for p in pos.values()) + i * 0.42
+        lx = leg_x0 + i * 0.42
         ax.add_patch(Circle((lx, leg_y), 0.045, fc=col, ec=C_DARK, lw=1))
         ax.text(lx + 0.08, leg_y, grp, fontproperties=fp(9), color=C_DARK,
                 ha="left", va="center")
@@ -325,7 +328,6 @@ def render_network(name="fig_network.png"):
 # ============================================================
 def _ink_background(ax):
     """画几道淡墨竹/印章感的装饰。"""
-    import numpy as np
     rng = __import__("random").Random(9)
     # 米色底
     ax.add_patch(FancyBboxPatch((0, 0), 1, 1, boxstyle="square,pad=0",

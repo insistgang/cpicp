@@ -63,6 +63,12 @@ def _render_template(t_type, group_seed, customer_id, biz, size=IMG_SIZE):
     rng = random.Random(group_seed)
     bg, accent = _palette(rng)
     W, H = size
+    # 模板内含面签合影所需的固定版式偏移(标题条/背景墙/人物/桌子/标牌),针对默认 256px 设计。
+    # 画布过小会让这些硬编码偏移越界(PIL rectangle y1<y0 或 randint 空区间),给出清晰报错而非
+    # 深层 PIL/randrange 崩溃。96px 即满足全部偏移;所有调用方与默认值均 ≥96。
+    if W < 96 or H < 96:
+        raise ValueError(f"size 至少 96x96(模板版式偏移需要);收到 {size}。"
+                         f"更小尺寸请在生成后用 PIL.resize 缩放,而非直接渲染。")
     img = Image.new("RGB", size, bg)
     d = ImageDraw.Draw(img)
     f_title = _load_font(22)

@@ -14,8 +14,14 @@ generate_visuals.py · 数字人文可视化素材生成器
 import json
 import os
 import sys
-from text_tools import split_sentences, tfidf_keywords, export_wordcloud_json
-from similarity_search import find_similar, tfidf_matrix
+from text_tools import export_wordcloud_json
+from similarity_search import find_similar
+
+# 输出目录用 __file__ 相对(项目根/output), 与 render_figures/build_pptx 一致,
+# 避免从 src/ 内直接运行时在 src/output/ 误建文件。
+HERE = os.path.dirname(os.path.abspath(__file__))
+PROJ = os.path.dirname(HERE)
+OUTDIR = os.path.join(PROJ, "output")
 
 
 # ============ 核心数据:书籍生命史 ============
@@ -79,7 +85,7 @@ def write_json(data, path):
     print(f"  [OK] {path}")
 
 
-def generate_all_jsons(outdir="output"):
+def generate_all_jsons(outdir=OUTDIR):
     """生成全部 JSON 数据文件。"""
     print("=== 生成可视化数据文件 ===")
     write_json(VERSION_TIMELINE, os.path.join(outdir, "timeline.json"))
@@ -89,12 +95,12 @@ def generate_all_jsons(outdir="output"):
     write_json({"nodes": NETWORK_NODES, "edges": NETWORK_EDGES},
                os.path.join(outdir, "network.json"))
 
-    # 互文检索结果(片段0与其他片段的相似度)
+    # 互文检索结果(每个片段各自的最相似片段)
     sims = []
-    for i in range(1, len(PASSAGES)):
-        top = find_similar(PASSAGES, 0, topk=1, threshold=0.0)
+    for i in range(len(PASSAGES)):
+        top = find_similar(PASSAGES, i, topk=1, threshold=0.0)
         if top:
-            sims.append({"query": PASSAGES[0], "match": PASSAGES[top[0][0]], "score": round(top[0][1], 4)})
+            sims.append({"query": PASSAGES[i], "match": PASSAGES[top[0][0]], "score": round(top[0][1], 4)})
     write_json(sims, os.path.join(outdir, "similarity_demo.json"))
     print("=== 全部 JSON 生成完毕 ===\n")
 
@@ -213,7 +219,7 @@ renderNetwork();
 '''
 
 
-def generate_html(outdir="output"):
+def generate_html(outdir=OUTDIR):
     """生成单个静态 HTML 文件(内嵌全部数据,无需外部JSON)。"""
     ensure_dir(os.path.join(outdir, "visual.html"))
     wc = export_wordcloud_json(PASSAGES, topk=50)
@@ -243,8 +249,8 @@ def _selftest():
     check(len(NETWORK_NODES) == 6, f"网络节点6个(={len(NETWORK_NODES)})")
     check(len(NETWORK_EDGES) == 6, f"网络边6条(={len(NETWORK_EDGES)})")
 
-    # 2. 生成文件
-    outdir = "output"
+    # 2. 生成文件(用 __file__ 相对的 OUTDIR, 不受运行目录影响)
+    outdir = OUTDIR
     generate_all_jsons(outdir)
     generate_html(outdir)
 

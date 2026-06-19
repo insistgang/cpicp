@@ -41,6 +41,9 @@ def detection_report(scores, labels, max_fpr=0.05, target_recall=0.95):
     """在 误报率<max_fpr 约束下取最大检出率的阈值;并判定是否达官方双线。"""
     import numpy as np
     s = np.asarray(scores, float)
+    if s.size == 0:                                       # 空输入:如实返回不达标,不崩
+        return {"auc": float("nan"), "chosen_thr": float("nan"),
+                "recall": 0.0, "fpr": 0.0, "f1": 0.0, "meets_official": False}
     lo, hi = float(s.min()), float(s.max()) + 1e-6
     rows = [pr_at_threshold(s, labels, t) for t in np.linspace(lo, hi, 300)]
     feasible = [r for r in rows if r["fpr"] < max_fpr]
@@ -76,6 +79,10 @@ def _selftest():
     bad = np.concatenate([rng.rand(100), rng.rand(100)])
     badrep = detection_report(bad, np.concatenate([np.ones(100), np.zeros(100)]))
     check(not badrep["meets_official"], "不可分场景如实不达标")
+
+    # 边界:空输入不崩、如实不达标
+    empty = detection_report(np.array([]), np.array([]))
+    check(not empty["meets_official"] and empty["recall"] == 0.0, "空输入安全返回(不崩/不虚报达标)")
 
     print("\n" + ("✅ metrics_eval 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

@@ -36,7 +36,13 @@ def bucketed_recall(model, data, imgsz, iou=0.5, conf=0.25):
     cfg = yaml.safe_load(P(data).read_text(encoding="utf-8"))
     root = (P(data).parent / cfg["path"]).resolve()
     val_img_dir = root / cfg["val"]
-    val_lbl_dir = P(str(val_img_dir).replace("/images/", "/labels/"))
+    # YOLO 约定: 只把路径中**最后一段** images 换成 labels。
+    # 用 str.replace 会替换首个/全部 images，若项目路径任何上层目录名含 images
+    # (如 /data/images/proj/.../images/val)就会得到错误的 labels 目录 → 静默找不到标签。
+    s = str(val_img_dir)
+    idx = s.rfind("/images/")
+    val_lbl_dir = P(s[:idx] + "/labels/" + s[idx + len("/images/"):]) if idx >= 0 \
+        else P(s.replace("images", "labels"))
     if not val_img_dir.exists() or not val_lbl_dir.exists():
         raise FileNotFoundError(
             f"分桶召回需要 images/labels 配对目录，但未找到：\n"

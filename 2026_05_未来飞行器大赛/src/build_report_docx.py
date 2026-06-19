@@ -497,7 +497,25 @@ def _collect_inserted(doc):
 # ---------------------------------------------------------------------------
 # 自测: 读回校验
 # ---------------------------------------------------------------------------
+def ensure_figures():
+    """确保 4 张配图已在 FIG_DIR 存在; 缺哪张就调 gen_figures 重新出全套。
+
+    单独跑本脚本的 --selftest(或在干净 checkout 上先于 gen_figures 跑)时,
+    若图未生成, 会导致内嵌图片/插图统计两项自测假性失败。此处补齐, 让正文
+    自测自洽、可独立复现。
+    """
+    needed = [png for _, _, png, _ in FIG_ANCHORS]
+    missing = [p for p in needed
+               if not os.path.exists(os.path.join(FIG_DIR, p))]
+    if missing:
+        print(f"[INFO] 缺 {len(missing)} 张配图({', '.join(missing)}), 先生成全套图")
+        import gen_figures
+        gen_figures.setup_cjk_font()
+        gen_figures.generate_all(FIG_DIR)
+
+
 def selftest():
+    ensure_figures()
     out_path, stats = build()
     print(f"[OK] 生成 {os.path.basename(out_path)}  "
           f"({os.path.getsize(out_path)} bytes)")

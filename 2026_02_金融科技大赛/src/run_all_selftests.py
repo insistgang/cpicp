@@ -20,17 +20,20 @@ import os
 import time
 import json
 
+# 用 sys.executable 而非字面量 "python3":保证子进程与本运行器同一解释器,
+# 不受 PATH 中 python3 指向不同(如 Homebrew 3.14 无 numpy vs 系统 3.9 有 numpy)影响。
+PY = sys.executable
 MODULES = [
-    ("prepare_data", ["python3", "prepare_data.py", "--selftest"]),
-    ("metrics",      ["python3", "metrics.py"]),
-    ("similarity",   ["python3", "similarity.py"]),
-    ("app_demo",     ["python3", "app_demo.py", "--demo"]),
-    ("features",     ["python3", "features.py", "--selftest"]),       # 经典 CPU 特征(CLIP 回退后端)
-    ("synth_images", ["python3", "synth_images.py", "--selftest"]),   # 合成金融影像生成器
-    ("classify",     ["python3", "classify.py", "--selftest"]),       # 分类(经典线性探针回退)
-    ("embed",        ["python3", "embed.py", "--selftest"]),          # 嵌入(经典特征回退)
-    ("pipeline",     ["python3", "pipeline.py", "--selftest"]),       # 端到端(模拟向量+真实像素)
-    ("viz_dedup",    ["python3", "viz_dedup.py", "--selftest"]),      # 去重可视化(热图+拼图)
+    ("prepare_data", [PY, "prepare_data.py", "--selftest"]),
+    ("metrics",      [PY, "metrics.py"]),
+    ("similarity",   [PY, "similarity.py"]),
+    ("app_demo",     [PY, "app_demo.py", "--demo"]),
+    ("features",     [PY, "features.py", "--selftest"]),       # 经典 CPU 特征(CLIP 回退后端)
+    ("synth_images", [PY, "synth_images.py", "--selftest"]),   # 合成金融影像生成器
+    ("classify",     [PY, "classify.py", "--selftest"]),       # 分类(经典线性探针回退)
+    ("embed",        [PY, "embed.py", "--selftest"]),          # 嵌入(经典特征回退)
+    ("pipeline",     [PY, "pipeline.py", "--selftest"]),       # 端到端(模拟向量+真实像素)
+    ("viz_dedup",    [PY, "viz_dedup.py", "--selftest"]),      # 去重可视化(热图+拼图)
 ]
 
 

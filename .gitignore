@@ -5,3 +5,10 @@
 # 常见临时/系统文件
 .DS_Store
 *.tmp
+
+# Python 缓存(全库)
+__pycache__/
+*.pyc
+
+# 从 src/ 内运行流水线时误落的可重生合成图(各赛 output/ 规则的兜底)
+**/output/**/img_*.png

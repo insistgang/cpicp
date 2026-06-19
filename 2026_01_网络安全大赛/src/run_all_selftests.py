@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_all_selftests.py · 01 网安赛 10 模块一键自测
+run_all_selftests.py · 01 网安赛 13 模块一键自测
 
 运行 src/ 下所有模块的 selftest,汇总结果到终端。
 用法: python3 run_all_selftests.py

@@ -71,6 +71,7 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `tools/gen_water_scene.py` | PIL 程序化合成俯拍海面(渐变+波纹+太阳反光带+3类小目标GT)→ 调 `augment_water.add_glint` 真实增广 → 输出 **before/after 对比配图** PNG(供方案§4配图,带 SYNTHETIC 水印)；`--selftest` |
 | `tools/gen_report_figs.py` | matplotlib 生成性能报告三图:**分桶召回柱状图 / 各类PR曲线 / FPS-精度权衡散点(含30FPS红线+帕累托前沿)**。数据来自显式 `PLACEHOLDER_*` 字典+水印,三个绘图函数接收数据参数,真值(eval/trt)可直接替换；`--selftest` |
 | `tools/gen_tech_plan_docx.py` | python-docx 把 `技术方案_大纲.md` 渲染成结构化 Word 初稿(封面+硬指标达标对照表+§0–§8章节+选型/消融表格),自动内嵌上面4张图,`___` 留真值回填；`--selftest` |
+| `tools/gen_perf_report_docx.py` | python-docx 把 `性能报告_模板.md` 渲染成结构化 Word **性能评估报告**初稿(交付物③:封面+硬指标结论速览+§1–§6章节+精度/FPS三档/消融/闭环表格),内嵌3张性能图,自测含 OOXML 合法性+内嵌图计数校验,`___` 留真值回填；`--selftest` |
 | `tools/build_all_deliverables.py` | 一键按序产出上述全部交付物草稿(图先于docx,docx内嵌图)→ `output/figs` + `output/docx` |
 
 ## 数据来源
@@ -84,7 +85,7 @@ cd src
 python3 run_all_selftests.py
 ```
 
-覆盖：geolocate(8项) / track_filter(5项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / **tools 三件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx)** / configs YAML 语法 —— **13 项全通过**即本地可推进部分就绪。
+覆盖：geolocate(8项) / track_filter(7项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / **tools 四件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx / 性能报告docx)** / configs YAML 语法(3 个) —— **14 项全通过**即本地可推进部分就绪。
 
 ## 本地交付物草稿生成(无 GPU/数据,纯 PIL+matplotlib+docx)
 

@@ -43,8 +43,13 @@ def build_features(images, backend):
 
 
 def run(n_normal=100, n_defect=30, n_test_normal=400, n_test_defect=200,
-        size=160, grid=8, coreset_ratio=0.3, seed=0, save=True, verbose=True):
-    """端到端跑 few-shot AOI 异常检测,返回指标 dict。"""
+        size=160, grid=8, coreset_ratio=0.3, seed=0, save=True, verbose=True,
+        report_name="pipeline_report.json", scores_name="pipeline_scores.npz"):
+    """端到端跑 few-shot AOI 异常检测,返回指标 dict。
+
+    report_name/scores_name 可改落盘文件名;自测用单独文件名,**不覆盖**标准规模的
+    交付物 pipeline_report.json(否则一键自测后磁盘上的 report 会被小规模数据替换,
+    与 README 标注的标准规模指标不符)。"""
     backend, is_real = get_backend(prefer_real=True, grid=grid)
 
     # ---- 1. 生成 few-shot 训练件 + 独立测试件(不重叠的 seed 段) ----
@@ -133,14 +138,14 @@ def run(n_normal=100, n_defect=30, n_test_normal=400, n_test_defect=200,
 
     if save:
         os.makedirs(OUT_DIR, exist_ok=True)
-        with open(os.path.join(OUT_DIR, "pipeline_report.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(OUT_DIR, report_name), "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
-        np.savez(os.path.join(OUT_DIR, "pipeline_scores.npz"),
+        np.savez(os.path.join(OUT_DIR, scores_name),
                  scores=test_scores, labels=test_labs,
                  kinds=np.array(test_kinds), threshold=thr)
         if verbose:
-            print(f"\n✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, 'pipeline_report.json'))}")
-            print(f"✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, 'pipeline_scores.npz'))}")
+            print(f"\n✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, report_name))}")
+            print(f"✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, scores_name))}")
 
     # 把中间量也带回(viz 复用,不落盘也能拿)
     result["_arrays"] = {"test_scores": test_scores, "test_labels": test_labs,
@@ -183,19 +188,23 @@ def _selftest():
         print(("  ✅ " if c else "  ❌ ") + m)
         ok = ok and c
 
-    # 小规模真跑(真实合成图 + 真实经典特征)
+    # 小规模真跑(真实合成图 + 真实经典特征)。
+    # 落盘到独立的 .selftest.* 文件,**不覆盖**标准规模交付物 pipeline_report.json
+    # (后者由 `python run_real_pipeline.py` 生成,README 标注的指标即来自它)。
+    rep = os.path.join(OUT_DIR, "pipeline_report.selftest.json")
+    npz = os.path.join(OUT_DIR, "pipeline_scores.selftest.npz")
     r = run(n_normal=40, n_defect=20, n_test_normal=80, n_test_defect=60,
-            size=128, grid=8, save=True, verbose=False)
+            size=128, grid=8, save=True, verbose=False,
+            report_name="pipeline_report.selftest.json",
+            scores_name="pipeline_scores.selftest.npz")
     check(not r["is_real_feature"], "本机走经典 CPU 特征(torch 不可用)")
     check(r["auc"] > 0.85, f"真实合成图上 AUC>0.85(={r['auc']})")
     check(r["recall"] > 0.7, f"缺陷检出率>0.7(={r['recall']})")
     check(r["bank_size"] > 0, f"memory bank 非空(={r['bank_size']})")
     check(len(r["per_class_recall"]) == 4, f"4 类缺陷都有 per-class 检出({list(r['per_class_recall'])})")
-    # 产物落盘且非空
-    rep = os.path.join(OUT_DIR, "pipeline_report.json")
-    npz = os.path.join(OUT_DIR, "pipeline_scores.npz")
-    check(os.path.getsize(rep) > 0, "pipeline_report.json 已落盘且非空")
-    check(os.path.getsize(npz) > 0, "pipeline_scores.npz 已落盘且非空")
+    # 产物落盘且非空(自测专用文件,不动标准规模交付物)
+    check(os.path.getsize(rep) > 0, "pipeline_report.selftest.json 已落盘且非空")
+    check(os.path.getsize(npz) > 0, "pipeline_scores.selftest.npz 已落盘且非空")
 
     print(f"\n  小规模真实指标:AUC={r['auc']} F1={r['f1']} recall={r['recall']}")
     print("\n" + ("✅ run_real_pipeline 自测通过" if ok else "❌ 自测未通过"))

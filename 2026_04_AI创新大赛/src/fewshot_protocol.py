@@ -40,7 +40,7 @@ def run_protocol(normal_train, defect_cal, test_feats, test_labels,
     return {
         "bank_size": len(bank), "threshold": thr,
         "auc": roc_auc(tscores, test_labels),
-        "recall": m["recall"], "fpr_precision": m["precision"], "f1": m["f1"],
+        "recall": m["recall"], "precision": m["precision"], "f1": m["f1"],
         "per_image_latency_ms_mean": float(np.mean(lat)),
         "per_image_latency_ms_p95": float(np.percentile(lat, 95)),
     }

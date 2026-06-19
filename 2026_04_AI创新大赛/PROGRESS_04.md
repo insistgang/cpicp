@@ -36,7 +36,7 @@
 | **特征后端** | **`feature_backend.py`** | **自测通过(新增)** | **真特征 TimmBackend(接口保留)+ 经典 CPU 回退(分块颜色+梯度直方图)** |
 | **真实端到端流水线** | **`run_real_pipeline.py`** | **自测通过(新增)** | **在真实合成图上跑 few-shot,产出真实 AUC/F1/per-class/延时/竞赛分 + 落盘** |
 | **异常可视化** | **`viz_heatmap.py`** | **自测通过(新增)** | **matplotlib:正常 vs 4 缺陷热力叠加图 + 异常分分布 + ROC/PR 曲线** |
-| 一键回归 | `run_all_selftests.sh` | 全部通过 | **11 个模块**一键跑通 |
+| 一键回归 | `run_all_selftests.sh` | 全部通过 | **12 个模块**一键跑通(自测产物落 `output/selftest/`,不覆盖标准规模交付物) |
 
 ### 待完成（需外部条件）
 
@@ -88,7 +88,7 @@ matplotlib 画:① 正常件 vs 4 类缺陷件的 **patch 异常热力叠加图*
 
 ## 四、运行结果
 
-### 全模块自测（11 模块，实跑通过）
+### 全模块自测（12 模块，实跑通过）
 ```bash
 $ cd src && bash run_all_selftests.sh
 === anomaly_score === ✅   === patchcore_lite === ✅   === aoi_metrics === ✅
@@ -98,35 +98,40 @@ $ cd src && bash run_all_selftests.sh
 === feature_backend === ✅ (经典 CPU 特征:缺陷 patch 偏离 0.636 > 正常 0.105, L2 归一化)
 === aoi_prepare === ✅   === augment_defect === ✅
 === synth_aoi === ✅ (4 类缺陷注入 + 件间产线抖动 + 数据集生成)
-=== run_real_pipeline === ✅ (真实合成图 AUC=0.974, recall=0.95, 4 类 per-class 检出)
+=== run_real_pipeline === ✅ (真实合成图[无泄漏] AUC=0.988, recall=0.95, 4 类 per-class 检出)
 === viz_heatmap === ✅ (3 张 PNG 非空,缺陷热力峰值 > 正常)
 ✅ 04 全部自测通过
 ```
 
 ### 真实端到端指标（合成工件图 + 经典 CPU 特征，非随机）
 ```bash
-$ python3 run_real_pipeline.py            # 标准规模 100正+30缺→测600
-AUC=0.9927  F1=0.942  Recall=0.975  Precision=0.911  Acc=0.96
-per-class: scratch 1.0 / spot 0.96 / missing 0.94 / discolor 1.0
-打分延时 0.092ms/图(160px)  2500px CPU 估算 ~622ms (<2s 预算)
-竞赛分(参考) 0.942 = 方案0.9*0.5 + 准确率0.96*0.2 + 时延1.0*0.3
+$ python3 run_real_pipeline.py            # 标准规模 100正+30缺→测600(训练/测试件无泄漏)
+AUC=0.9978  F1=0.9666  Recall=0.94  Precision=0.995  Acc=0.978
+per-class: scratch 1.0 / spot 0.92 / missing 0.86 / discolor 0.98
+打分延时 ~0.2ms/图(160px)  2500px CPU 估算 ~1.1–1.6s (随计时噪声,均 <2s 预算)
+竞赛分(参考) 0.946 = 方案0.9*0.5 + 准确率0.978*0.2 + 时延1.0*0.3
 
 $ python3 run_real_pipeline.py --full     # 测试集 1020 张(贴合官方 1000+)
-AUC=0.9935  F1=0.943  Recall=0.975   (3.4s 跑完)
+AUC=0.9952  F1=0.9631  Recall=0.9375
 ```
+> 修正:此前 `gen_dataset` 忽略 seed 致训练件与测试件**逐张相同**(数据泄漏),指标偏乐观;
+> 已修复(不同 seed → 互不重叠的件),上为修复后的诚实指标(AUC 反而略升因换了独立测试集)。
 
 ### 交付物（output/，已确认非空）
 - `heatmap_overlay.png`(508KB):正常件 vs 4 类缺陷件的 patch 异常热力叠加,缺陷热点对齐 GT 框 → **缺陷定位证据**
 - `score_distribution.png`(26KB):正常/缺陷异常分分布 + 阈值线(可分性一目了然)
 - `roc_pr_curves.png`(39KB):ROC(AUC 0.993)+ P-R 曲线
 - `pipeline_report.json` / `pipeline_scores.npz`:全部真实指标 + 分数,供文档/PPT/二次分析引用
+> 注:`output/` 下的交付物为**标准规模**(测 600)结果,由 `python3 run_real_pipeline.py` /
+> `python3 viz_heatmap.py` 生成;一键自测的小规模产物落 `output/selftest/` 与 `*.selftest.*`,
+> **不会覆盖**这些交付物(故 README 标注的指标与磁盘上的 report 始终一致)。
 - `sample_aoi/`:合成数据集样例(normal/ + defect/ + manifest.csv)
 
 ## 五、仍然的卡点
 
 1. **真特征**：当前用经典 CPU 特征(分块颜色+梯度直方图)作 baseline,真实合成图上已达 AUC 0.99;论文级真特征需 `torch + timm/CLIP` 权重(`TimmBackend` 接口已留,装好即切)。
 2. **真数据集**：合成工件图已验证流水线与协议正确,DAGM2007/MVTec AD/华为 chaspark 真数据到位后换 `aoi_prepare` manifest 即可,代码无需改。
-3. **GPU 延时验证**：本机无 NVIDIA GPU，`<200ms@2060` 需在异地 GPU 补测(CPU 估算 ~620ms@2500px 已满足 <2s)。
+3. **GPU 延时验证**：本机无 NVIDIA GPU，`<200ms@2060` 需在异地 GPU 补测(CPU 估算 ~1.1–1.6s@2500px 已满足 <2s)。
 4. **华为 chaspark 数据**：需队长华为账号登录 https://www.chaspark.com 报名后下载。
 5. **报名决策**：需确认 3 人队伍、赛道定夺（华为专项 vs 开放主奖 vs 双报）。
 6. **在线学习闭环**：误检样本入库/主动学习阈值调整，需真数据验证效果。

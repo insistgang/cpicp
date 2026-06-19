@@ -32,8 +32,10 @@ FPS_REDLINE = 30.0
 # ---------------------------------------------------------------------------
 # 占位数据(清楚标注 PLACEHOLDER;真数据来自 eval.py / trt_infer_orin.py)
 # ---------------------------------------------------------------------------
-# (1) 按 COCO 像素面积分桶的召回(eval.py 输出)。
-#     tiny<8px? small<32^2, medium<96^2, large>=96^2。救援核心是 tiny/small。
+# (1) 按 COCO 像素面积分桶的召回(占位演示值;真值来自 eval.py 输出)。
+#     注: 这里的分桶标签(tiny<8px / small 8-32px / medium / large)是为方案配图
+#     更细地拆出"极小目标"而设的演示口径;eval.py 实际只产 small(<32^2)/medium/large 三桶。
+#     plot_bucket_recall 接收任意 {bucket:{config:recall}} dict,直接传 eval.py 的三桶输出即可。
 PLACEHOLDER_BUCKET_RECALL = {
     # bucket : {配置: recall}
     "tiny (<8px)":    {"baseline n": 0.41, "+P2": 0.58, "+P2+NWD+Glint": 0.67},

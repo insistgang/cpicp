@@ -23,13 +23,14 @@
 feature_backend 经典 CPU 特征** 让 `feature_backend → patchcore_lite(coreset 建库)→ anomaly_score(最近邻打分)
 → fewshot_protocol/aoi_metrics(评测)→ viz_heatmap(定位可视化)` 全链路在真实图像上端到端跑通。
 
-**本机实测(标准规模 100正+30缺→测600,经典 CPU 特征 baseline):**
-- AUC = **0.9927**,F1 = **0.942**,Recall = **0.975**,Precision 0.911,Acc 0.96
-- per-class 检出:scratch 1.0 / spot 0.96 / missing 0.94 / discolor 1.0
-- 打分延时 ~0.09ms/图(160px),2500px CPU 估算 ~620ms(< 2s 预算)
-- `--full` 模式测试集放大到 1020 张(贴合官方 1000+ 口径):AUC 0.9935 / F1 0.943 / Recall 0.975
+**本机实测(标准规模 100正+30缺→测600,经典 CPU 特征 baseline,训练/测试件无泄漏):**
+- AUC = **0.9978**,F1 = **0.9666**,Recall = **0.94**,Precision 0.995,Acc 0.978
+- per-class 检出:scratch 1.0 / spot 0.92 / missing 0.86 / discolor 0.98
+- 打分延时 ~0.2ms/图(160px),2500px CPU 估算 ~1.1–1.6s(随计时噪声,均 < 2s 预算)
+- `--full` 模式测试集放大到 1020 张(贴合官方 1000+ 口径):AUC 0.9952 / F1 0.9631 / Recall 0.9375
 - 产物:`output/heatmap_overlay.png`(正常 vs 4 缺陷热力叠加,GT 框对齐缺陷热点)、
   `output/score_distribution.png`、`output/roc_pr_curves.png`、`output/pipeline_report.json`、`output/pipeline_scores.npz`
+> 注:此前数据因 `gen_dataset` 忽略 seed 致训练/测试件完全相同(泄漏),已修复 → 上为修复后的诚实指标。
 
 > torch/timm 到位后:`get_backend(prefer_real=True)` 自动切 `TimmBackend`(真特征),下游代码零改动。
 > 当前经典 CPU 特征明确标注为 **baseline**,验证的是流水线与协议正确性,真特征只换 backend。
@@ -39,11 +40,11 @@ feature_backend 经典 CPU 特征** 让 `feature_backend → patchcore_lite(core
 |---|---|---|
 | `illegal_build_pipeline.py` | 检测→时序滤波→像素GPS→治理决策(派巡查航点)demo | **直接复用 03 track_filter+geolocate(已自测)** |
 
-`run_all_selftests.sh` 一键回归(11 模块,本机 numpy/PIL/sklearn/matplotlib 全可跑)。
+`run_all_selftests.sh` 一键回归(12 模块,本机 numpy/PIL/sklearn/matplotlib 全可跑)。
 
 ## 运行
 ```bash
-bash run_all_selftests.sh                 # 11 模块一键自测(含合成图真实端到端)
+bash run_all_selftests.sh                 # 12 模块一键自测(含合成图真实端到端)
 python3 run_real_pipeline.py              # 真实合成图端到端,打印真实 AUC/F1 + 落盘 report
 python3 run_real_pipeline.py --full       # 测试集放大到 1000+(贴合官方口径)
 python3 viz_heatmap.py                    # 生成异常热力图/分布图/ROC-PR 曲线到 output/

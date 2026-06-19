@@ -24,10 +24,40 @@ CREDENTIAL_RE = re.compile(
 DANGEROUS_CMD_RE = re.compile(
     r'(?i)(bash\s+-c|sh\s+-c|cmd\.exe|powershell|curl\s+.*\||wget\s+.*\||eval\s*\(|exec\s*\()'
 )
-# 敏感路径
-SENSITIVE_PATHS = {"/", "/etc", "/root", "~/.ssh", "/var", "/usr", "C:\\", "\\\\", ".aws", ".kube"}
+# 敏感路径:授予 MCP 文件系统服务的危险根/敏感目录
+# 分两类精确匹配,避免 "/" 子串误伤任意带斜杠的合法参数(如包名 @scope/pkg、子目录 /home/u/proj)
+SENSITIVE_ROOTS = ("/", "/etc", "/root", "/var", "/usr", "C:\\", "\\\\")  # 绝对根:等于或位于其下才算
+SENSITIVE_DIRS = (".ssh", ".aws", ".kube")                                # 敏感目录名:作为路径段出现即算
 # 未加密传输
 UNENCRYPTED_RE = re.compile(r'(?i)http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0)')
+
+
+def _sensitive_path_hit(arg: str):
+    """判断单个 MCP 参数是否授予了危险的根/敏感目录权限。
+
+    返回命中的敏感路径(用于证据),否则 None。精确匹配,避免把任意
+    含 '/' 的合法参数(包名 @scope/pkg、子目录 /home/u/proj、相对路径 ./data)误判:
+      - 仅当 arg 等于某敏感根,或位于该根**直接其下/恰为该根**时算危险(如 '/', '/etc', '/etc/x','/root/..')
+      - 敏感目录名(.ssh/.aws/.kube)作为完整路径段出现即算(如 '~/.ssh', '/home/u/.aws/x')
+    被授予普通用户子目录(/home/alice/proj)、相对路径(./data)、纯包名不算。
+    """
+    a = arg.strip()
+    if not a:
+        return None
+    # 1) 敏感目录名作为路径段:用 / 与 \ 切分,逐段精确比对
+    segs = re.split(r"[\\/]+", a)
+    for d in SENSITIVE_DIRS:
+        if d in segs:
+            return d
+    # 2) 绝对危险根:arg 恰为该根,或以"根 + 分隔符"开头(根的直接/间接子项)
+    for root in SENSITIVE_ROOTS:
+        if root in ("/", "\\\\"):
+            # 文件系统根:仅当参数本身就是根(授予整盘),不把任意绝对路径都算根权限
+            if a in ("/", "\\", "\\\\"):
+                return root
+        elif a == root or a.startswith(root + "/") or a.startswith(root + "\\"):
+            return root
+    return None
 
 
 class ConfigRiskScanner:
@@ -91,16 +121,16 @@ class ConfigRiskScanner:
             for name, cfg in mcp.items():
                 args = cfg.get("args", [])
                 for arg in args:
-                    for sp in SENSITIVE_PATHS:
-                        if sp in str(arg):
-                            findings.append({
-                                "type": "overly_broad_path",
-                                "mcp_server": name,
-                                "path": arg,
-                                "severity": "high",
-                                "source": source,
-                                "evidence": f"mcpServers.{name}.args contains {sp}",
-                            })
+                    sp = _sensitive_path_hit(str(arg))
+                    if sp is not None:
+                        findings.append({
+                            "type": "overly_broad_path",
+                            "mcp_server": name,
+                            "path": arg,
+                            "severity": "high",
+                            "source": source,
+                            "evidence": f"mcpServers.{name}.args 授予敏感路径 {sp}",
+                        })
         except Exception:
             pass
         return findings
@@ -164,6 +194,20 @@ def _selftest():
     check("overly_broad_path" in types, "检测到过宽路径权限")
     check("unencrypted_transport" in types, "检测到未加密传输")
     check("code_execution_enabled" in types, "检测到代码执行启用")
+
+    # 过宽路径必须精确:只命中 "/"(授予整盘),不得把同 args 里的包名误判
+    obp = [f for f in findings if f["type"] == "overly_broad_path"]
+    obp_paths = {f["path"] for f in obp}
+    check(obp_paths == {"/"}, f"过宽路径精确命中根 '/' 且不误伤包名(实得 {obp_paths})")
+
+    # 路径匹配语义:敏感根/敏感目录命中,合法子目录与包名不命中
+    check(_sensitive_path_hit("/") == "/", "命中文件系统根 /")
+    check(_sensitive_path_hit("/etc/passwd") == "/etc", "命中 /etc 下路径")
+    check(_sensitive_path_hit("~/.ssh") == ".ssh", "命中 ~/.ssh")
+    check(_sensitive_path_hit("/home/u/.aws/credentials") == ".aws", "命中嵌套 .aws")
+    check(_sensitive_path_hit("/home/alice/project") is None, "不误判普通用户子目录")
+    check(_sensitive_path_hit("@modelcontextprotocol/server-filesystem") is None, "不误判 npm 包名")
+    check(_sensitive_path_hit("./data") is None, "不误判相对路径")
 
     # 检查凭据字段识别
     cred_fields = {f["field"] for f in findings if f["type"] == "hardcoded_credential"}

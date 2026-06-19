@@ -79,4 +79,8 @@
 **目录说明**
 
 - `docs/`：官方赛题/指南/模板(含版权保密,已 .gitignore 不入公开仓库)
-- `src/`：✅ 已就位 — 阈值分析(metrics)/相似度去重(similarity)/数据流水线含合成数据自测(prepare_data),见 `src/README.md`;CLIP 分类器/嵌入训练/demo 待算力机上建
+- `src/`：✅ 已就位(10 模块全自测绿,见 `src/README.md` 与 `src/run_all_selftests.py`)——
+  阈值分析(metrics)/相似度去重(similarity)/数据流水线(prepare_data)/经典 CPU 特征(features)/
+  合成影像生成(synth_images)/分类筛面签(classify)/嵌入(embed)/检测汇总 demo(app_demo)/
+  端到端流水线(pipeline)/去重可视化(viz_dedup);其中 classify/embed 已实现**经典 CPU 特征回退**,
+  无 GPU/无 torch 的 Mac 上即可在真实合成像素上端到端跑通(baseline),算力机装 torch+open_clip 后无缝切回 CLIP 真特征

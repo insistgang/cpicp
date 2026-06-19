@@ -24,11 +24,19 @@ import numpy as np
 # ---------- 2. 域差度量 ----------
 def mmd_rbf(X: np.ndarray, Y: np.ndarray, gamma: float = 1.0) -> float:
     """最大均值差异(MMD, RBF 核)。X:source 特征 [n,d], Y:target 特征 [m,d]。值越大域差越大。"""
+    # 升 float64 计算(精度更稳,与 float32 结果差 ~1e-9)。
+    X = np.asarray(X, dtype=np.float64)
+    Y = np.asarray(Y, dtype=np.float64)
+
     def rbf(A, B):
         # ||a-b||^2
         aa = (A**2).sum(1)[:, None]
         bb = (B**2).sum(1)[None, :]
-        d2 = aa + bb - 2.0 * A @ B.T
+        # numpy 2.x + macOS Accelerate 的 matmul 会对正常计算误报
+        # divide-by-zero/overflow/invalid(已用 float64 复核结果正确);
+        # 用 errstate 抑制这组已知伪 FP 警告,不掩盖真实数值问题(d2 随后被 clip)。
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            d2 = aa + bb - 2.0 * A @ B.T
         # 数值安全: 避免负零导致的 exp 溢出
         d2 = np.clip(d2, 0.0, None)
         return np.exp(-gamma * d2)
@@ -36,9 +44,14 @@ def mmd_rbf(X: np.ndarray, Y: np.ndarray, gamma: float = 1.0) -> float:
 
 
 def coral_distance(X: np.ndarray, Y: np.ndarray) -> float:
-    """CORAL: source/target 二阶统计(协方差)差异的 Frobenius 范数。"""
-    cs = np.cov(X, rowvar=False)
-    ct = np.cov(Y, rowvar=False)
+    """CORAL: source/target 二阶统计(协方差)差异的 Frobenius 范数。
+    需每域 >=2 个样本才能估协方差;样本不足时返回 nan(协方差未定义,不应崩)。"""
+    X = np.asarray(X, dtype=np.float64)
+    Y = np.asarray(Y, dtype=np.float64)
+    if X.shape[0] < 2 or Y.shape[0] < 2:
+        return float("nan")  # 协方差未定义(单样本),拒绝给出无意义数值
+    cs = np.atleast_2d(np.cov(X, rowvar=False))
+    ct = np.atleast_2d(np.cov(Y, rowvar=False))
     return float(np.linalg.norm(cs - ct, ord="fro") ** 2 / (4 * X.shape[1] ** 2))
 
 

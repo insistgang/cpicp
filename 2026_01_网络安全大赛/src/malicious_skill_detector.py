@@ -26,9 +26,13 @@ RULES = [
 def _long_base64_spans(text, min_len=120):
     spans = []
     for m in re.finditer(r"[A-Za-z0-9+/]{%d,}={0,2}" % min_len, text):
-        chunk = m.group(0)
+        chunk = m.group(0).rstrip("=")
+        # base64 数据段长度 %4==1 不可能合法,丢掉末位再补齐到 4 的倍数,
+        # 否则 121 这类长度会被误判为非 base64 而漏检
+        if len(chunk) % 4 == 1:
+            chunk = chunk[:-1]
         try:
-            base64.b64decode(chunk + "===", validate=False)
+            base64.b64decode(chunk + "=" * (-len(chunk) % 4), validate=True)
             spans.append((m.start(), m.end()))
         except Exception:
             pass
