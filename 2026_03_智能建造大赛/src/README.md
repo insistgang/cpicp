@@ -53,7 +53,7 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | 文件 | 作用 |
 |---|---|
 | `requirements.txt` | 依赖声明（numpy 已钉 <2.0）|
-| `prepare_data.py` | SeaDronesSee+AFO 下载指引 + 转 YOLO + **按 data.yaml 重映射到官方3类** + 陆/海域划分 |
+| `prepare_data.py` | SeaDronesSee+AFO 下载指引 + 转 YOLO + **按 data.yaml 重映射到官方3类** + 陆/海域划分 + `add_negatives`(难负样本/空标签负图,`--neg-dir`) |
 | `configs/yolo12-p2.yaml` | **YOLOv12 + P2(stride4)** 小目标头（默认，官方推荐骨干，逐层索引已校验）|
 | `configs/yolo11-p2.yaml` | YOLO11 + P2 小目标头（回退备选，结构已校验）|
 | `configs/searescue.yaml` | 数据集与类别（官方3类：落水人员/船只/浮标）|
@@ -62,6 +62,10 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `export_onnx.py` | PyTorch→ONNX(opset12)，onnxruntime 自检（`--no-simplify` 可关简化）|
 | `trt_infer_orin.py` | Orin 端**端到端三档计时**(裸推理/含后处理/含编码)+ TRT8/10 兼容 + INT8校准器 + **30FPS红线判定** |
 | `geolocate.py` | **检测框→GPS救援航点**(针孔+海平面求交;创新点①)。`python geolocate.py` 跑几何自测,8项全过 |
+| `track_filter.py` | IoU 时序滤波(连续≥k帧才确认,滤反光闪点+EMA稳框);`python track_filter.py` 自测 |
+| `augment_water.py` | **GT-Anchored Glint** 难负样本(非GT水面贴高光,抑反光误检)+物理增广;在线/离线CLI;`--selftest` |
+| `losses_smalltarget.py` | **NWD**(归一化Wasserstein)+Wise-IoU+Inner-IoU + ultralytics 接入说明;`python losses_smalltarget.py` 自测 |
+| `stream_qgc.py` | 实时闭环→QGC 融合 demo 骨架(推理→滤波→画框+GPS+遥测→H265软编→RTSP);`--selftest` |
 | `crossdomain_eval.py` | 陆→海 域差评估模板（MMD/特征分布占位接口）|
 
 ## 数据来源

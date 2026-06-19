@@ -168,10 +168,36 @@ def convert(root: Path):
     print("  陆域(source)数据置于 raw/source_land/，供 crossdomain_eval.py 使用")
 
 
+def add_negatives(root: Path, neg_dir: Path, ratio=0.15, split="train"):
+    """把纯水面/反光/碎浪/泡沫等**无目标帧**拷入 images/{split} 并写空 txt(负样本)。
+    救援场景 recall 优先,但负样本太多会让模型变保守漏检真人 → 数量上限 = ratio×当前正样本数(默认15%)。"""
+    out = root / "searescue"
+    di, dl = out / "images" / split, out / "labels" / split
+    if not di.exists():
+        print(f"  [add_negatives] 跳过:{di} 不存在,请先 --step convert")
+        return 0
+    exts = (".jpg", ".jpeg", ".png", ".bmp")
+    pos = len([f for f in di.glob("*") if f.suffix.lower() in exts])
+    cap = max(1, int(pos * ratio))
+    negs = [f for f in Path(neg_dir).glob("*") if f.suffix.lower() in exts]
+    dl.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in negs[:cap]:
+        shutil.copy(f, di / f.name)
+        (dl / (f.stem + ".txt")).write_text("", encoding="utf-8")  # 空 txt = 负样本
+        n += 1
+    print(f"  add_negatives: 加入 {n} 张负样本(上限 {cap}={ratio:.0%}×{pos} 正样本) → {split}")
+    if len(negs) > cap:
+        print(f"    (源目录有 {len(negs)} 张,按比例只取 {cap} 张;调 --neg-ratio 可放宽)")
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="./datasets", type=Path)
     ap.add_argument("--step", choices=["guide", "convert"], default="guide")
+    ap.add_argument("--neg-dir", type=Path, help="负样本(纯水面/反光/碎浪)目录,convert 后按比例加入")
+    ap.add_argument("--neg-ratio", type=float, default=0.15, help="负样本占正样本的比例上限")
     a = ap.parse_args()
     a.root.mkdir(parents=True, exist_ok=True)
     if a.step == "guide":
@@ -179,6 +205,8 @@ def main():
     else:
         print(GUIDE.format(root=a.root))
         convert(a.root)
+        if a.neg_dir:
+            add_negatives(a.root, a.neg_dir, a.neg_ratio)
 
 
 if __name__ == "__main__":
