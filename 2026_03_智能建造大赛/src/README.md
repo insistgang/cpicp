@@ -60,7 +60,8 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `train.py` | 训练入口（`--p2`；回退链 yolo12-p2→yolo11-p2→yolo12n→yolo11n，**响亮打印实际加载**）|
 | `eval.py` | mAP + 按 COCO 尺寸分桶召回（同类一对一匹配，路径错误不静默）|
 | `export_onnx.py` | PyTorch→ONNX(opset12)，onnxruntime 自检（`--no-simplify` 可关简化）|
-| `trt_infer_orin.py` | ONNX→TensorRT FP16 + Orin Nano 测速骨架（⚠️ 见下）|
+| `trt_infer_orin.py` | Orin 端**端到端三档计时**(裸推理/含后处理/含编码)+ TRT8/10 兼容 + INT8校准器 + **30FPS红线判定** |
+| `geolocate.py` | **检测框→GPS救援航点**(针孔+海平面求交;创新点①)。`python geolocate.py` 跑几何自测,8项全过 |
 | `crossdomain_eval.py` | 陆→海 域差评估模板（MMD/特征分布占位接口）|
 
 ## 数据来源
@@ -69,5 +70,5 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 
 ## 注意事项
 - **模型回退要看日志**：`train.py` 启动会打印 `[model] ✓ 实际加载: ...`。若不是 “YOLOv12 + P2” 而是回退项，说明你的 ultralytics 版本解析自定义 yaml 失败，先排查再正式训练（别用回退结果当成绩）。
-- **Orin 端 TRT API 版本**：`trt_infer_orin.py` 现用 TensorRT 8.x API（`num_bindings`/`binding_is_input`/`get_binding_shape`）。**JetPack 6.x 自带 TensorRT 10 已移除这些 API**，需改用 `num_io_tensors`/`get_tensor_name`/`set_input_shape`/`execute_async_v3`；后处理(解码+NMS)目前是占位 TODO，上 Orin 前补齐。
+- **Orin 端 TRT API**：`trt_infer_orin.py` 已**同时兼容 TensorRT 8.x 与 10.x**（自动探测 `num_io_tensors`/`execute_async_v3`，回退 `num_bindings`/`execute_async_v2`），解码+NMS 后处理已补齐，端到端三档计时。测速务必带 `--source 真实视频`（合成帧后处理不真实）；报告以「③ 含编码」为准——Orin Nano **无硬件 NVENC**，实战软编码更重,含编码端到端请最终用 `stream_qgc.py` 实测 + `tegrastats` 记功耗。
 - 小目标强烈建议 `--imgsz 1024` 起步并启用 P2 头；INT8 对小目标敏感，端侧默认 **FP16**，FPS 不够再评估 INT8（需做精度回归）。
