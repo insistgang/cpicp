@@ -5,10 +5,12 @@
 **刘钢 - 2024-2025年度参赛项目汇总**
 
 [![Competitions](https://img.shields.io/badge/参赛项目-9个-blue.svg)]()
-[![Awards](https://img.shields.io/badge/获奖项目-1项-yellow.svg)]()
-[![Status](https://img.shields.io/badge/项目状态-进行中-green.svg)]()
+[![Awards](https://img.shields.io/badge/获奖项目-5项-yellow.svg)]()
+[![Status](https://img.shields.io/badge/项目状态-已总结-green.svg)]()
 
 </div>
+
+> 📌 **快速索引**：2026 年作战计划见 [battle_plan.md](battle_plan.md)；历年获奖详情见 [docs/2025获奖总结.md](docs/2025获奖总结.md)；项目亮点与成果见 [docs/项目成果展示.md](docs/项目成果展示.md)；后续完善计划见 [docs/项目完善计划.md](docs/项目完善计划.md)。
 
 ---
 
@@ -153,6 +155,33 @@ node server.js
 # 然后在浏览器打开前端页面
 start ../frontend/smart_recommendation_frontend_fixed.html
 ```
+
+---
+
+## 📁 仓库结构
+
+```
+.
+├── README.md              # 本文件：竞赛作品集总览
+├── battle_plan.md         # 2026 年参赛作战计划
+├── claude.md              # AI 助手上下文（竞赛专区）
+├── index.html             # 竞赛战绩可视化主页
+├── docs/                  # 公共文档（获奖总结、成果展示、完善计划等）
+├── 2026/                  # 2026 年项目规划资料
+└── .git/                  # Git 仓库
+```
+
+---
+
+## 📚 相关文档
+
+| 文档 | 说明 |
+|:---|:---|
+| [docs/2025获奖总结.md](docs/2025获奖总结.md) | 2025 年获奖明细、团队信息、证书归档清单 |
+| [docs/项目成果展示.md](docs/项目成果展示.md) | 重点项目亮点、技术指标、成长轨迹 |
+| [docs/项目完善计划.md](docs/项目完善计划.md) | 文档补全、软著申请、代码整理计划 |
+| [docs/2025项目深度分析报告.md](docs/2025项目深度分析报告.md) | 2025 年项目深度分析与复盘 |
+| [battle_plan.md](battle_plan.md) | 2026 年作战计划与时间表 |
 
 ---
 
