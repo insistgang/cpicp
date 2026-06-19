@@ -10,7 +10,8 @@
 |------|------|------|
 | `gen_figures.py` | matplotlib 生成 4 张报告配图(中文用 macOS 自带 CJK 字体) | `../output/figures/*.png` |
 | `build_report_docx.py` | 解析初稿 Markdown，按官方模板骨架渲染正式 docx，封面/目录域/标题层级/原生表格/插图 | `../output/项目报告书_低空违建巡查系统.docx` |
-| `run_all_selftests.py` | 串起上面两个的自测 | — |
+| `build_attachment_docx.py` | 复用 `build_report_docx.py` 的通用解析+渲染管线，把附件1 TRL 报告渲染成 docx(附件封面/标题层级/原生表格/TRL 演进框图) | `../output/技术成熟度报告_附件1.docx` |
+| `run_all_selftests.py` | 串起上面三个的自测 | — |
 
 ## 4 张配图
 
@@ -26,7 +27,9 @@
 python3 gen_figures.py
 # 渲染 Word 报告书(会自动插入上面 4 张图到对应章节)
 python3 build_report_docx.py
-# 一键全自测(出图 + 渲染 + 读回校验)
+# 渲染附件1 TRL 报告(复用同一解析+渲染管线; 也可 --input/--output 指定别的 md)
+python3 build_attachment_docx.py
+# 一键全自测(出图 + 正文渲染 + 附件渲染 + 读回校验)
 python3 run_all_selftests.py
 ```
 

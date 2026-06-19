@@ -18,6 +18,7 @@ run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU
   - tools/gen_water_scene.py    (合成海面+GT-Glint 增广配图自测)
   - tools/gen_report_figs.py    (分桶召回/PR/FPS-精度 图表自测)
   - tools/gen_tech_plan_docx.py (技术方案 docx 结构自测)
+  - tools/gen_perf_report_docx.py (性能报告 docx 结构/OOXML/内嵌图自测)
   - configs/*.yaml    (YAML 语法合法性)
 
 注意: train.py / eval.py / export_onnx.py / trt_infer_orin.py 需真实数据/GPU/Orin,
@@ -40,6 +41,7 @@ TESTS = [
     ("gen_water_scene",  [sys.executable, "tools/gen_water_scene.py", "--selftest"]),
     ("gen_report_figs",  [sys.executable, "tools/gen_report_figs.py", "--selftest"]),
     ("gen_tech_plan_docx", [sys.executable, "tools/gen_tech_plan_docx.py", "--selftest"]),
+    ("gen_perf_report_docx", [sys.executable, "tools/gen_perf_report_docx.py", "--selftest"]),
 ]
 
 
