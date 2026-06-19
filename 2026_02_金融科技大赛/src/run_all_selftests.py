@@ -25,6 +25,12 @@ MODULES = [
     ("metrics",      ["python3", "metrics.py"]),
     ("similarity",   ["python3", "similarity.py"]),
     ("app_demo",     ["python3", "app_demo.py", "--demo"]),
+    ("features",     ["python3", "features.py", "--selftest"]),       # 经典 CPU 特征(CLIP 回退后端)
+    ("synth_images", ["python3", "synth_images.py", "--selftest"]),   # 合成金融影像生成器
+    ("classify",     ["python3", "classify.py", "--selftest"]),       # 分类(经典线性探针回退)
+    ("embed",        ["python3", "embed.py", "--selftest"]),          # 嵌入(经典特征回退)
+    ("pipeline",     ["python3", "pipeline.py", "--selftest"]),       # 端到端(模拟向量+真实像素)
+    ("viz_dedup",    ["python3", "viz_dedup.py", "--selftest"]),      # 去重可视化(热图+拼图)
 ]
 
 

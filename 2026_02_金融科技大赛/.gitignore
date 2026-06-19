@@ -1,0 +1,12 @@
+# 合成影像可一键重生(python pipeline.py --gen-and-run),不入库以免仓库膨胀。
+# 保留可视化交付物与清单作为结果留存。
+output/synth_demo/img_*.png
+output/synth/
+output/**/img_*.png
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# docs/ 含官方赛题/模板(版权保密),不入公开仓库
+docs/

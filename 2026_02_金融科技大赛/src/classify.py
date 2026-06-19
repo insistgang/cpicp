@@ -7,8 +7,9 @@ classify.py · 第一步:从多类型影像中筛出"面签照片"(赛题#23 步
   ② 线性探针(linear-probe):用少量标注训一个 logistic 回归头(精度更高,推荐拿到合成数据后用)。
 输出:每张影像 是否面签照片(+各类概率),供 similarity 步骤只对面签照片做去重。
 
-⚠️ 需 torch + open_clip(算力机上跑);py_compile 可过(重依赖在函数内导入)。
-合成数据联调:先用 prepare_data.synth_manifest 的类型标签验证流程逻辑。
+回退策略:torch+open_clip 可用→CLIP 零样本/线性探针(真特征);不可用(Mac 无 GPU/离线)
+→**经典特征线性探针**(features.py 的 PIL+sklearn 特征 + LogisticRegression),
+在真实合成影像上有监督地筛"面签照片",让分类步骤也能在本地端到端跑通(baseline)。
 """
 import argparse
 
@@ -81,13 +82,121 @@ def filter_face_signing(results, p_thresh=0.5):
     return [p for (p, cls, p_face) in results if cls == FACE_CLASS or p_face >= p_thresh]
 
 
+# ---------------- 经典特征回退:无 torch 时的面签筛选器 ----------------
+
+def torch_available():
+    try:
+        import torch  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+class ClassicFaceClassifier:
+    """经典特征 + LogisticRegression 二分类(面签照片 vs 其它)。
+    CLIP 不可用时的线性探针回退:有监督(合成数据有 type_label),在真实像素上筛面签。
+    """
+
+    def __init__(self, pca_dim=48):
+        from features import ClassicFeatureExtractor
+        self.fe = ClassicFeatureExtractor(pca_dim=pca_dim)
+        self.clf = None
+
+    def fit(self, image_paths, labels):
+        """labels: 1=面签照片 0=其它。"""
+        import numpy as np
+        from sklearn.linear_model import LogisticRegression
+        X = self.fe.fit_transform(image_paths)
+        # 抑制 NumPy 2.0.2 本机 BLAS 对有限输入 matmul 的 spurious 浮点警告(见 features.py 注释)
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            self.clf = LogisticRegression(C=1.0, max_iter=2000,
+                                          class_weight="balanced").fit(X, labels)
+        return self
+
+    def predict(self, image_paths):
+        """返回 [(path, pred_class, p_face), ...],与 zero_shot_classify 同形。"""
+        import numpy as np
+        X = self.fe.transform(image_paths)
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            proba = self.clf.predict_proba(X)[:, list(self.clf.classes_).index(1)]
+        out = []
+        for p, pf in zip(image_paths, proba):
+            out.append((p, FACE_CLASS if pf >= 0.5 else "其它", float(pf)))
+        return out
+
+
+def classify_face_signing(image_paths, train_paths=None, train_labels=None, force_backend=None):
+    """统一入口:torch→CLIP 零样本;否则→经典特征线性探针(需 train_paths/labels 训练)。
+    返回 [(path, pred_class, p_face), ...]。"""
+    backend = force_backend or ("clip" if torch_available() else "classic")
+    if backend == "clip":
+        return zero_shot_classify(image_paths)
+    if train_paths is None or train_labels is None:
+        raise ValueError("经典回退需 train_paths/train_labels 训练线性探针(合成数据有 type_label)")
+    print("  [classify] torch/CLIP 不可用 → 经典特征线性探针回退(baseline)")
+    model = ClassicFaceClassifier().fit(train_paths, train_labels)
+    return model.predict(image_paths)
+
+
+def _selftest():
+    """在真实合成影像上验证经典回退分类器能筛出面签照片。"""
+    import sys, tempfile, os
+    import numpy as np
+    ok = True
+
+    def check(c, m):
+        nonlocal ok
+        print(("  ✅ " if c else "  ❌ ") + m); ok = ok and c
+
+    print(f"  torch 可用: {torch_available()}(False 时走经典线性探针回退)")
+    with tempfile.TemporaryDirectory() as td:
+        from synth_images import generate
+        records, _ = generate(td, n_groups=30, reuse_frac=0.3, seed=5, size=(96, 96))
+        paths = [os.path.join(td, r["image_path"]) for r in records]
+        labels = [1 if r["type_label"] == FACE_CLASS else 0 for r in records]
+        n_face = sum(labels)
+        check(0 < n_face < len(labels), f"数据:面签 {n_face}/{len(labels)}(正负都有)")
+
+        # 训练/测试切分(简单留出)
+        n = len(paths)
+        idx = list(range(n))
+        import random as _r
+        _r.Random(0).shuffle(idx)
+        cut = int(n * 0.7)
+        tr, te = idx[:cut], idx[cut:]
+        tr_p = [paths[i] for i in tr]; tr_y = [labels[i] for i in tr]
+        te_p = [paths[i] for i in te]; te_y = [labels[i] for i in te]
+
+        res = classify_face_signing(te_p, train_paths=tr_p, train_labels=tr_y,
+                                    force_backend="classic")
+        check(len(res) == len(te_p), "对测试集全部出预测")
+
+        pred = [1 if c == FACE_CLASS else 0 for (_, c, _) in res]
+        acc = np.mean([int(a == b) for a, b in zip(pred, te_y)])
+        # 面签模板视觉与其它差异大,经典特征应明显优于随机
+        check(acc > 0.75, f"测试集分类准确率 {acc:.3f} > 0.75(经典特征筛面签有效)")
+
+        # 召回:面签照片大多被筛出
+        face_idx = [i for i, y in enumerate(te_y) if y == 1]
+        if face_idx:
+            recall = np.mean([pred[i] for i in face_idx])
+            check(recall > 0.6, f"面签召回 {recall:.3f} > 0.6(不大量漏筛)")
+
+    print("\n" + ("✅ classify 自测通过" if ok else "❌ classify 自测未通过"))
+    sys.exit(0 if ok else 1)
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="经典回退分类器自测(无 torch 可跑)")
     ap.add_argument("--images", nargs="+", help="待分类影像路径")
     ap.add_argument("--mode", choices=["zeroshot"], default="zeroshot")
     a = ap.parse_args()
+    if a.selftest:
+        _selftest()
+        return
     if not a.images:
-        ap.error("需 --images(算力机上,装 torch+open_clip 后运行)")
+        ap.error("需 --images(CLIP 零样本需算力机装 torch+open_clip)或 --selftest")
     res = zero_shot_classify(a.images)
     faces = filter_face_signing(res)
     print(f"✓ 分类完成 {len(res)} 张,筛出面签照片 {len(faces)} 张")

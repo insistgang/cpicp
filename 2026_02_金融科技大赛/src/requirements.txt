@@ -1,6 +1,12 @@
 # 赛题#23 金融影像分类+相似度去重 依赖
 # 核心:CLIP(官方现有基础)+ 度量学习 + 向量检索
-torch>=2.1                  # 按 CUDA 版本装对应 wheel
+#
+# 两档运行:
+#  ① 真特征(算力机):torch + open_clip + faiss(下方全部)
+#  ② 经典 CPU baseline(本地 Mac 无 GPU/离线):仅需 numpy/pillow/scikit-learn/pandas/matplotlib
+#     ——features.py/synth_images.py/pipeline.py(真实像素路径)/viz_dedup.py 不依赖 torch。
+#     无 torch 时 classify.py/embed.py 自动回退经典特征,全 10 模块 --selftest 可在本地跑通。
+torch>=2.1                  # 按 CUDA 版本装对应 wheel(经典 baseline 不需要)
 torchvision>=0.16
 open_clip_torch>=2.24       # CLIP 特征提取/零样本分类
 timm>=0.9                   # 备选骨干(DINOv2/ViT)

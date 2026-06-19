@@ -23,7 +23,19 @@
 | `interceptor.py` | tool_call 拦截器:策略+注入+敏感行为检测→allow/alert/block,测<1s | 任务2 阻断(评分①②③) |
 | `defense_policy.py` | 自适应防御策略(屏蔽工具/拦外联/系统约束),从检测结果加规则 | 闭环防御侧 |
 | `fake_agent.py` | **最小靶场+端到端闭环演示**:良性放行/攻击阻断/链路告警/加规则复测被挡 | 官方靶场未到手前的近似 |
-| `run_all_selftests.py` | 一键运行全部 10 模块自测并汇总 | 质量门禁 |
+| `attack_demo.py` | **方向C 攻防演示驱动**:4 条合成攻击轨迹(直接/间接注入、恶意Skill供应链、长链路异常)依次喂检测内核,产出"红队攻击→检测命中→自动生成防御策略→拦截器复测阻断"结构化闭环记录(→ `output/attack_demo.json`) | 答辩杀手锏 |
+| `benchmark_plot.py` | **方向E 量化基准**:检测内核在 400 条合成正/负轨迹上打分,画 ROC/PR 曲线+官方双线(检出≥95%/误报<5%)+工作点(→ `output/roc_pr.png`) | 评分③④ |
+| `build_demo_html.py` | **方向C 单文件演示页**:读 attack_demo.json + 内嵌 roc_pr.png(base64),生成 `output/demo.html`,浏览器双击即开/截图 | 答辩/录屏素材 |
+| `run_all_selftests.py` | 一键运行全部 13 模块自测并汇总 | 质量门禁 |
+
+### 一键产出演示交付物(本地实跑验证)
+```bash
+python3 attack_demo.py --run        # → output/attack_demo.json (闭环记录)
+python3 benchmark_plot.py --run     # → output/roc_pr.png (ROC/PR 基准图)
+python3 build_demo_html.py --run    # → output/demo.html (单文件演示页,内嵌数据+图)
+```
+实跑结果(2026-06-20):攻击者得手步数 加规则前 2 → 加规则后 0;拦截步数 4 → 8;
+良性零误报;最大决策延时 0.008 ms(<1s);基准图 AUC=0.998、工作点 检出 1.000 / 误报 0.035(达官方双线)。
 
 ## 运行
 ```bash

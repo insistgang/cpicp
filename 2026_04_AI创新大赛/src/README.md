@@ -13,18 +13,42 @@
 | `aoi_prepare.py` | manifest→few-shot切分(100正+30缺/测试1000+)+缺陷分布+合成清单 | 02/prepare 思路 |
 | `augment_defect.py` | 合成缺陷增广(划痕/污点/缺件/色变)+bbox,解异常样本稀缺 | 03/augment_water 思想 |
 | `latency_bench.py` | 端到端分档计时,<200ms@GPU / CPU<2s 红线判定(检测时间30%) | 03/trt 计时框架 |
+| `synth_aoi.py` | **PIL 程序化合成 AOI 工件图**(正常组装件纹理 + 4 类缺陷,复用 augment_defect),无真数据先端到端联调 | — |
+| `feature_backend.py` | **特征后端**:真特征 `TimmBackend`(torch/timm 中层 feature,接口保留)+ **经典 CPU 回退** `ClassicBackend`(分块颜色 mean/std + 梯度方向直方图,L2 归一化) | — |
+| `run_real_pipeline.py` | **真实合成图上的端到端 few-shot 流水线**:synth→特征→coreset 建库→阈值校准→测试,产出**真实 AUC/F1/per-class 检出/延时/竞赛分** + 落盘 report/scores | 串起全部上游模块 |
+| `viz_heatmap.py` | **matplotlib 异常可视化**:正常 vs 4 类缺陷的 patch 异常**热力叠加图** + 异常分分布直方图 + ROC/PR 曲线 | — |
+
+### 真实闭环(本机即可跑出交付物,非随机特征)
+之前 anomaly_score/patchcore_lite 跑在随机 numpy 特征上;现已用 **synth_aoi 合成真实工件图 +
+feature_backend 经典 CPU 特征** 让 `feature_backend → patchcore_lite(coreset 建库)→ anomaly_score(最近邻打分)
+→ fewshot_protocol/aoi_metrics(评测)→ viz_heatmap(定位可视化)` 全链路在真实图像上端到端跑通。
+
+**本机实测(标准规模 100正+30缺→测600,经典 CPU 特征 baseline):**
+- AUC = **0.9927**,F1 = **0.942**,Recall = **0.975**,Precision 0.911,Acc 0.96
+- per-class 检出:scratch 1.0 / spot 0.96 / missing 0.94 / discolor 1.0
+- 打分延时 ~0.09ms/图(160px),2500px CPU 估算 ~620ms(< 2s 预算)
+- `--full` 模式测试集放大到 1020 张(贴合官方 1000+ 口径):AUC 0.9935 / F1 0.943 / Recall 0.975
+- 产物:`output/heatmap_overlay.png`(正常 vs 4 缺陷热力叠加,GT 框对齐缺陷热点)、
+  `output/score_distribution.png`、`output/roc_pr_curves.png`、`output/pipeline_report.json`、`output/pipeline_scores.npz`
+
+> torch/timm 到位后:`get_backend(prefer_real=True)` 自动切 `TimmBackend`(真特征),下游代码零改动。
+> 当前经典 CPU 特征明确标注为 **baseline**,验证的是流水线与协议正确性,真特征只换 backend。
 
 ## 线B · 开放 AI+X 违建(冲大赛主奖,低成本第二投)
 | 文件 | 作用 | 复用 |
 |---|---|---|
 | `illegal_build_pipeline.py` | 检测→时序滤波→像素GPS→治理决策(派巡查航点)demo | **直接复用 03 track_filter+geolocate(已自测)** |
 
-`run_all_selftests.sh` 一键回归(本机 numpy/标准库全可跑)。
+`run_all_selftests.sh` 一键回归(11 模块,本机 numpy/PIL/sklearn/matplotlib 全可跑)。
 
 ## 运行
 ```bash
-bash run_all_selftests.sh
-# 真数据(报名后从 chaspark 领):aoi_prepare 切分 → timm/CLIP 提特征 → fewshot_protocol 评测
+bash run_all_selftests.sh                 # 11 模块一键自测(含合成图真实端到端)
+python3 run_real_pipeline.py              # 真实合成图端到端,打印真实 AUC/F1 + 落盘 report
+python3 run_real_pipeline.py --full       # 测试集放大到 1000+(贴合官方口径)
+python3 viz_heatmap.py                    # 生成异常热力图/分布图/ROC-PR 曲线到 output/
+python3 synth_aoi.py --gen-dir out --n-normal 60 --n-defect 40   # 合成数据集落盘(normal/defect/manifest.csv)
+# 真数据(报名后从 chaspark 领):aoi_prepare 切分 → get_backend(真特征 timm)提特征 → run_real_pipeline 评测
 ```
 
 ## 阻塞(你来/等官方)

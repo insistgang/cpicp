@@ -56,8 +56,15 @@
 **目录说明**
 
 - `docs/`：官方通知、赛题说明、申报模板等资料
-- `src/`：数字人文工具代码（TF-IDF/互文检索/可视化生成）
-- `output/`：生成的可视化数据与静态网页
+- `src/`：数字人文工具代码
+  - `text_tools.py` / `similarity_search.py`：古文 TF-IDF 关键词 + 互文相似检索
+  - `generate_visuals.py`：生成时间轴/传播/词云/互文网络数据(JSON)与静态网页
+  - `render_figures.py`：把上述数据用 matplotlib/networkx 渲染成 PNG 配图(古风配色,系统中文字体)
+  - `build_pptx.py`：用 python-pptx 直接生成 8 页 16:9 PPTX，插图 + 逐字稿写入备注
+  - `run_all_selftests.sh`：一键跑全部 5 个模块自测
+- `output/`：生成的可视化数据、静态网页、PNG 配图、以及 **`作品_初稿.pptx`(自动生成的演示草稿)**
 - `作品大纲.md`：作品叙事结构与PPT分镜
 - `素材清单与PPT制作指南.md`：素材清单、分镜讲解稿、制作指南
 - `提交检查清单.md`：报名与提交检查清单
+
+**一键生成 PPTX 草稿**：`python3 src/build_pptx.py` → 产出 `output/作品_初稿.pptx`(8 页 / 16:9 / 含配图 / 每页逐字稿在备注里)。用 PowerPoint/Keynote 打开二改并录语音即得讲解版。

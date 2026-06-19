@@ -1,0 +1,12 @@
+# 可一键重生的批量合成数据/分数缓存,不入库以免仓库膨胀。
+# 保留 output/sample_aoi/ 小样例(16张)与可视化图表/报告作为评审证据。
+output/synth/
+output/**/img_*.png
+*.npz
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# docs/ 含官方赛题/模板(版权保密),不入公开仓库
+docs/

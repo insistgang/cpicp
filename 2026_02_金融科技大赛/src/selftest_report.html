@@ -19,7 +19,7 @@
 <div class="card">
   <h1>赛题#23 金融影像智能相似度检测 · 全模块自测报告</h1>
   <div class="summary">
-    <b>4/4</b> 模块通过 · 状态: ✅ 全部通过
+    <b>10/10</b> 模块通过 · 状态: ✅ 全部通过
   </div>
   <table>
     <tr><th>模块</th><th>状态</th><th>耗时</th><th>输出(末尾500字)</th><th>错误</th></tr>
@@ -27,7 +27,7 @@
         <tr>
           <td><b>prepare_data</b></td>
           <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.04s</td>
+          <td>0.03s</td>
           <td><pre>  ✅ 合成清单 103 条影像
   ✅ 分类集:面签 16/103(正负都有)
   ✅ 相似度对:正 92 / 负 184
@@ -44,7 +44,7 @@
         <tr>
           <td><b>metrics</b></td>
           <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.13s</td>
+          <td>0.08s</td>
           <td><pre>  ✅ 可分场景 AUC≈1(=1.0000)
   ✅ 最优F1阈值 F1>0.9(thr=0.580, F1=1.000)
   ✅ 目标精度≥0.99 可满足(P=0.990, R=1.000)
@@ -60,7 +60,7 @@
         <tr>
           <td><b>similarity</b></td>
           <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.09s</td>
+          <td>0.05s</td>
           <td><pre>  ✅ 跨客户套用(base↔reused,客户A↔B)被标为 cross_customer_misuse
   ✅ 同客户重复(base↔dup,都客户A)被标为 same_customer_repeat
   ✅ 不相干影像未被误报
@@ -75,7 +75,7 @@
         <tr>
           <td><b>app_demo</b></td>
           <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.10s</td>
+          <td>0.06s</td>
           <td><pre>### 检测汇总(阈值 0.9)
 - 可疑相似对总数:**3**
 - ⚠️ 跨客户套用(最严重):**2**
@@ -92,8 +92,112 @@
           <td><pre>(无)</pre></td>
         </tr>
         
+        <tr>
+          <td><b>features</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.98s</td>
+          <td><pre>  ✅ 单图特征维度 176
+  ✅ 单图特征全有限(无 NaN/Inf)
+  ✅ 批量嵌入 N=3(shape=(3, 2))
+  ✅ 嵌入全有限
+  ✅ 套用对相似 > 不同对(base↔variant=0.819 > base↔different=0.656)
+  ✅ 套用 vs 不同 有明显区分裕度(Δ=0.163>0.1,可设阈值分开)
+  ✅ 同图重复 transform 结果一致(确定性)
+  ✅ 非方形/任意尺寸图可处理
+
+✅ features 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>synth_images</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.18s</td>
+          <td><pre>  ✅ 生成 48 条影像记录
+  ✅ manifest.csv 已写出
+  ✅ 所有 PNG 文件存在且非空
+  ✅ PNG 可被 PIL 读取(size=(128, 128), mode=RGB)
+  ✅ 含跨客户套用 group 5 个(同组异客户)
+  ✅ 类型多样(['合同文档', '权属证明', '证件', '面签照片'])
+  ✅ 同组副本像素相似 > 跨组(0.995 > 0.889)—生成器有效
+
+✅ synth_images 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>classify</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>1.12s</td>
+          <td><pre>  torch 可用: False(False 时走经典线性探针回退)
+  ✅ 数据:面签 21/117(正负都有)
+  [classify] torch/CLIP 不可用 → 经典特征线性探针回退(baseline)
+  ✅ 对测试集全部出预测
+  ✅ 测试集分类准确率 1.000 > 0.75(经典特征筛面签有效)
+  ✅ 面签召回 1.000 > 0.6(不大量漏筛)
+
+✅ classify 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>embed</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.84s</td>
+          <td><pre>  torch 可用: False(False 时走经典特征回退)
+  [embed] torch/CLIP 不可用 → 回退到经典 CPU 特征(baseline,非 CLIP)
+  ✅ 经典回退提取 (33, 32) 行数=图数
+  ✅ 嵌入全有限
+  ✅ 经典嵌入:同组 0.960 > 跨组 0.422
+✓ 保存 (33, 32) → /var/folders/_7/s7jfcqsj62j5d883txcgyy8h0000gn/T/tmpmpe2wh33/emb.npy / .json
+  ✅ 嵌入 .npy/.json 落盘非空
+
+✅ embed 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>pipeline</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>0.98s</td>
+          <td><pre>fcqsj62j5d883txcgyy8h0000gn/T/tmpo2s1yemi/synth)
+[2/6] 分类筛面签: 28/101 张面签照片
+[3/6] 经典特征提取(真实像素,PIL+sklearn baseline): (28, 28)
+[4/6] 相似度对(group_id 真值): 正 15 / 负 30
+[5/6] 阈值分析(真实特征余弦,非随机): AUC=1.0000 | 最优 F1 阈值=0.251 (P=1.000,R=1.000,F1=1.000) | Top-1 同组检索=1.0000
+[6/6] 去重检测(阈值 0.251(自动选)): 可疑对 31 | ⚠️跨客户套用 30 | 同客户重复 1
+  ✅ 真实像素流水线完成
+  ✅ 嵌入行数=面签照片数(真实像素提取)
+  ✅ 真实像素 AUC>0.9(=1.000)—特征非随机
+  ✅ 真实像素最优 F1>0.85(=1.000)
+  ✅ 真实像素 Top-1 同组检索>0.85(=1.000)
+  ✅ 真实像素检出跨客户套用 30 对
+
+✅ pipeline 端到端自测通过(模拟向量 + 真实像素)
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
+        <tr>
+          <td><b>viz_dedup</b></td>
+          <td style="color:#2ecc71">✅ 通过</td>
+          <td>1.33s</td>
+          <td><pre>  ✅ 真实像素流水线产出 res
+  ✅ 可视化 PNG 生成且非空(351495 字节)
+  ✅ PNG 合法可读(format=PNG, size=(1467, 886))
+  ✅ 无可疑对场景也能出图(不崩)
+
+✅ viz_dedup 自测通过
+</pre></td>
+          <td><pre>(无)</pre></td>
+        </tr>
+        
   </table>
-  <div class="timestamp">生成时间: 2026-06-19 23:25:41</div>
+  <div class="timestamp">生成时间: 2026-06-20 00:25:56</div>
 </div>
 </body>
 </html>

@@ -68,6 +68,10 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `stream_qgc.py` | 实时闭环→QGC 融合 demo 骨架(推理→滤波→画框+GPS+遥测→H265软编→RTSP);`--selftest` |
 | `crossdomain_eval.py` | 陆→海 域差评估模板（MMD/特征分布占位接口）|
 | `run_all_selftests.py` | **一键本地自测总控**：运行所有 Mac 可测模块 + YAML 语法检查，返回汇总报告 |
+| `tools/gen_water_scene.py` | PIL 程序化合成俯拍海面(渐变+波纹+太阳反光带+3类小目标GT)→ 调 `augment_water.add_glint` 真实增广 → 输出 **before/after 对比配图** PNG(供方案§4配图,带 SYNTHETIC 水印)；`--selftest` |
+| `tools/gen_report_figs.py` | matplotlib 生成性能报告三图:**分桶召回柱状图 / 各类PR曲线 / FPS-精度权衡散点(含30FPS红线+帕累托前沿)**。数据来自显式 `PLACEHOLDER_*` 字典+水印,三个绘图函数接收数据参数,真值(eval/trt)可直接替换；`--selftest` |
+| `tools/gen_tech_plan_docx.py` | python-docx 把 `技术方案_大纲.md` 渲染成结构化 Word 初稿(封面+硬指标达标对照表+§0–§8章节+选型/消融表格),自动内嵌上面4张图,`___` 留真值回填；`--selftest` |
+| `tools/build_all_deliverables.py` | 一键按序产出上述全部交付物草稿(图先于docx,docx内嵌图)→ `output/figs` + `output/docx` |
 
 ## 数据来源
 - SeaDronesSee：https://github.com/Ben93kie/SeaDronesSee ｜ https://seadronessee.cs.uni-tuebingen.de/
@@ -80,7 +84,20 @@ cd src
 python3 run_all_selftests.py
 ```
 
-覆盖：geolocate(8项) / track_filter(5项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / configs YAML 语法 —— **10 项全通过**即本地可推进部分就绪。
+覆盖：geolocate(8项) / track_filter(5项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / **tools 三件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx)** / configs YAML 语法 —— **13 项全通过**即本地可推进部分就绪。
+
+## 本地交付物草稿生成(无 GPU/数据,纯 PIL+matplotlib+docx)
+
+```bash
+cd src
+python3 tools/build_all_deliverables.py
+#  → output/figs/augment_water_before_after_*.png  (GT-Glint 增广 before/after 配图)
+#  → output/figs/report_fig{1,2,3}_*.png           (分桶召回 / PR曲线 / FPS-精度+30FPS红线)
+#  → output/docx/技术方案_初稿.docx                (§0–§8 章节+表格,内嵌上面4张图,`___` 待真值)
+```
+
+图表数据来自清楚标注的 `PLACEHOLDER_*`/`SYNTHETIC` 占位值;真权重/真数据到位后,
+`eval.py` 的分桶召回与各类 P/R、`trt_infer_orin.py` 的端到端 FPS 表可直接传入同名绘图函数替换,无需改绘图代码。
 
 ## 注意事项
 - **模型回退要看日志**：`train.py` 启动会打印 `[model] ✓ 实际加载: ...`。若不是 "YOLOv12 + P2" 而是回退项，说明你的 ultralytics 版本解析自定义 yaml 失败，先排查再正式训练（别用回退结果当成绩）。

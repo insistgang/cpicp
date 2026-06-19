@@ -4,17 +4,36 @@
 > 作品: 《颜氏家训》的书籍生命史
 > 交付: 作品展示 PPT + 带语音讲解 PPT(≤5min)
 
+## 零、已生成的 PPTX 草稿(可直接打开二改)
+
+> ⭐ **重头交付物已由 `src/build_pptx.py` 自动生成**: `output/作品_初稿.pptx`
+> 8 页 16:9 古风版式;数据页已自动插入下表 PNG 配图;**每页逐字稿已写入幻灯片备注**(speaker notes),可直接作为 ≤5min 旁白脚本录音。
+
+| 项 | 状态 |
+|----|------|
+| 页数 | 8 页(封面 / 选题缘起 / 版本流变 / 传播下沉 / 教化主题 / 互文网络 / 当代启示 / 结语) |
+| 画幅 | 16:9 (13.333"×7.5") |
+| 配图 | 4 张数据图 + 封面/结尾底纹,共 6 页含图,等比缩放居中 |
+| 备注 | 8 页全部非空,与本指南第三节逐字稿一致(约 412 字 ≈ 125 秒底稿,留足扩写余量) |
+| 匿名 | 自测含敏感词扫描(校名/学院/导师/姓名/学号),当前通过 |
+| 字体 | 标题/正文宋体(Songti SC)、要点黑体(Heiti SC),已写东亚字体属性,PowerPoint/Keynote 打开均显中文 |
+
+**生成 / 重生成**: `python3 src/build_pptx.py`(配图缺失时会自动调用 `render_figures.py` 先渲染 PNG)。
+**二次加工**: 用 PowerPoint/Keynote 打开 `作品_初稿.pptx`,补真实书影/人物像、按需润色逐字稿,再按页录语音合成讲解版。
+
 ## 一、已完成的技术素材(可直接嵌入 PPT)
 
-| 素材 | 文件路径 | 用途 | 说明 |
-|------|----------|------|------|
-| 版本流变时间轴 | `output/timeline.json` + `visual.html` 第1节 | PPT 第3页 | 7个节点:成书→抄本→刻本→坊刻→族谱→排印→数字化 |
-| 传播下沉路径 | `output/diffusion.json` + `visual.html` 第2节 | PPT 第4页 | 4层:士族家学→蒙学→族谱→民间日用 |
-| 教化主题词云 | `output/wordcloud.json` + `visual.html` 第3节 | PPT 第5页 | TF-IDF 提取,数字人文展示亮点 |
-| 互文知识网络 | `output/network.json` + `visual.html` 第4节 | PPT 第6页 | 与《朱子家训》《弟子规》等互文关系 |
-| 静态可视化网页 | `output/visual.html` | 备用/截图 | 单文件内嵌数据,浏览器打开即可截图 |
+| 素材 | 数据文件 | 渲染 PNG(已插入 PPTX) | 用途 | 说明 |
+|------|----------|----------------------|------|------|
+| 版本流变时间轴 | `output/timeline.json` | `output/fig_timeline.png` | PPT 第3页 | 7个节点:成书→抄本→刻本→坊刻→族谱→排印→数字化 |
+| 传播下沉路径 | `output/diffusion.json` | `output/fig_diffusion.png` | PPT 第4页 | 4层倒金字塔:士族家学→蒙学→族谱→民间日用(大传统↔小传统) |
+| 教化主题词云 | `output/wordcloud.json` | `output/fig_wordcloud.png` | PPT 第5页 | TF-IDF 字-bigram 提取,权重→字号螺旋布局 |
+| 互文知识网络 | `output/network.json` | `output/fig_network.png` | PPT 第6页 | networkx spring 布局,与《朱子家训》《弟子规》等互文关系 |
+| 静态可视化网页 | `output/visual.html` | — | 备用/截图/在线展示 | 单文件内嵌数据,浏览器打开即可截图 |
 
-**使用方法**: 用浏览器打开 `output/visual.html` → 各节分别截图 → 粘贴到 PPT 中。
+**两种用法**:
+- (推荐)直接打开 `output/作品_初稿.pptx`,配图已自动嵌入,无需手工截图。
+- (备用)用浏览器打开 `output/visual.html` → 各节截图 → 粘贴到自制 PPT 中。
 
 ## 二、待补充的人文素材(决定文化内涵分)
 

@@ -12,5 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt || \
 
 COPY . .
 
-# 默认入口:跑可在无 GPU/无数据环境验证的纯逻辑自测(供可运行性测试快速确认环境 OK)
-CMD ["sh", "-c", "python prepare_data.py --selftest && python metrics.py && python similarity.py && python app_demo.py --demo"]
+# 默认入口:跑全 10 模块自测(无需 GPU/数据,含**真实合成图像像素**的端到端去重),
+# 供初赛"统一可运行性测试"一键确认环境 OK。features/synth_images/classify/embed/pipeline/viz_dedup
+# 的经典 CPU 特征回退使分类→嵌入→去重→阈值全程在真实图像上跑通,不需 torch/GPU。
+CMD ["python", "run_all_selftests.py", "--verbose"]

@@ -15,6 +15,9 @@ run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU
   - stream_qgc.py     (模块接线 + GStreamer 检查)
   - crossdomain_eval.py (随机特征域差流程)
   - prepare_data.py   (guide 输出格式检查)
+  - tools/gen_water_scene.py    (合成海面+GT-Glint 增广配图自测)
+  - tools/gen_report_figs.py    (分桶召回/PR/FPS-精度 图表自测)
+  - tools/gen_tech_plan_docx.py (技术方案 docx 结构自测)
   - configs/*.yaml    (YAML 语法合法性)
 
 注意: train.py / eval.py / export_onnx.py / trt_infer_orin.py 需真实数据/GPU/Orin,
@@ -34,6 +37,9 @@ TESTS = [
     ("stream_qgc",       [sys.executable, "stream_qgc.py", "--selftest"]),
     ("crossdomain_eval", [sys.executable, "crossdomain_eval.py", "--demo"]),
     ("prepare_data_guide", [sys.executable, "prepare_data.py", "--root", "./datasets", "--step", "guide"]),
+    ("gen_water_scene",  [sys.executable, "tools/gen_water_scene.py", "--selftest"]),
+    ("gen_report_figs",  [sys.executable, "tools/gen_report_figs.py", "--selftest"]),
+    ("gen_tech_plan_docx", [sys.executable, "tools/gen_tech_plan_docx.py", "--selftest"]),
 ]
 
 

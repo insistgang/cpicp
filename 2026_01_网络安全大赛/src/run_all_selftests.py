@@ -19,6 +19,9 @@ MODULES = [
     "interceptor",
     "defense_policy",
     "fake_agent",
+    "attack_demo",      # 方向C 攻防演示驱动(红队→检测→自动防御→拦截闭环)
+    "benchmark_plot",   # 方向E ROC/PR 量化基准图
+    "build_demo_html",  # 方向C 单文件演示页生成
 ]
 
 

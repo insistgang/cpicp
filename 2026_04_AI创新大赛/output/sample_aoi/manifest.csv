@@ -1,0 +1,17 @@
+image_path,label,defect_type,bbox
+normal/n_0000.png,0,normal,
+normal/n_0001.png,0,normal,
+normal/n_0002.png,0,normal,
+normal/n_0003.png,0,normal,
+normal/n_0004.png,0,normal,
+normal/n_0005.png,0,normal,
+normal/n_0006.png,0,normal,
+normal/n_0007.png,0,normal,
+defect/d_0000_scratch.png,1,scratch,"27,191,70,194"
+defect/d_0001_spot.png,1,spot,"51,62,69,80"
+defect/d_0002_missing.png,1,missing,"232,39,254,67"
+defect/d_0003_discolor.png,1,discolor,"180,69,231,131"
+defect/d_0004_scratch.png,1,scratch,"56,126,165,127"
+defect/d_0005_spot.png,1,spot,"23,226,49,252"
+defect/d_0006_missing.png,1,missing,"17,53,56,101"
+defect/d_0007_discolor.png,1,discolor,"42,106,72,154"
