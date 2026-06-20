@@ -13,7 +13,7 @@ help:
 	@echo "make prepare      下载指引+转YOLO格式(SeaDronesSee+AFO)"
 	@echo "make train        YOLOv12+P2 训练(imgsz1024,默认骨干 yolo12-p2)"
 	@echo "make eval         mAP + 分桶小目标召回"
-	@echo "make export       PyTorch->ONNX(+onnxruntime自检)"
+	@echo "make export       PyTorch->ONNX 端侧两档640/768(+onnxruntime自检)"
 	@echo "make crossdomain  陆->海 域差评价(--demo)"
 	@echo "make run / shell  进容器交互"
 	@echo "(Orin端) 在 Jetson 上原生: python trt_infer_orin.py --onnx best.onnx --fp16 --benchmark"
@@ -34,7 +34,10 @@ eval:
 	$(RUNPC) python eval.py --weights runs/detect/train/weights/best.pt --data configs/searescue.yaml
 
 export:
-	$(RUNPC) python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 1024
+	# 端侧实时务必导 640/768 两档:imgsz=1024 仅训练/精度核对,Orin 上跑不到 30FPS
+	# (见 README runbook 与 BATTLEPLAN 30FPS 方案;export_onnx.py 对 imgsz>=1024 亦会告警)
+	$(RUNPC) python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 640
+	$(RUNPC) python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 768
 
 crossdomain:
 	$(RUNPC) python crossdomain_eval.py --demo

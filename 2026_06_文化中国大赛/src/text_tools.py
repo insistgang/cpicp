@@ -13,7 +13,6 @@ import math
 import re
 from collections import Counter
 
-PUNct = "。！？；!?;\n"
 SENT_RE = re.compile(r"[^。！？；!?;\n]+[。！？；!?;]?")
 STOP = set("之乎者也而其以于与為为则乃且夫矣焉哉耳兮的了是在和有不人我你他")
 

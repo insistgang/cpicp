@@ -12,6 +12,7 @@ viz_dedup.py · 去重结果可视化(matplotlib):相似度矩阵热图 + 检出
 """
 import argparse
 import os
+import sys
 
 # 中文字体(matplotlib 默认无中文,显式注册避免豆腐块)
 _FONT_CANDIDATES = [

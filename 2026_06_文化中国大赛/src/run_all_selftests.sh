@@ -8,10 +8,12 @@ cd "$(dirname "$0")/.."
 SRC_DIR="src"
 
 # 选解释器: render_figures/build_pptx 依赖 matplotlib+pptx(本机仅装在某个 python3 上)。
-# 探测候选 python, 选第一个能 import matplotlib 与 pptx 的; 找不到则回退 python3。
+# 优先用调用者显式指定的 $PYTHON(若它能 import matplotlib 与 pptx); 否则探测候选,
+# 选第一个能 import 两者的; 都找不到则回退 python3。
 pick_python() {
     local probe='import matplotlib, pptx'
-    for cand in python3 /usr/bin/python3 /usr/local/bin/python3 /opt/homebrew/bin/python3; do
+    for cand in "${PYTHON:-}" python3 /usr/bin/python3 /usr/local/bin/python3 /opt/homebrew/bin/python3; do
+        [ -n "$cand" ] || continue
         if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "$probe" >/dev/null 2>&1; then
             echo "$cand"; return 0
         fi
