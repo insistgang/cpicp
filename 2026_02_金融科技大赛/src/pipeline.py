@@ -118,19 +118,23 @@ def run_pipeline(n_groups=30, reuse_frac=0.35, threshold=0.85, seed=42):
     return summary, suspicious, metrics
 
 
-def run_pipeline_real_images(image_dir, threshold=None, pca_dim=32, verbose=True):
-    """**真实像素端到端**:对 synth_images 生成的真实 PNG,经经典 CPU 特征 → 去重 → 阈值/AUC/Top-k。
+def run_pipeline_real_images(image_dir, threshold=None, pca_dim=32, verbose=True,
+                             backend="classic", clip_backbone="clip"):
+    """**真实像素端到端**:对 synth_images 生成的真实 PNG,经特征后端 → 去重 → 阈值/AUC/Top-k。
 
-    与 run_pipeline 的区别:嵌入不是用 group_id 模拟,而是 features.py 在**真实图像像素**上
-    提取(CLIP 不可用时的 baseline)。manifest 来自磁盘上的真实文件。
+    与 run_pipeline 的区别:嵌入不是用 group_id 模拟,而是在**真实图像像素**上提取。
+    manifest 来自磁盘上的真实文件。
 
-    threshold=None 时**从标注数据自动选最优 F1 阈值**(对齐官方"阈值选取策略"要求)——
-    经典特征的余弦量纲与 CLIP 不同(PCA 压缩后最优阈值远低于 0.85),故不能套用固定阈值。
+    backend:
+      - "classic"(默认,本机 Mac/无 GPU):走 features.py 的经典 CPU 特征(PIL+sklearn),无需 torch。
+      - "clip" / "auto":走 embed.extract_embeddings → CLIP/timm 真特征(需算力机装 torch+open_clip)。
+        "auto" 在 torch 不可用时自动回退经典特征;"clip" 强制 CLIP(无 torch 直接抛错,便于上机自检)。
+      经典特征余弦量纲与 CLIP 不同,故 threshold=None 时**从标注数据自动选最优 F1 阈值**
+      (对齐官方"阈值选取策略"要求),两种后端都数据驱动选阈值,不套用固定值。
     返回 dict(含 auc/best_thr/topk/去重统计 等真实指标)。
     """
     import numpy as np
     from prepare_data import load_manifest, build_classification, build_similarity_pairs
-    from features import extract_embeddings_classic
 
     manifest = os.path.join(image_dir, "manifest.csv")
     if not os.path.exists(manifest):
@@ -148,11 +152,21 @@ def run_pipeline_real_images(image_dir, threshold=None, pca_dim=32, verbose=True
             print("  ⚠️ 面签照片不足,流水线终止")
         return None
 
-    # 3. 经典 CPU 特征提取(真实像素!不是随机向量)
+    # 3. 特征提取(真实像素!不是随机向量)
     face_paths = [os.path.join(image_dir, r["image_path"]) for r in face_records]
-    embs = extract_embeddings_classic(face_paths, pca_dim=pca_dim)
+    if backend == "classic":
+        from features import extract_embeddings_classic
+        embs = extract_embeddings_classic(face_paths, pca_dim=pca_dim)
+        feat_name = "经典特征(PIL+sklearn baseline)"
+    else:
+        # CLIP/timm 真特征路径(算力机):embed.extract_embeddings 内部 torch→CLIP / 无 torch→经典
+        from embed import extract_embeddings
+        fb = None if backend == "auto" else backend  # "clip"=强制;"auto"=自动回退
+        embs = extract_embeddings(face_paths, backbone=clip_backbone,
+                                  force_backend=fb, pca_dim=pca_dim)
+        feat_name = f"CLIP/{clip_backbone} 真特征" if fb else "自动后端(torch→CLIP/否则经典)"
     if verbose:
-        print(f"[3/6] 经典特征提取(真实像素,PIL+sklearn baseline): {embs.shape}")
+        print(f"[3/6] {feat_name}提取(真实像素): {embs.shape}")
 
     # 4. 相似度对(基于 group_id 的真值标注)
     pairs = build_similarity_pairs(face_records, neg_per_pos=2, only_face=False, seed=0)
@@ -306,6 +320,10 @@ def main():
     ap.add_argument("--threshold", type=float, default=None,
                     help="去重判定阈值;不给则真实像素路径**自动选最优 F1 阈值**(经典特征量纲≠CLIP)")
     ap.add_argument("--pca-dim", type=int, default=32)
+    ap.add_argument("--backend", choices=["classic", "auto", "clip"], default="classic",
+                    help="真实像素特征后端:classic=经典 CPU(默认,本机);clip=强制 CLIP 真特征(算力机,需 torch+open_clip);auto=有 torch 走 CLIP 否则回退经典")
+    ap.add_argument("--clip-backbone", default="clip",
+                    help="--backend clip/auto 时的主干:clip(open_clip ViT-B-16)或 timm 模型名(如 vit_base_patch14_dinov2)")
     a = ap.parse_args()
 
     if a.selftest:
@@ -316,8 +334,9 @@ def main():
         from synth_images import generate
         print(f"=== 生成合成影像 → {a.out_dir} ===")
         recs, _ = generate(a.out_dir, n_groups=a.n_groups, reuse_frac=a.reuse_frac, seed=0)
-        print(f"  生成 {len(recs)} 张\n=== 真实像素端到端 ===")
-        res = run_pipeline_real_images(a.out_dir, threshold=a.threshold, pca_dim=a.pca_dim)
+        print(f"  生成 {len(recs)} 张\n=== 真实像素端到端 (后端={a.backend}) ===")
+        res = run_pipeline_real_images(a.out_dir, threshold=a.threshold, pca_dim=a.pca_dim,
+                                       backend=a.backend, clip_backbone=a.clip_backbone)
         if res:
             from viz_dedup import visualize
             png = visualize(res, out_path=os.path.join(a.out_dir, "dedup_viz.png"))
@@ -325,7 +344,8 @@ def main():
         return
 
     if a.real_images:
-        res = run_pipeline_real_images(a.real_images, threshold=a.threshold, pca_dim=a.pca_dim)
+        res = run_pipeline_real_images(a.real_images, threshold=a.threshold, pca_dim=a.pca_dim,
+                                       backend=a.backend, clip_backbone=a.clip_backbone)
         if res and a.plot:
             from viz_dedup import visualize
             png = visualize(res, out_path=os.path.join(a.real_images, "dedup_viz.png"))

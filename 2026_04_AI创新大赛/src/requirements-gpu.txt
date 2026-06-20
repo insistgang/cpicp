@@ -1,0 +1,30 @@
+# GPU 真特征档依赖(华为 AOI few-shot,TimmBackend 启用)
+# ---------------------------------------------------------------------------
+# 装法见 setup_gpu.sh;torch 务必装 **匹配本机 CUDA 的官方轮子**,不要直接 pip
+# 默认 torch(可能装到 CPU 版或 CUDA 不匹配)。CUDA 12.1 例:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# CUDA 11.8 例:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu118
+# 查显卡/驱动支持的 CUDA:nvidia-smi 右上角 "CUDA Version"。
+#
+# Jetson Orin Nano(JetPack/L4T,aarch64):**不要**用上面的 x86 轮子,
+# 用 NVIDIA 官方 Jetson wheel(见 setup_gpu.sh 里的 Jetson 分支说明)。
+
+# --- 真特征核心 ---
+torch>=2.0,<2.5          # 预训练 backbone 推理(CUDA / MPS / CPU 自适应,见 TimmBackend.device)
+timm>=0.9.12             # wide_resnet50_2 等预训练权重 + features_only 中层特征接口
+
+# --- 项目科学栈(本机已装,GPU 机若是干净环境一并装) ---
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+Pillow>=10.0
+matplotlib>=3.7
+pandas>=2.0
+pyyaml>=6.0
+
+# 说明:
+# - TimmBackend 默认 model_name="wide_resnet50_2"(PatchCore 论文同款)。显存紧/想更快
+#   可在 get_backend(prefer_real=True, model_name="resnet18") 切更小 backbone。
+# - 首次 create_model(pretrained=True) 会联网下载权重到 ~/.cache/torch/hub 与
+#   ~/.cache/huggingface;离线机请见 setup_gpu.sh 的"预缓存权重"步骤。

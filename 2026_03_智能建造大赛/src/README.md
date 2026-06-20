@@ -52,6 +52,8 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 
 **🔑 第一刀（决定整盘方案生死，越早越好）**：跳过精调，直接拿一版小模型在 **Orin Nano 上实测 FP16 FPS**——先确认 30FPS 门槛能不能过。过不了就趁早换更轻骨干/降分辨率/上 INT8，不要等训练收敛后才发现端侧跑不动。
 
+> 📋 **Orin 端完整部署 runbook 见 [`DEPLOY_ORIN.md`](./DEPLOY_ORIN.md)**：刷机/功耗 → 装 pycuda+opencv → trtexec 建 FP16/INT8 引擎 → 三档测速「过/不过」决策树 → RTSP→QGC 实时闭环 + 踩坑清单（小队照着刷的上机包，命令 flag 已对照源码 argparse）。
+
 ## 文件
 | 文件 | 作用 |
 |---|---|

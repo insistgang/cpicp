@@ -20,7 +20,7 @@ for f in anomaly_score patchcore_lite aoi_metrics fewshot_protocol latency_bench
   echo "=== $f ==="; "$PYBIN" "$f.py"
 done
 # --selftest 形式
-for f in aoi_prepare augment_defect synth_aoi run_real_pipeline viz_heatmap; do
+for f in aoi_prepare augment_defect synth_aoi run_real_pipeline viz_heatmap bench_latency_gpu; do
   echo "=== $f --selftest ==="; "$PYBIN" "$f.py" --selftest
 done
 echo "✅ 04 全部自测通过"
