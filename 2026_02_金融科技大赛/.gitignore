@@ -1,8 +1,11 @@
 # 合成影像可一键重生(python pipeline.py --gen-and-run),不入库以免仓库膨胀。
-# 保留可视化交付物与清单作为结果留存。
+# 保留可视化交付物(dedup_viz.png)与清单(manifest.csv)作为结果留存。
 output/synth_demo/img_*.png
 output/synth/
 output/**/img_*.png
+# 自测/Dockerfile/文档命令以 src 为 cwd, 合成图会落在 src/output/ 下;
+# 只忽略批量图片, 保留 dedup_viz.png 与 manifest.csv 交付物。
+src/output/**/img_*.png
 
 # Python 缓存
 __pycache__/
