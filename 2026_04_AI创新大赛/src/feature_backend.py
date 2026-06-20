@@ -254,7 +254,7 @@ def get_backend(prefer_real=True, **kw):
 
     prefer_real=True 时尝试 TimmBackend(torch/timm 真特征);torch/timm 未装、权重
     下载失败、或显存不足等任何异常都会被捕获 → 回退 ClassicBackend(本机即走此路径)。
-    下游 patch_features/image_patches 签名两者一致,切换后游戏代码零改动。"""
+    下游 patch_features/image_patches 签名两者一致,切换后下游代码零改动。"""
     if prefer_real:
         try:
             timm_keys = ("model_name", "layers", "grid", "device", "input_size", "pretrained")

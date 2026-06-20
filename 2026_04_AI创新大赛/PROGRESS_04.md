@@ -88,7 +88,7 @@ matplotlib 画:① 正常件 vs 4 类缺陷件的 **patch 异常热力叠加图*
 
 ## 四、运行结果
 
-### 全模块自测（12 模块，实跑通过）
+### 全模块自测（14 模块，实跑通过）
 ```bash
 $ cd src && bash run_all_selftests.sh
 === anomaly_score === ✅   === patchcore_lite === ✅   === aoi_metrics === ✅
@@ -96,10 +96,12 @@ $ cd src && bash run_all_selftests.sh
 === latency_bench === ✅ (CPU total=9.4ms < 2000ms)
 === illegal_build_pipeline === ✅ (复用 03)
 === feature_backend === ✅ (经典 CPU 特征:缺陷 patch 偏离 0.636 > 正常 0.105, L2 归一化)
+=== online_learning === ✅ (在线增量学习:新样本流式更新记忆库,阈值自适应)
 === aoi_prepare === ✅   === augment_defect === ✅
 === synth_aoi === ✅ (4 类缺陷注入 + 件间产线抖动 + 数据集生成)
 === run_real_pipeline === ✅ (真实合成图[无泄漏] AUC=0.988, recall=0.95, 4 类 per-class 检出)
 === viz_heatmap === ✅ (3 张 PNG 非空,缺陷热力峰值 > 正常)
+=== bench_latency_gpu === ✅ (分档计时 feature/score/threshold, CPU 经典后端 <2s, p95 与 mean 同量级)
 ✅ 04 全部自测通过
 ```
 

@@ -2,11 +2,17 @@
 """
 run_all_selftests.py · 赛题#23 全模块自测脚本
 
-在无 GPU/无真实数据环境下跑通所有纯逻辑自测,验证:
+在无 GPU/无真实数据环境下跑通所有纯逻辑自测,验证(11 模块):
   - prepare_data: 合成数据 + 分类集/相似度对构建
   - metrics: 阈值扫描 P/R/F1 + AUC + Top-k 检索
   - similarity: 余弦相似度去重 + 跨客户套用检测
   - app_demo: 检测汇总视图数据层逻辑
+  - features: 经典 CPU 特征提取器(CLIP 回退后端)
+  - synth_images: 程序化合成金融影像生成器
+  - classify: 分类筛面签(经典特征线性探针回退)
+  - embed: 嵌入提取(经典特征回退)
+  - pipeline: 端到端流水线(模拟向量 + 真实像素两条路径)
+  - viz_dedup: 去重结果可视化(相似度热图 + 可疑对拼图)
   - ablation: 消融实验框架(特征组成 / PCA 维度 / 标准化 on-off)
 
 用法:

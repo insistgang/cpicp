@@ -79,8 +79,13 @@
 **目录说明**
 
 - `docs/`：官方赛题/指南/模板(含版权保密,已 .gitignore 不入公开仓库)
-- `src/`：✅ 已就位(10 模块全自测绿,见 `src/README.md` 与 `src/run_all_selftests.py`)——
+- `src/`：✅ 已就位(**11 模块全自测绿**,见 `src/README.md` 与 `src/run_all_selftests.py`)——
   阈值分析(metrics)/相似度去重(similarity)/数据流水线(prepare_data)/经典 CPU 特征(features)/
   合成影像生成(synth_images)/分类筛面签(classify)/嵌入(embed)/检测汇总 demo(app_demo)/
-  端到端流水线(pipeline)/去重可视化(viz_dedup);其中 classify/embed 已实现**经典 CPU 特征回退**,
-  无 GPU/无 torch 的 Mac 上即可在真实合成像素上端到端跑通(baseline),算力机装 torch+open_clip 后无缝切回 CLIP 真特征
+  端到端流水线(pipeline)/去重可视化(viz_dedup)/**消融实验(ablation_study,官方明确要求)**;
+  其中 classify/embed 已实现**经典 CPU 特征回退**,无 GPU/无 torch 的 Mac 上即可在真实合成像素上端到端跑通(baseline),
+  算力机装 torch+open_clip 后无缝切回 CLIP 真特征
+- **真实像素端到端实测**(经典特征 baseline,文档命令 `pipeline.py --gen-and-run --n-groups 30 --reuse-frac 0.35`,可复现):
+  121 张合成影像 / 33 张面签,**AUC=0.9922,Top-1 同组检索=1.0,最优 F1 阈值=0.251(F1=0.941)**——跑在真实像素而非随机向量上;换 CLIP 真特征后预期再提升
+- **上机包就绪**:`src/setup_gpu.sh`(算力机一键装 torch+open_clip+timm+faiss → CLIP 真特征跑全链路,与 04 风格一致,支持 `INSTALL=1`/`CUDA=`/`NG=`/`OUT=`)+
+  `pipeline.py --backend classic|auto|clip` 三档特征后端(本机零依赖 baseline / 自动回退 / 强制 CLIP 真特征)+ `requirements.txt` 两档分明(CPU baseline 区块 + GPU 真特征追加区块)+ `Dockerfile` 一键可运行性测试

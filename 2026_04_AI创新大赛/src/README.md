@@ -27,7 +27,7 @@ feature_backend 经典 CPU 特征** 让 `feature_backend → patchcore_lite(core
 **本机实测(标准规模 100正+30缺→测600,经典 CPU 特征 baseline,训练/测试件无泄漏):**
 - AUC = **0.9967**,F1 = **0.9471**,Recall = **0.985**,Precision 0.912,Acc 0.9633
 - per-class 检出:scratch 1.0 / spot 1.0 / missing 0.94 / discolor 1.0
-- 打分延时 ~0.2ms/图(160px),2500px CPU 估算 ~2.0s 量级(面积线性外推,随计时噪声,贴近 2s 预算)
+- 打分延时 ~0.1ms/图(160px,仅最近邻打分阶段);report 里的 `est_latency_2500px_cpu_ms` 是把这一亚毫秒打分延时按面积(2500/160)²≈244 线性外推,故被计时噪声放大、run 间在 ~0.6–1.4s 间抖动,**不是真实端到端延时**,仅供量级参考。**真实 2500px 单图端到端延时以 `bench_latency_gpu.py --size 2500` 直接实测为准 ≈245ms < 2s(见下文 CPU 档实测)。**
 - `--full` 模式测试集放大到 1020 张(贴合官方 1000+ 口径):AUC 0.9968 / F1 0.9431 / Recall 0.9844
 - 产物:`output/heatmap_overlay.png`(正常 vs 4 缺陷热力叠加,GT 框对齐缺陷热点)、
   `output/score_distribution.png`、`output/roc_pr_curves.png`、`output/pipeline_report.json`、`output/pipeline_scores.npz`
