@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 六赛作战指挥中心</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f141d; --panel:#141b26; --panel2:#1a2230;
+    --line:#243044; --line2:#2e3c52;
+    --txt:#e6edf3; --txt2:#9fb0c3; --txt3:#647184;
+    --cyan:#22d3ee; --cyan-d:#0e7490;
+    --orange:#fb923c; --orange-d:#9a3412;
+    --green:#34d399; --red:#f87171; --yellow:#fbbf24; --purple:#a78bfa;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:var(--sans); background:var(--bg); color:var(--txt);
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(34,211,238,.06), transparent 40%),
+      radial-gradient(circle at 85% 10%, rgba(251,146,60,.05), transparent 40%);
+    min-height:100vh; padding:24px; line-height:1.5;
+  }
+  .wrap{max-width:1280px;margin:0 auto}
+  ::selection{background:var(--cyan-d);color:#fff}
+
+  /* ── 顶栏 ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+  .brand .sub{color:var(--txt3);font-size:12px;font-family:var(--mono);margin-top:2px}
+  .live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;color:var(--green);
+    background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:5px 12px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ── 红线横幅 ── */
+  .redline{background:linear-gradient(135deg,var(--panel) 0%,var(--panel2) 100%);
+    border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:12px;padding:16px 20px;margin-bottom:20px}
+  .redline .row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .redline .label{font-size:12px;color:var(--txt3);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
+  .redline .title{font-size:17px;font-weight:600;margin-top:3px}
+  .redline .title b{color:var(--orange)}
+  .redline .days{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--orange);line-height:1}
+  .redline .days small{font-size:13px;color:var(--txt3);font-weight:400}
+  .bar{height:7px;background:var(--bg2);border-radius:4px;margin-top:12px;overflow:hidden;border:1px solid var(--line)}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--orange-d),var(--orange));border-radius:4px}
+
+  /* ── 区块标题 ── */
+  .sec{margin:26px 0 14px;display:flex;align-items:center;gap:10px}
+  .sec h2{font-size:13px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:2px;font-family:var(--mono)}
+  .sec .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+  /* ── 六赛卡片 ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative;
+    transition:transform .2s,border-color .2s,box-shadow .2s;overflow:hidden}
+  .card:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 12px 28px rgba(0,0,0,.45)}
+  .card .accent{position:absolute;top:0;left:0;right:0;height:2px}
+  .card .head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .card .no{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+  .card .name{font-size:16px;font-weight:700;margin-top:1px}
+  .card .topic{font-size:12px;color:var(--txt2);margin-top:5px;min-height:32px}
+  .tier{font-size:10px;font-family:var(--mono);font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .tier.main{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+  .tier.side{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)}
+  .tier.cameo{background:rgba(159,176,195,.1);color:var(--txt2);border:1px solid var(--line2)}
+
+  .pct{display:flex;align-items:baseline;gap:6px;margin:14px 0 6px}
+  .pct b{font-family:var(--mono);font-size:26px;font-weight:700}
+  .pct span{font-size:11px;color:var(--txt3)}
+  .pbar{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+  .pbar>i{display:block;height:100%;border-radius:4px}
+
+  .meta{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-family:var(--mono);font-size:11px;padding:4px 8px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);color:var(--txt2)}
+  .chip.ok{color:var(--green);border-color:rgba(52,211,153,.25)}
+  .deliver{margin-top:11px;font-size:11.5px;color:var(--txt3);border-top:1px dashed var(--line);padding-top:9px}
+  .deliver b{color:var(--cyan);font-weight:500}
+  .countdown{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:10px;color:var(--txt3)}
+
+  /* ── 时间线 ── */
+  .timeline{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;overflow-x:auto}
+  .tl-track{position:relative;min-width:760px;padding:30px 0 10px}
+  .tl-axis{position:absolute;top:46px;left:0;right:0;height:2px;background:var(--line2)}
+  .tl-node{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:90px}
+  .tl-node .tick{width:12px;height:12px;border-radius:50%;margin:40px auto 0;border:2px solid var(--bg);position:relative;z-index:2}
+  .tl-node .d{font-family:var(--mono);font-size:12px;font-weight:600;margin-bottom:6px}
+  .tl-node .lab{font-size:10.5px;color:var(--txt2);margin-top:6px;line-height:1.3}
+  .tl-node .cd{font-family:var(--mono);font-size:9px;color:var(--txt3);margin-top:2px}
+  .tl-node.reg .tick{background:var(--orange);box-shadow:0 0 10px var(--orange)}
+  .tl-node.sub .tick{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .tl-legend{display:flex;gap:18px;font-size:11px;color:var(--txt2);margin-top:14px;font-family:var(--mono)}
+  .tl-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  /* ── 两列：卡点 + 行动 ── */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:860px){.cols{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .panel h3{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .block-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .block-item:last-child{border-bottom:0}
+  .block-item .ic{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+  .block-item .bd{flex:1}
+  .block-item .bt{font-size:13px;font-weight:500}
+  .block-item .bs{font-size:11px;color:var(--txt3);margin-top:2px}
+  .block-item .tag{font-family:var(--mono);font-size:9.5px;color:var(--txt3);background:var(--bg2);padding:2px 6px;border-radius:4px;border:1px solid var(--line)}
+
+  .act{counter-reset:step}
+  .act .step{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .act .step:last-child{border-bottom:0}
+  .act .step .n{counter-increment:step;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);
+    width:26px;height:26px;border-radius:7px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .act .step .n::before{content:counter(step)}
+  .act .step .c .t{font-size:13.5px;font-weight:600}
+  .act .step .c .s{font-size:11.5px;color:var(--txt2);margin-top:3px}
+  .act .step .c .s code{font-family:var(--mono);background:var(--bg2);padding:1px 5px;border-radius:4px;color:var(--cyan);font-size:11px}
+  .act .step.p0 .n{color:var(--orange);background:rgba(251,146,60,.08);border-color:rgba(251,146,60,.3)}
+
+  /* ── 审查徽章 ── */
+  .review{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px}
+  @media(max-width:680px){.review{grid-template-columns:repeat(2,1fr)}}
+  .rb{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+  .rb b{font-family:var(--mono);font-size:24px;font-weight:700;display:block}
+  .rb span{font-size:11px;color:var(--txt3);margin-top:3px;display:block}
+  .rb.g b{color:var(--green)} .rb.c b{color:var(--cyan)} .rb.o b{color:var(--orange)} .rb.r b{color:var(--red)}
+
+  footer{text-align:center;color:var(--txt3);font-size:11px;font-family:var(--mono);margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="brand">
+      <span style="font-size:28px">🎯</span>
+      <div>
+        <h1>2026 六赛作战指挥中心</h1>
+        <div class="sub">Research Competition War Room · 单兵串行 + 一核多投</div>
+      </div>
+    </div>
+    <div class="live"><span class="dot"></span><span id="liveDate">LIVE</span></div>
+  </div>
+
+  <!-- 红线横幅 -->
+  <div class="redline">
+    <div class="row">
+      <div>
+        <div class="label">最早资格红线 · 丢了直接出局</div>
+        <div class="title"><b>02 金融科技</b> 报名截止 — 之后不得改题换人</div>
+      </div>
+      <div style="text-align:right">
+        <div class="days"><span id="rlDays">--</span><small> 天</small></div>
+        <div class="label" id="rlDate">2026-08-17</div>
+      </div>
+    </div>
+    <div class="bar"><i id="rlBar" style="width:0%"></i></div>
+  </div>
+
+  <!-- 六赛状态 -->
+  <div class="sec"><h2>六赛状态</h2><div class="ln"></div></div>
+  <div class="grid" id="cards"></div>
+
+  <!-- 时间线 -->
+  <div class="sec"><h2>死线时间线</h2><div class="ln"></div></div>
+  <div class="timeline">
+    <div class="tl-track" id="tlTrack"></div>
+    <div class="tl-legend">
+      <span><i style="background:var(--orange)"></i>报名截止(资格)</span>
+      <span><i style="background:var(--cyan)"></i>提交截止(交付)</span>
+      <span style="color:var(--txt3)">01 网安全部节点官方待定 — 一公布即插队重排</span>
+    </div>
+  </div>
+
+  <!-- 卡点 + 行动 -->
+  <div class="sec"><h2>卡点 &amp; 第一步</h2><div class="ln"></div></div>
+  <div class="cols">
+    <div class="panel">
+      <h3>⛔ 剩余卡点 · 全部需外部输入</h3>
+      <div id="blocks"></div>
+    </div>
+    <div class="panel">
+      <h3>▶ 现在就做 · 行动队列</h3>
+      <div class="act" id="actions"></div>
+    </div>
+  </div>
+
+  <!-- 三遍审查 -->
+  <div class="sec"><h2>代码体检 · 三遍对抗审查</h2><div class="ln"></div></div>
+  <div class="review">
+    <div class="rb c"><b>63</b><span>Python 文件受审</span></div>
+    <div class="rb o"><b>~17</b><span>发现并修复问题</span></div>
+    <div class="rb g"><b>6/6</b><span>赛自测全绿放行</span></div>
+    <div class="rb g"><b>0</b><span>回归 · 未抑制警告</span></div>
+  </div>
+
+  <footer>
+    数据源 · PROGRESS.md / 作战计划_当前进度与未来计划.md / 各赛 src 自测 ·
+    倒计时由浏览器实时计算 · 离线可用 · 最近推进 2026-06-20
+  </footer>
+
+</div>
+
+<script>
+// ── 真实数据（来自仓库 PROGRESS.md + 三遍审查结论）──
+const TODAY = new Date(); // 实时
+const PROJECTS = [
+  {no:'01',name:'网络安全',topic:'AI Agent 安全检测与防御闭环',pct:85,test:'13/13',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
+   deliver:'攻防 demo.html(10 场景 10/10 闭环, AUC 0.998) + ROC/PR 图 + 攻击轨迹 JSON', reg:null},
+  {no:'02',name:'金融科技',topic:'影像分类筛面签 + CLIP 相似度去重',pct:72,test:'10/10',tier:'main',tierTxt:'🔴 红线',color:'#fb923c',
+   deliver:'合成票据影像 + 真实像素端到端(AUC 0.99/Top-1 1.0) + 去重热图', reg:'2026-08-17'},
+  {no:'03',name:'智能建造',topic:'低空水上救援视觉 + 边缘 30FPS',pct:65,test:'14/14',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
+   deliver:'技术方案+性能报告 双 Word(内嵌 7 图) + 海面增广 before/after', reg:'2026-08-20'},
+  {no:'04',name:'AI 创新',topic:'AOI few-shot 异常检测 + 违建 AI+X',pct:85,test:'12 模块全过',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
+   deliver:'合成 AOI 工件图 + 缺陷定位热力图 + ROC/PR + 异常分布', reg:'2026-08-25'},
+  {no:'05',name:'未来飞行器',topic:'低空应用场景设计(纯方案/报告书)',pct:60,test:'3 模块全过',tier:'side',tierTxt:'🟡 副线',color:'#fbbf24',
+   deliver:'正文+附件 双 Word 报告书(640+41KB, 4 图嵌入锚点)', reg:'2026-08-30'},
+  {no:'06',name:'文化中国',topic:'数字人文 / 书籍生命史',pct:55,test:'5/5',tier:'cameo',tierTxt:'⚪ 蹭场',color:'#9fb0c3',
+   deliver:'8 页 16:9 PPTX 草稿(逐字稿 280s 写入备注) + 6 图', reg:'2026-09-13'},
+];
+const TIMELINE = [
+  {date:'2026-08-17',label:'金融 报名',kind:'reg'},
+  {date:'2026-08-20',label:'智建 报名',kind:'reg'},
+  {date:'2026-08-25',label:'AI创新 报名',kind:'reg'},
+  {date:'2026-08-30',label:'飞行器 报名',kind:'reg'},
+  {date:'2026-08-31',label:'金融+智建 提交',kind:'sub'},
+  {date:'2026-09-01',label:'AI+飞行器 提交',kind:'sub'},
+  {date:'2026-09-13',label:'文化 报名+提交',kind:'sub'},
+];
+const BLOCKS = [
+  {ic:'⛏️',t:'算力 / GPU',s:'真特征 + 真 mAP/AUC + <200ms / 30FPS 硬指标',tag:'02·03·04'},
+  {ic:'📦',t:'真实数据',s:'官方靶场(01) / SeaDronesSee(03) / DAGM·MVTec·chaspark(04) / 金融脱敏影像(02)',tag:'01·02·03·04'},
+  {ic:'🔧',t:'硬件外设',s:'Jetson Orin Nano + stream_qgc 实时管线(OpenCV+GStreamer)',tag:'03'},
+  {ic:'🎨',t:'外部素材',s:'05 docx→PDF(需 Office 机) / 06 古籍原文·书影·录音',tag:'05·06'},
+  {ic:'🧑',t:'人决策',s:'赛道定夺 + 队伍组建 + 报名 + 找回 01 去年材料',tag:'全'},
+];
+const ACTIONS = [
+  {p0:true,t:'02 金融报名 + 签 NDA 申数据',s:'cpipc.acge.org.cn 注册 → 选赛题 #23 → 签《数据资料保密承诺书》→ 邮件 <code>jrkjds@nju.edu.cn</code>(数据滚动发放, 越早越好)'},
+  {p0:true,t:'03 智建 申数据 + 备 Jetson',s:'联系 <code>李老师 13714638358</code> 申请数据集 + 下单/借 Jetson Orin Nano 8G(30FPS 真机实测跑道最长)'},
+  {p0:false,t:'01 网安 确认导师 + 找回旧料',s:'联系去年指导教师确认能否挂名(必需) + 找回去年代码/PPT/答辩录像/专家反馈'},
+  {p0:false,t:'04 定队伍 + 报名策略',s:'≤3 人队 + 华为专项奖 vs 开放主奖 vs 双报 → 队长华为账号登录 chaspark'},
+  {p0:false,t:'05/06 报名占坑',s:'05 招跨学科队员(规划/GIS) · 06 cpipc 注册确认赛题 2 流程'},
+];
+
+function daysTo(s){const d=new Date(s+'T23:59:59');return Math.ceil((d-TODAY)/864e5);}
+function fmtCD(n){return n>0?`还剩 ${n} 天`:(n===0?'今天!':`已过 ${-n} 天`);}
+
+// 顶部实时日期
+const dd=TODAY;
+document.getElementById('liveDate').textContent='LIVE '+dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
+
+// 红线
+(function(){
+  const reg='2026-08-17', n=daysTo(reg);
+  document.getElementById('rlDays').textContent=n;
+  document.getElementById('rlDate').textContent=reg;
+  // 进度条：从 6/20 起算窗口
+  const start=new Date('2026-06-20'), end=new Date(reg+'T23:59:59');
+  const prog=Math.min(100,Math.max(0,(TODAY-start)/(end-start)*100));
+  document.getElementById('rlBar').style.width=prog.toFixed(1)+'%';
+})();
+
+// 六赛卡片
+document.getElementById('cards').innerHTML=PROJECTS.map(p=>{
+  const cd=p.reg?`<div class="countdown">报名 ${fmtCD(daysTo(p.reg))}</div>`:`<div class="countdown" style="color:var(--purple)">日期待定</div>`;
+  return `<div class="card">
+    <div class="accent" style="background:linear-gradient(90deg,${p.color},transparent)"></div>
+    ${cd}
+    <div class="head">
+      <div><div class="no">赛题 ${p.no}</div><div class="name">${p.name}</div></div>
+      <span class="tier ${p.tier}">${p.tierTxt}</span>
+    </div>
+    <div class="topic">${p.topic}</div>
+    <div class="pct"><b style="color:${p.color}">${p.pct}%</b><span>本地完成度</span></div>
+    <div class="pbar"><i style="width:${p.pct}%;background:linear-gradient(90deg,${p.color}99,${p.color})"></i></div>
+    <div class="meta">
+      <span class="chip ok">✅ 自测 ${p.test}</span>
+      <span class="chip">已审查放行</span>
+    </div>
+    <div class="deliver">交付物 · <b>${p.deliver}</b></div>
+  </div>`;
+}).join('');
+
+// 时间线
+(function(){
+  const track=document.getElementById('tlTrack');
+  const n=TIMELINE.length;
+  track.innerHTML=TIMELINE.map((t,i)=>{
+    const left=(i/(n-1))*92+4;
+    const cd=daysTo(t.date), days=cd>0?`T-${cd}`:'到期';
+    const md=t.date.slice(5).replace('-','/');
+    return `<div class="tl-node ${t.kind}" style="left:${left}%">
+      <div class="d">${md}</div>
+      <div class="tick"></div>
+      <div class="lab">${t.label}</div>
+      <div class="cd">${days}</div>
+    </div>`;
+  }).join('')+'<div class="tl-axis"></div>';
+})();
+
+// 卡点
+document.getElementById('blocks').innerHTML=BLOCKS.map(b=>`
+  <div class="block-item">
+    <div class="ic">${b.ic}</div>
+    <div class="bd"><div class="bt">${b.t}</div><div class="bs">${b.s}</div></div>
+    <span class="tag">${b.tag}</span>
+  </div>`).join('');
+
+// 行动
+document.getElementById('actions').innerHTML=ACTIONS.map(a=>`
+  <div class="step ${a.p0?'p0':''}">
+    <div class="n"></div>
+    <div class="c"><div class="t">${a.t}</div><div class="s">${a.s}</div></div>
+  </div>`).join('');
+</script>
+</body>
+</html>
