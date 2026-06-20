@@ -82,6 +82,19 @@
   .deliver b{color:var(--cyan);font-weight:500}
   .countdown{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:10px;color:var(--txt3)}
 
+  /* ── 卡片双 DDL 行 ── */
+  .ddls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .ddl{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+  .ddl.reg{border-left:2px solid var(--orange)}
+  .ddl.sub{border-left:2px solid var(--cyan)}
+  .ddl .dl{font-size:11px;color:var(--txt2);flex-shrink:0}
+  .ddl .dm{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt)}
+  .ddl .dc{font-family:var(--mono);font-size:10px;font-weight:700;margin-left:auto;padding:1px 6px;border-radius:5px}
+  .ddl .dc.u-hot{color:var(--red);background:rgba(248,113,113,.12)}
+  .ddl .dc.u-warn{color:var(--orange);background:rgba(251,146,60,.12)}
+  .ddl .dc.u-ok{color:var(--green);background:rgba(52,211,153,.1)}
+  .ddl .dv-wait{font-family:var(--mono);font-size:11px;color:var(--purple);margin-left:auto}
+
   /* ── 时间线 ── */
   .timeline{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;overflow-x:auto}
   .tl-track{position:relative;min-width:760px;padding:30px 0 10px}
@@ -211,17 +224,17 @@
 const TODAY = new Date(); // 实时
 const PROJECTS = [
   {no:'01',name:'网络安全',topic:'AI Agent 安全检测与防御闭环',pct:85,test:'13/13',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
-   deliver:'攻防 demo.html(10 场景 10/10 闭环, AUC 0.998) + ROC/PR 图 + 攻击轨迹 JSON', reg:null},
+   deliver:'攻防 demo.html(10 场景 10/10 闭环, AUC 0.998) + ROC/PR 图 + 攻击轨迹 JSON', reg:null, sub:null},
   {no:'02',name:'金融科技',topic:'影像分类筛面签 + CLIP 相似度去重',pct:72,test:'10/10',tier:'main',tierTxt:'🔴 红线',color:'#fb923c',
-   deliver:'合成票据影像 + 真实像素端到端(AUC 0.99/Top-1 1.0) + 去重热图', reg:'2026-08-17'},
+   deliver:'合成票据影像 + 真实像素端到端(AUC 0.99/Top-1 1.0) + 去重热图', reg:'2026-08-17', sub:'2026-08-31'},
   {no:'03',name:'智能建造',topic:'低空水上救援视觉 + 边缘 30FPS',pct:65,test:'14/14',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
-   deliver:'技术方案+性能报告 双 Word(内嵌 7 图) + 海面增广 before/after', reg:'2026-08-20'},
+   deliver:'技术方案+性能报告 双 Word(内嵌 7 图) + 海面增广 before/after', reg:'2026-08-20', sub:'2026-08-31'},
   {no:'04',name:'AI 创新',topic:'AOI few-shot 异常检测 + 违建 AI+X',pct:85,test:'12 模块全过',tier:'main',tierTxt:'🔴 主攻',color:'#f87171',
-   deliver:'合成 AOI 工件图 + 缺陷定位热力图 + ROC/PR + 异常分布', reg:'2026-08-25'},
+   deliver:'合成 AOI 工件图 + 缺陷定位热力图 + ROC/PR + 异常分布', reg:'2026-08-25', sub:'2026-09-01'},
   {no:'05',name:'未来飞行器',topic:'低空应用场景设计(纯方案/报告书)',pct:60,test:'3 模块全过',tier:'side',tierTxt:'🟡 副线',color:'#fbbf24',
-   deliver:'正文+附件 双 Word 报告书(640+41KB, 4 图嵌入锚点)', reg:'2026-08-30'},
+   deliver:'正文+附件 双 Word 报告书(640+41KB, 4 图嵌入锚点)', reg:'2026-08-30', sub:'2026-09-01'},
   {no:'06',name:'文化中国',topic:'数字人文 / 书籍生命史',pct:55,test:'5/5',tier:'cameo',tierTxt:'⚪ 蹭场',color:'#9fb0c3',
-   deliver:'8 页 16:9 PPTX 草稿(逐字稿 280s 写入备注) + 6 图', reg:'2026-09-13'},
+   deliver:'8 页 16:9 PPTX 草稿(逐字稿 280s 写入备注) + 6 图', reg:'2026-09-13', sub:'2026-09-13'},
 ];
 const TIMELINE = [
   {date:'2026-08-17',label:'金融 报名',kind:'reg'},
@@ -267,10 +280,15 @@ document.getElementById('liveDate').textContent='LIVE '+dd.getFullYear()+'-'+Str
 
 // 六赛卡片
 document.getElementById('cards').innerHTML=PROJECTS.map(p=>{
-  const cd=p.reg?`<div class="countdown">报名 ${fmtCD(daysTo(p.reg))}</div>`:`<div class="countdown" style="color:var(--purple)">日期待定</div>`;
+  const ddlCell=(label,iso,cls)=>{
+    if(!iso) return `<div class="ddl ${cls}"><span class="dl">${label}</span><span class="dv-wait">待定</span></div>`;
+    const n=daysTo(iso), md=iso.slice(5).replace('-','/');
+    const urge = n<=14?'u-hot':(n<=30?'u-warn':'u-ok');
+    const cdTxt = n>0?`T-${n}`:(n===0?'今天':'已过');
+    return `<div class="ddl ${cls}"><span class="dl">${label}</span><span class="dm">${md}</span><span class="dc ${urge}">${cdTxt}</span></div>`;
+  };
   return `<div class="card">
     <div class="accent" style="background:linear-gradient(90deg,${p.color},transparent)"></div>
-    ${cd}
     <div class="head">
       <div><div class="no">赛题 ${p.no}</div><div class="name">${p.name}</div></div>
       <span class="tier ${p.tier}">${p.tierTxt}</span>
@@ -281,6 +299,10 @@ document.getElementById('cards').innerHTML=PROJECTS.map(p=>{
     <div class="meta">
       <span class="chip ok">✅ 自测 ${p.test}</span>
       <span class="chip">已审查放行</span>
+    </div>
+    <div class="ddls">
+      ${ddlCell('报名',p.reg,'reg')}
+      ${ddlCell('提交',p.sub,'sub')}
     </div>
     <div class="deliver">交付物 · <b>${p.deliver}</b></div>
   </div>`;
