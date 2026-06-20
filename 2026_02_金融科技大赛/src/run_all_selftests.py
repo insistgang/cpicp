@@ -7,6 +7,7 @@ run_all_selftests.py · 赛题#23 全模块自测脚本
   - metrics: 阈值扫描 P/R/F1 + AUC + Top-k 检索
   - similarity: 余弦相似度去重 + 跨客户套用检测
   - app_demo: 检测汇总视图数据层逻辑
+  - ablation: 消融实验框架(特征组成 / PCA 维度 / 标准化 on-off)
 
 用法:
   python run_all_selftests.py              # 运行全部自测
@@ -34,6 +35,7 @@ MODULES = [
     ("embed",        [PY, "embed.py", "--selftest"]),          # 嵌入(经典特征回退)
     ("pipeline",     [PY, "pipeline.py", "--selftest"]),       # 端到端(模拟向量+真实像素)
     ("viz_dedup",    [PY, "viz_dedup.py", "--selftest"]),      # 去重可视化(热图+拼图)
+    ("ablation",     [PY, "ablation_study.py", "--selftest"]), # 消融实验框架(特征组成/PCA维度/标准化)
 ]
 
 

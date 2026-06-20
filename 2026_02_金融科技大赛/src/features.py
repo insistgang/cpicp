@@ -125,9 +125,10 @@ class ClassicFeatureExtractor:
 
     def __init__(self, size=(128, 128), nbins=16, grid=4, n_orient=6,
                  pca_dim=32, standardize=False):
-        # 注:standardize 默认 False。这些是结构化非负特征(颜色/梯度直方图),
-        # StandardScaler 会把低方差噪声维放大到与判别维同权,反而拉低去重 AUC(已实测);
-        # PCA(不标准化)做去相关/降噪即可。CLIP 类高维稠密特征才需要标准化。
+        # 注:standardize 默认 False(保守工程默认)。这些是结构化非负特征(颜色/梯度直方图),
+        # StandardScaler 可能把低方差噪声维放大到与判别维同权;PCA(不标准化)做去相关/降噪即可。
+        # 在合成集消融上 on/off 差异落在噪声裕度内、方向随 seed 翻转(见 ablation_study.py),
+        # 故此处不宣称"标准化必降 AUC";真实数据/CLIP 特征上应重跑消融定夺。CLIP 类高维稠密特征通常才需要标准化。
         self.size = size
         self.nbins = nbins
         self.grid = grid

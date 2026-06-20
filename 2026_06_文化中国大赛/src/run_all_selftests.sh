@@ -44,6 +44,7 @@ run_test() {
 
 run_test "text_tools.py"
 run_test "similarity_search.py"
+run_test "originality_check.py"
 run_test "generate_visuals.py"
 run_test "render_figures.py"
 run_test "build_pptx.py"

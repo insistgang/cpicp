@@ -23,10 +23,13 @@ import numpy as np
 
 # ---------- 2. 域差度量 ----------
 def mmd_rbf(X: np.ndarray, Y: np.ndarray, gamma: float = 1.0) -> float:
-    """最大均值差异(MMD, RBF 核)。X:source 特征 [n,d], Y:target 特征 [m,d]。值越大域差越大。"""
+    """最大均值差异(MMD, RBF 核)。X:source 特征 [n,d], Y:target 特征 [m,d]。值越大域差越大。
+    任一域为空时 MMD 未定义,返回 nan(避免 mean of empty 警告/无意义数值)。"""
     # 升 float64 计算(精度更稳,与 float32 结果差 ~1e-9)。
     X = np.asarray(X, dtype=np.float64)
     Y = np.asarray(Y, dtype=np.float64)
+    if X.shape[0] == 0 or Y.shape[0] == 0:
+        return float("nan")  # 空域 → MMD 未定义
 
     def rbf(A, B):
         # ||a-b||^2
@@ -90,12 +93,51 @@ def cross_domain_report(source_weights, target_data, demo=False):
     # TODO[登录核对]: 若赛题提供官方海域数据，把 target 换成官方集，域差结论更可信。
 
 
+def _selftest() -> bool:
+    """验证域差度量的数学性质(非仅"跑通不崩"):
+      - 同分布两域 MMD≈0、CORAL≈0;
+      - 有偏移的两域 MMD>0 且明显大于同分布;
+      - 单样本 CORAL/空域 MMD 返回 nan(协方差/均值未定义,不应给伪数值或崩)。"""
+    import math
+    ok = True
+
+    def check(c, m):
+        nonlocal ok
+        print(("  OK  " if c else "  XX  ") + m)
+        ok = ok and c
+
+    rng = np.random.default_rng(0)
+    X = rng.normal(0.0, 1.0, (200, 32))
+    Xsame = rng.normal(0.0, 1.0, (200, 32))       # 同分布(不同采样)
+    Xshift = rng.normal(1.5, 1.0, (200, 32))      # 同形不同均值(有域差)
+    g = 1.0 / X.shape[1]
+
+    mmd_same = mmd_rbf(X, Xsame, gamma=g)
+    mmd_shift = mmd_rbf(X, Xshift, gamma=g)
+    check(mmd_rbf(X, X.copy(), gamma=g) < 1e-9, "同一域 MMD≈0(自比)")
+    check(abs(mmd_same) < 0.05, f"同分布两域 MMD≈0(={mmd_same:.4f})")
+    check(mmd_shift > 0.1 and mmd_shift > mmd_same * 3, f"有偏移两域 MMD 明显更大(={mmd_shift:.4f} >> {mmd_same:.4f})")
+
+    check(coral_distance(X, X.copy()) < 1e-9, "同一域 CORAL≈0(自比)")
+    check(coral_distance(X, Xshift) >= 0.0, "CORAL 非负")
+
+    check(math.isnan(coral_distance(np.ones((1, 4)), np.zeros((1, 4)))), "单样本 CORAL→nan(协方差未定义,不崩)")
+    check(math.isnan(mmd_rbf(np.empty((0, 4)), np.empty((0, 4)))), "空域 MMD→nan(不崩/不报 mean-of-empty)")
+
+    print("\n" + ("OK crossdomain_eval 域差度量自测通过" if ok else "XX 自测未通过"))
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source-weights", default="")
     ap.add_argument("--target-data", default="configs/searescue.yaml")
-    ap.add_argument("--demo", action="store_true", help="用随机特征演示流程")
+    ap.add_argument("--demo", action="store_true", help="用随机特征演示流程(打印域差报告)")
+    ap.add_argument("--selftest", action="store_true", help="验证域差度量数学性质(带断言)")
     a = ap.parse_args()
+    if a.selftest:
+        import sys
+        sys.exit(0 if _selftest() else 1)
     cross_domain_report(a.source_weights, a.target_data, demo=a.demo or not a.source_weights)
 
 

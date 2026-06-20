@@ -24,9 +24,12 @@ def pr_at_threshold(scores, labels, thr):
 
 
 def threshold_sweep(scores, labels, n=50):
-    """在 [min,max] 扫 n 个阈值,返回每个阈值的 P/R/F1。用于画"阈值-P/R"曲线。"""
+    """在 [min,max] 扫 n 个阈值,返回每个阈值的 P/R/F1。用于画"阈值-P/R"曲线。
+    空输入返回 [](而非崩在 s.min() 的 zero-size reduction)。"""
     import numpy as np
     s = np.asarray(scores, float)
+    if s.size == 0:
+        return []
     lo, hi = float(s.min()), float(s.max())
     if hi <= lo:
         hi = lo + 1e-6
@@ -34,8 +37,11 @@ def threshold_sweep(scores, labels, n=50):
 
 
 def best_threshold(scores, labels, objective="f1", min_precision=None):
-    """选阈值:objective='f1' 取最大F1;若给 min_precision,则在 P>=min_precision 中取最大 recall。"""
+    """选阈值:objective='f1' 取最大F1;若给 min_precision,则在 P>=min_precision 中取最大 recall。
+    空输入(无样本)返回 None,由调用方决定回退阈值,避免 max() over empty sequence 崩溃。"""
     rows = threshold_sweep(scores, labels, n=200)
+    if not rows:
+        return None
     if min_precision is not None:
         cand = [r for r in rows if r["precision"] >= min_precision]
         if cand:
@@ -109,6 +115,16 @@ def _selftest():
 
     # 退化:全同分 AUC=0.5 量级
     check(abs(roc_auc(np.ones(10), [1,0]*5) - 0.5) < 1e-9, "全同分 AUC=0.5")
+
+    # 边界:空输入不崩(threshold_sweep/best_threshold 优雅降级,非 zero-size reduction 崩溃)
+    check(threshold_sweep([], []) == [], "空输入 threshold_sweep 返回 [](不崩)")
+    check(best_threshold([], []) is None, "空输入 best_threshold 返回 None(不崩)")
+    # 边界:无正样本或无负样本 AUC=nan(而非异常或错误数值)
+    check(math.isnan(roc_auc([0.1, 0.2, 0.3], [1, 1, 1])), "全正样本 AUC=nan")
+    check(math.isnan(roc_auc([0.1, 0.2, 0.3], [0, 0, 0])), "全负样本 AUC=nan")
+    # 边界:无法满足的 min_precision 时回退到最大 F1(不返回空/不崩)
+    fb = best_threshold(scores, labels, min_precision=2.0)
+    check(fb is not None, "不可满足的 min_precision 回退到最大 F1(非 None)")
 
     # Top-k 检索:对角线最高 → top1=100%
     Ng = 20

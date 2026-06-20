@@ -39,9 +39,12 @@ python train.py --data configs/searescue.yaml --p2 --epochs 100 --imgsz 1024
 python eval.py --weights runs/detect/train/weights/best.pt --data configs/searescue.yaml
 
 # 4) 端侧:导出 ONNX(PC) → 拷到 Orin Nano → 实测 FPS（这步是 30FPS 硬门槛的证据）
-python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 1024
-#   在 Orin Nano 上：
-python trt_infer_orin.py --onnx best.onnx --fp16 --imgsz 1024 --benchmark
+#    ⚠️ 端侧实时务必导 640/768 两档(imgsz=1024 用于训练/精度核对,端侧跑不到 30FPS):
+python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 640
+python export_onnx.py --weights runs/detect/train/weights/best.pt --imgsz 768
+#   在 Orin Nano 上(用与导出一致的 imgsz；先验解码再 --benchmark)：
+python trt_infer_orin.py --selftest                  # 本地先焊死解码逻辑(纯numpy)
+python trt_infer_orin.py --onnx best.onnx --fp16 --imgsz 640 --benchmark
 
 # 5) 跨域迁移评价（陆→海 域差，模板/接口）
 python crossdomain_eval.py --source-weights <陆域权重> --target-data configs/searescue.yaml
@@ -60,7 +63,7 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 | `train.py` | 训练入口（`--p2`；回退链 yolo12-p2→yolo11-p2→yolo12n→yolo11n，**响亮打印实际加载**）|
 | `eval.py` | mAP + 按 COCO 尺寸分桶召回（同类一对一匹配，路径错误不静默）|
 | `export_onnx.py` | PyTorch→ONNX(opset12)，onnxruntime 自检（`--no-simplify` 可关简化）|
-| `trt_infer_orin.py` | Orin 端**端到端三档计时**(裸推理/含后处理/含编码)+ TRT8/10 兼容 + INT8校准器 + **30FPS红线判定** |
+| `trt_infer_orin.py` | Orin 端**端到端三档计时**(裸推理/含后处理/含编码)+ TRT8/10 兼容 + INT8校准器 + **30FPS红线判定**;`--selftest` 本地焊死纯numpy解码(postprocess布局/xywh→xyxy/conf过滤/NMS,10项) |
 | `geolocate.py` | **检测框→GPS救援航点**(针孔+海平面求交;创新点①)。`python geolocate.py` 跑几何自测,8项全过 |
 | `track_filter.py` | IoU 时序滤波(连续≥k帧才确认,滤反光闪点+EMA稳框);`python track_filter.py` 自测 |
 | `augment_water.py` | **GT-Anchored Glint** 难负样本(非GT水面贴高光,抑反光误检)+物理增广;在线/离线CLI;`--selftest` |
@@ -85,7 +88,7 @@ cd src
 python3 run_all_selftests.py
 ```
 
-覆盖：geolocate(8项) / track_filter(7项) / augment_water(5项) / losses_smalltarget(9项) / stream_qgc(接线检查) / crossdomain_eval(域差流程) / prepare_data(guide) / **tools 四件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx / 性能报告docx)** / configs YAML 语法(3 个) —— **14 项全通过**即本地可推进部分就绪。
+覆盖：geolocate(8项) / track_filter(7项) / augment_water(5项) / losses_smalltarget(9项) / **trt_infer_orin 解码(10项,纯numpy)** / stream_qgc(接线检查) / crossdomain_eval(域差度量数学性质,带断言) / prepare_data(guide) / **tools 四件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx / 性能报告docx)** / configs YAML 语法(3 个) —— **15 项全通过**即本地可推进部分就绪。
 
 ## 本地交付物草稿生成(无 GPU/数据,纯 PIL+matplotlib+docx)
 

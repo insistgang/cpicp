@@ -175,14 +175,23 @@ def preprocess(img, imgsz):
 
 
 def postprocess(out, conf=0.25, iou=0.5):
-    """解码 ultralytics 无NMS导出 (1, 4+nc, N) -> numpy NMS。返回 [x1,y1,x2,y2,score,cls]。"""
+    """解码 ultralytics 无NMS导出 (1, 4+nc, N) -> numpy NMS。返回 [x1,y1,x2,y2,score,cls]。
+
+    布局判定:ultralytics 无NMS导出为 (1, 4+nc, N),N(锚点数,通常数千)远大于 4+nc(列)。
+    我们用"行<列则转置"把 (4+nc, N) 摆成 (N, 4+nc)。真实 YOLO 输出永远满足 N>>4+nc,
+    该启发式稳健;只有人造极小张量(N<=4+nc)才会判反 —— 此时下面的护栏保证不崩(返回空)而非抛异常。
+    """
     import numpy as np
     o = out[0]
     a = np.array(o)
     if a.ndim == 3:
         a = a[0]
+    if a.ndim != 2:
+        return np.zeros((0, 6), dtype="float32")
     if a.shape[0] < a.shape[1]:   # (4+nc, N) -> (N, 4+nc)
         a = a.T
+    if a.shape[1] < 5 or a.shape[0] == 0:  # 列数 < 4(框)+1(至少1类) 或 无锚点 -> 无法解码,返回空
+        return np.zeros((0, 6), dtype="float32")
     boxes_xywh, scores_all = a[:, :4], a[:, 4:]
     cls = scores_all.argmax(1)
     score = scores_all.max(1)
@@ -269,8 +278,66 @@ def benchmark(runner, imgsz, source=None, warmup=20, iters=200):
         print(f"\n  🔴 含编码 {rows[2][2]:.1f}FPS < {FPS_GATE} → 启动降级链:768→640 / 关P2 / 砍P5 / INT8 / Super Mode / 抽帧")
 
 
+# ----------------------------- 解码逻辑自测(纯 numpy,无需 Orin/cv2/TRT) -----------------------------
+def _selftest():
+    """焊死 postprocess(布局判定/xywh→xyxy/conf过滤/NMS去重)与 _nms 的纯 numpy 解码逻辑。
+    这条解码若现场跑错会让所有框错位,故本地先验证;preprocess 需 cv2,在 Orin 上另行 --benchmark 验。"""
+    import numpy as np
+    ok = True
+
+    def check(c, m):
+        nonlocal ok
+        print(("  OK  " if c else "  XX  ") + m)
+        ok = ok and c
+
+    nc, N = 3, 8400
+    # 构造一帧真实形状的无NMS输出 (1, 4+nc, N),全零(score 全 0),仅 anchor 0 放一个强框:
+    #   中心(100,100) 宽高(20,20),类别 1,score 0.9 → 期望解码出 xyxy=[90,90,110,110], cls=1
+    raw = np.zeros((1, 4 + nc, N), dtype="float32")
+    raw[0, 0, 0], raw[0, 1, 0], raw[0, 2, 0], raw[0, 3, 0] = 100, 100, 20, 20
+    raw[0, 4 + 1, 0] = 0.9
+
+    dets = postprocess([raw])
+    check(dets.shape == (1, 6), f"标准布局 (1,{4+nc},{N}) 解出 1 个框({dets.shape})")
+    if len(dets):
+        x1, y1, x2, y2, s, c = dets[0]
+        check(abs(x1-90) < 1e-3 and abs(y1-90) < 1e-3 and abs(x2-110) < 1e-3 and abs(y2-110) < 1e-3,
+              f"xywh(100,100,20,20)→xyxy(90,90,110,110) 正确({x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f})")
+        check(abs(s-0.9) < 1e-6 and int(c) == 1, f"score=0.9 cls=1 正确(得 {s:.2f}/{int(c)})")
+
+    # 已转置布局 (1, N, 4+nc) 应解出同一框(转置分支等价)
+    dets_t = postprocess([raw[0].T[None]])
+    check(dets_t.shape == (1, 6) and abs(dets_t[0][0]-90) < 1e-3,
+          "已转置布局 (1,N,4+nc) 解码等价(转置分支正确)")
+
+    # conf 过滤:阈值升到 0.95 → 唯一框(0.9)被滤掉 → 空
+    check(postprocess([raw], conf=0.95).shape == (0, 6), "conf=0.95 滤掉 0.9 框 → 空结果")
+
+    # 全低于 conf(全零 score)→ 空,不崩
+    check(postprocess([np.zeros((1, 4+nc, N), "float32")]).shape == (0, 6), "全 0 score → 空结果(不崩)")
+
+    # NMS 去重:两个高度重叠框(IoU>thr)只留高分那个
+    a = np.array([[0, 0, 100, 100], [5, 5, 105, 105]], dtype="float32")
+    sc = np.array([0.9, 0.8], dtype="float32")
+    keep = _nms(a, sc, 0.5)
+    check(len(keep) == 1 and keep[0] == 0, f"NMS:重叠框留高分(keep={keep.tolist()})")
+    # 不重叠两框都保留
+    a2 = np.array([[0, 0, 10, 10], [100, 100, 110, 110]], dtype="float32")
+    check(len(_nms(a2, np.array([0.9, 0.8], "float32"), 0.5)) == 2, "NMS:不重叠框全保留")
+    # 空输入不崩
+    check(_nms(np.empty((0, 4)), np.empty((0,)), 0.5).shape == (0,), "NMS:空输入返回空(不崩)")
+
+    # 病态极小张量(列<5,无法解码)→ 返回空而非抛异常(护栏)
+    check(postprocess([np.zeros((1, 4+nc, 2), "float32")]).shape == (0, 6),
+          "病态极小张量(锚点<列数)→ 返回空(护栏,不抛 argmax 异常)")
+
+    print("\n" + ("OK trt_infer_orin 解码自测通过" if ok else "XX 自测未通过"))
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="跑解码逻辑自测(纯numpy,无需Orin)")
     ap.add_argument("--onnx")
     ap.add_argument("--engine")
     ap.add_argument("--fp16", action="store_true")
@@ -280,6 +347,9 @@ def main():
     ap.add_argument("--imgsz", type=int, default=640, help="端侧默认640;小目标紧张升768")
     ap.add_argument("--benchmark", action="store_true")
     a = ap.parse_args()
+    if a.selftest:
+        import sys
+        sys.exit(0 if _selftest() else 1)
     if not a.onnx and not a.engine:
         ap.error("需 --onnx 或 --engine 之一")
     try:

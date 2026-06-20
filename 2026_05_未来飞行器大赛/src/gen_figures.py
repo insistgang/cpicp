@@ -29,6 +29,25 @@ _CJK_CANDIDATES = ["Arial Unicode MS", "Songti SC", "STHeiti",
                    "Heiti TC", "Hiragino Sans GB", "STFangsong"]
 
 
+# 自测用的中文取样字符: 覆盖各图标题/标签里实际出现的汉字, 用于校验所选字体
+# 真的含这些字形(而非回退到无 CJK 字形的字体后渲染成方块/豆腐块)。
+_GLYPH_PROBE = "端边云违建巡查交叉融合矩阵成本架构流程商业模式学科空域"
+
+
+def cjk_glyphs_missing(font_name, probe=_GLYPH_PROBE):
+    """返回 font_name 在 probe 里缺失的汉字列表(空列表=全部可渲染)。
+
+    用 FreeType 直接查字形索引: get_char_index 返回 0 表示该字符无对应字形,
+    matplotlib 渲染时就会画成方块。这样能在不肉眼看图的前提下捕获"假绿"
+    (例如回退到 DejaVu Sans 后中文全是豆腐块, 但文件大小/尺寸自测照样通过)。
+    """
+    from matplotlib.font_manager import findfont, FontProperties
+    from matplotlib import ft2font
+    path = findfont(FontProperties(family=font_name))
+    face = ft2font.FT2Font(path)
+    return [ch for ch in probe if face.get_char_index(ord(ch)) == 0]
+
+
 def setup_cjk_font():
     avail = {f.name for f in fm.fontManager.ttflist}
     chosen = None
@@ -358,10 +377,21 @@ def generate_all(out_dir):
 
 
 def selftest(out_dir):
-    """生成全部图并校验: 文件存在、非空(>5KB)、PNG 头正确、可被 PIL 打开且尺寸>500px。"""
+    """生成全部图并校验: 文件存在、非空(>5KB)、PNG 头正确、可被 PIL 打开且尺寸>500px,
+    且所选中文字体真含图中用到的全部汉字字形(否则中文会渲染成方块=假绿)。"""
     from PIL import Image
-    paths = generate_all(out_dir)
     ok = True
+
+    # ---- 前置: 校验当前生效的 CJK 字体确实能渲染中文(防止回退到无字形字体后假绿) ----
+    chosen = matplotlib.rcParams["font.sans-serif"][0]
+    missing = cjk_glyphs_missing(chosen)
+    if missing:
+        print(f"[FAIL] 字体 '{chosen}' 缺失中文字形 {missing}, 图中中文将渲染为方块")
+        ok = False
+    else:
+        print(f"[PASS] CJK 字体 '{chosen}' 含全部取样汉字字形(中文非方块)")
+
+    paths = generate_all(out_dir)
     for p in paths:
         if not os.path.exists(p):
             print(f"[FAIL] 缺失: {p}"); ok = False; continue

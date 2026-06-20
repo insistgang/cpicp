@@ -68,7 +68,11 @@ def _selftest():
     check(r["auc"] > 0.95, f"少样本协议 AUC>0.95(={r['auc']:.3f})")
     check(r["recall"] > 0.85, f"缺陷检出率>0.85(={r['recall']:.3f})")
     check(r["bank_size"] <= 80, f"memory bank 经 coreset 压缩(={r['bank_size']}≤80)")
-    check(r["per_image_latency_ms_mean"] >= 0, f"记录 per-image 延时(mean={r['per_image_latency_ms_mean']:.3f}ms)")
+    # 延时记录有效性:mean/p95 均为有限正数(微秒级计时右尾重,p95<mean 是正常现象,
+    # 故不强加 p95≥mean;但二者必须是真实测出的有限正数,而非 NaN/0/inf 的假记录)。
+    lat_mean, lat_p95 = r["per_image_latency_ms_mean"], r["per_image_latency_ms_p95"]
+    check(np.isfinite(lat_mean) and np.isfinite(lat_p95) and lat_mean > 0 and lat_p95 > 0,
+          f"per-image 延时为有限正数(mean={lat_mean:.3f}ms, p95={lat_p95:.3f}ms)")
     print(f"  协议输出:{ {k: (round(v,3) if isinstance(v,float) else v) for k,v in r.items()} }")
 
     print("\n" + ("✅ fewshot_protocol 自测通过" if ok else "❌ 自测未通过"))

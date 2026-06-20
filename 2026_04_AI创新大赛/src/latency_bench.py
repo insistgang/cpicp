@@ -62,7 +62,11 @@ def _selftest():
 
     avg = bench(n=10)
     print("  分档平均耗时(ms):" + ", ".join(f"{k}={v:.2f}" for k, v in avg.items()))
-    check(avg["total"] > 0 and all(avg[k] >= 0 for k in avg), "各阶段计时正常")
+    # 强不变量:各阶段非负,且 total ≈ 四个分阶段之和(run_once 即按此构造,偏差说明计时拆分有误)
+    stage_sum = avg["preprocess"] + avg["feature"] + avg["score"] + avg["threshold"]
+    check(avg["total"] > 0 and all(avg[k] >= 0 for k in avg)
+          and abs(avg["total"] - stage_sum) < 1e-6 * max(1.0, avg["total"]),
+          f"各阶段计时正常且 total=分阶段之和(total={avg['total']:.3f} vs Σ={stage_sum:.3f})")
     cpu_pass = avg["total"] < CPU_BUDGET_MS
     print(f"  CPU<{CPU_BUDGET_MS:.0f}ms: {'✅ PASS' if cpu_pass else '❌ FAIL'} (total={avg['total']:.1f}ms)")
     print(f"  GPU<{GPU_BUDGET_MS:.0f}ms 红线:本机无NVIDIA GPU,需在2060级显卡上用真模型复测")

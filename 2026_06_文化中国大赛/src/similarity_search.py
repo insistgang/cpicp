@@ -64,9 +64,17 @@ def _selftest():
     top = find_similar(passages, 0, topk=4)
     check(top[0][0] == 1, f"片段0最相似的是互文片段1(得{top[0][0]})")
     check(top[0][1] > 0.0, f"互文相似度>0(={top[0][1]:.3f})")
-    # 无关诗句应排最后
-    ranks = {j: r for r, (j, _) in enumerate(top)}
-    check(ranks.get(4, 99) == max(ranks.values()), "无关诗句相似度最低")
+    # 真正的语义判别: 互文片段1 的相似度必须 *严格高于* 无关诗句4,
+    # 不能只靠"诗句恰好在末位"——那只是排序的索引顺序巧合(诗句与教化句同为0时,
+    # 末位由原索引决定,不证明算法能区分)。这里直接比两者数值。
+    scores = dict(top)
+    s_inter = scores.get(1, 0.0)   # 互文片段
+    s_poem = scores.get(4, 0.0)    # 无关诗句
+    check(s_inter > s_poem,
+          f"互文相似度({s_inter:.3f}) 严格 > 无关诗句({s_poem:.3f})")
+    # 无关诗句应是最低分(并列最低也接受)
+    check(s_poem == min(s for _, s in top),
+          f"无关诗句相似度处于最低档(={s_poem:.3f})")
 
     print("\n" + ("✅ similarity_search 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

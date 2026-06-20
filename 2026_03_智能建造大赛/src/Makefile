@@ -11,7 +11,7 @@ RUNPC  = docker run --rm $(GPU) -v $(CURDIR):/workspace -v $(DATA):/workspace/da
 help:
 	@echo "make build        构建训练镜像"
 	@echo "make prepare      下载指引+转YOLO格式(SeaDronesSee+AFO)"
-	@echo "make train        YOLO11+P2 训练(imgsz1024)"
+	@echo "make train        YOLOv12+P2 训练(imgsz1024,默认骨干 yolo12-p2)"
 	@echo "make eval         mAP + 分桶小目标召回"
 	@echo "make export       PyTorch->ONNX(+onnxruntime自检)"
 	@echo "make crossdomain  陆->海 域差评价(--demo)"

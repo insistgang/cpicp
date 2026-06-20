@@ -1,202 +1,202 @@
 [
   {
-    "text": "可",
-    "weight": 0.4947
-  },
-  {
-    "text": "自",
-    "weight": 0.454
-  },
-  {
-    "text": "教",
-    "weight": 0.342
-  },
-  {
     "text": "学",
-    "weight": 0.2504
+    "weight": 1.1938
   },
   {
-    "text": "忧",
-    "weight": 0.2504
-  },
-  {
-    "text": "可学",
-    "weight": 0.2504
-  },
-  {
-    "text": "可忧",
-    "weight": 0.2504
-  },
-  {
-    "text": "身",
-    "weight": 0.2136
-  },
-  {
-    "text": "后",
-    "weight": 0.2102
-  },
-  {
-    "text": "如",
-    "weight": 0.2061
-  },
-  {
-    "text": "风",
-    "weight": 0.1926
-  },
-  {
-    "text": "化",
-    "weight": 0.1926
-  },
-  {
-    "text": "上",
-    "weight": 0.1926
-  },
-  {
-    "text": "行",
-    "weight": 0.1926
+    "text": "所",
+    "weight": 0.8687
   },
   {
     "text": "下",
-    "weight": 0.1926
+    "weight": 0.7481
   },
   {
-    "text": "先",
-    "weight": 0.1926
+    "text": "教",
+    "weight": 0.7455
   },
   {
-    "text": "施",
-    "weight": 0.1926
+    "text": "益",
+    "weight": 0.6929
   },
   {
-    "text": "风化",
-    "weight": 0.1926
+    "text": "求",
+    "weight": 0.6503
   },
   {
-    "text": "自上",
-    "weight": 0.1926
+    "text": "求益",
+    "weight": 0.6503
   },
   {
-    "text": "自先",
-    "weight": 0.1926
+    "text": "可",
+    "weight": 0.6411
   },
   {
-    "text": "孝",
-    "weight": 0.1843
+    "text": "自",
+    "weight": 0.636
   },
   {
-    "text": "慎",
-    "weight": 0.1843
+    "text": "如",
+    "weight": 0.6125
+  },
+  {
+    "text": "行",
+    "weight": 0.594
+  },
+  {
+    "text": "书",
+    "weight": 0.4756
   },
   {
     "text": "伎",
-    "weight": 0.1789
+    "weight": 0.4222
   },
   {
-    "text": "妇",
-    "weight": 0.1669
+    "text": "父",
+    "weight": 0.377
   },
   {
-    "text": "初",
-    "weight": 0.1669
+    "text": "严",
+    "weight": 0.377
   },
   {
-    "text": "来",
-    "weight": 0.1669
+    "text": "子",
+    "weight": 0.377
   },
   {
-    "text": "儿",
-    "weight": 0.1669
+    "text": "无",
+    "weight": 0.3765
   },
   {
-    "text": "婴",
-    "weight": 0.1669
+    "text": "读",
+    "weight": 0.3456
   },
   {
-    "text": "孩",
-    "weight": 0.1669
+    "text": "上",
+    "weight": 0.3426
   },
   {
-    "text": "教妇",
-    "weight": 0.1669
+    "text": "同",
+    "weight": 0.3422
   },
   {
-    "text": "妇初",
-    "weight": 0.1669
+    "text": "信",
+    "weight": 0.3422
   },
   {
-    "text": "初来",
-    "weight": 0.1669
+    "text": "能",
+    "weight": 0.329
   },
   {
-    "text": "来教",
-    "weight": 0.1669
+    "text": "兄",
+    "weight": 0.3251
   },
   {
-    "text": "教儿",
-    "weight": 0.1669
+    "text": "弟",
+    "weight": 0.3251
   },
   {
-    "text": "儿婴",
-    "weight": 0.1669
+    "text": "分",
+    "weight": 0.3251
   },
   {
-    "text": "婴孩",
-    "weight": 0.1669
+    "text": "形",
+    "weight": 0.3251
   },
   {
-    "text": "生",
-    "weight": 0.1654
+    "text": "连",
+    "weight": 0.3251
   },
   {
-    "text": "善",
-    "weight": 0.1565
+    "text": "气",
+    "weight": 0.3251
   },
   {
-    "text": "居",
-    "weight": 0.1565
+    "text": "兄弟",
+    "weight": 0.3251
   },
   {
-    "text": "入",
-    "weight": 0.1565
+    "text": "分形",
+    "weight": 0.3251
   },
   {
-    "text": "芝",
-    "weight": 0.1565
+    "text": "形连",
+    "weight": 0.3251
   },
   {
-    "text": "兰",
-    "weight": 0.1565
+    "text": "连气",
+    "weight": 0.3251
   },
   {
-    "text": "室",
-    "weight": 0.1565
+    "text": "身",
+    "weight": 0.3107
   },
   {
-    "text": "久",
-    "weight": 0.1565
+    "text": "后",
+    "weight": 0.2851
   },
   {
-    "text": "芳",
-    "weight": 0.1565
+    "text": "天",
+    "weight": 0.2846
   },
   {
-    "text": "居如",
-    "weight": 0.1565
+    "text": "未",
+    "weight": 0.2846
   },
   {
-    "text": "如入",
-    "weight": 0.1565
+    "text": "遍",
+    "weight": 0.2846
   },
   {
-    "text": "入芝",
-    "weight": 0.1565
+    "text": "得",
+    "weight": 0.2846
   },
   {
-    "text": "芝兰",
-    "weight": 0.1565
+    "text": "妄",
+    "weight": 0.2846
   },
   {
-    "text": "室久",
-    "weight": 0.1565
+    "text": "雌",
+    "weight": 0.2846
+  },
+  {
+    "text": "黄",
+    "weight": 0.2846
+  },
+  {
+    "text": "天下",
+    "weight": 0.2846
+  },
+  {
+    "text": "下书",
+    "weight": 0.2846
+  },
+  {
+    "text": "书未",
+    "weight": 0.2846
+  },
+  {
+    "text": "未遍",
+    "weight": 0.2846
+  },
+  {
+    "text": "得妄",
+    "weight": 0.2846
+  },
+  {
+    "text": "妄下",
+    "weight": 0.2846
+  },
+  {
+    "text": "下雌",
+    "weight": 0.2846
+  },
+  {
+    "text": "雌黄",
+    "weight": 0.2846
+  },
+  {
+    "text": "古",
+    "weight": 0.2709
   }
 ]

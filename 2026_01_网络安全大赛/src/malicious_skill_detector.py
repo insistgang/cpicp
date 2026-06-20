@@ -40,16 +40,26 @@ def _long_base64_spans(text, min_len=120):
 
 
 def detect(text: str):
-    """返回 {risk_score, malicious(bool), hits:[(rule, span, snippet)]}。"""
-    hits, score = [], 0.0
+    """返回 {risk_score, malicious(bool), hits:[(rule, span, snippet)]}。
+
+    评分按"命中的规则种类"而非"命中次数"累计:每条规则最多贡献一次其权重 w,
+    所有命中 span 仍全部记入 hits 作证据。这样恶意分来自规则多样性(隐藏指令+凭据读
+    取+外联+反弹shell 等组合),而非重复同一模式 —— 避免良性描述里仅多写了几个公开
+    URL(每个 exfil_url 0.3)被累加到 0.5+ 误判为恶意(对齐官方 误报<5%)。
+    """
+    hits = []
+    rule_weight = {}          # 每条命中规则只取一次权重(取该规则的固定权重 w)
     for name, pat, w in RULES:
+        matched = False
         for m in re.finditer(pat, text):
             hits.append((name, (m.start(), m.end()), text[m.start():m.end()][:60]))
-            score += w
+            matched = True
+        if matched:
+            rule_weight[name] = w
     for s, e in _long_base64_spans(text):
         hits.append(("long_base64", (s, e), text[s:s + 40] + "..."))
-        score += 0.4
-    score = min(1.0, score)
+        rule_weight["long_base64"] = 0.4
+    score = min(1.0, sum(rule_weight.values()))
     return {"risk_score": score, "malicious": score >= 0.5, "hits": hits}
 
 
@@ -87,6 +97,14 @@ def _selftest():
     names = {h[0] for h in r["hits"]}
     check("hidden_instruction" in names and "cred_read" in names, "证据定位:命中隐藏指令+凭据读取")
     check(all(isinstance(h[1], tuple) for h in r["hits"]), "每条命中带证据 span(offset)")
+
+    # 回归:良性描述里列多个公开外联 URL,不得因重复累加单一规则被误判为恶意
+    multi_url = "Integrates with https://api.stripe.com and https://api.github.com to sync data."
+    mu = detect(multi_url)
+    check(not mu["malicious"] and mu["risk_score"] < 0.5,
+          f"多个公开URL良性描述零误报(score={mu['risk_score']:.2f})")
+    check(sum(1 for h in mu["hits"] if h[0] == "exfil_url") >= 2,
+          "多URL证据 span 仍全部保留(可审计)")
 
     print("\n" + ("✅ malicious_skill_detector 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

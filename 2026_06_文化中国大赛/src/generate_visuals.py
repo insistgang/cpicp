@@ -61,8 +61,10 @@ NETWORK_EDGES = [
     {"source": "朱子家训", "target": "弟子规",  "relation": "蒙学共现",    "strength": 0.55},
 ]
 
-# 经典片段(用于 TF-IDF/互文演示)
-PASSAGES = [
+# 经典片段(用于 TF-IDF/互文演示)。
+# ─ 代码内置的回退样本; 若 src/corpus/yanshi_selected.txt 存在则优先用该文件,
+#   便于队员把校勘好的全本直接放进去而无需改代码(见 load_corpus)。
+_FALLBACK_PASSAGES = [
     "夫圣贤之书，教人诚孝，慎言检迹，立身扬名，亦已备矣。",
     "积财千万，不如薄伎在身。伎之易习而可贵者，无过读书。",
     "父母威严而有慈，则子女畏慎而生孝矣。",
@@ -72,6 +74,25 @@ PASSAGES = [
     "人生小幼，精神专利，长成已后，思虑散逸，固须早教，勿失机也。",
     "然则可学而不可学者，其身体；可忧而不可忧者，其年寿。",
 ]
+
+CORPUS_PATH = os.path.join(HERE, "corpus", "yanshi_selected.txt")
+
+
+def load_corpus(path=CORPUS_PATH):
+    """优先从语料文件读取片段(每行一段, # 注释/空行忽略); 文件缺失或为空则回退内置样本。
+    返回 (passages, source_label)。"""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            lines = [ln.strip() for ln in f]
+        passages = [ln for ln in lines if ln and not ln.startswith("#")]
+        if passages:
+            return passages, os.path.relpath(path, PROJ)
+    except (OSError, UnicodeDecodeError):
+        pass
+    return list(_FALLBACK_PASSAGES), "内置回退样本"
+
+
+PASSAGES, _CORPUS_SRC = load_corpus()
 
 
 def ensure_dir(path):
@@ -88,6 +109,7 @@ def write_json(data, path):
 def generate_all_jsons(outdir=OUTDIR):
     """生成全部 JSON 数据文件。"""
     print("=== 生成可视化数据文件 ===")
+    print(f"  语料来源: {_CORPUS_SRC} ({len(PASSAGES)} 段)")
     write_json(VERSION_TIMELINE, os.path.join(outdir, "timeline.json"))
     write_json(DIFFUSION_PATH,   os.path.join(outdir, "diffusion.json"))
     write_json(export_wordcloud_json(PASSAGES, topk=50),
@@ -248,6 +270,13 @@ def _selftest():
     check(len(DIFFUSION_PATH) == 4, f"传播路径4层(={len(DIFFUSION_PATH)})")
     check(len(NETWORK_NODES) == 6, f"网络节点6个(={len(NETWORK_NODES)})")
     check(len(NETWORK_EDGES) == 6, f"网络边6条(={len(NETWORK_EDGES)})")
+
+    # 1b. 语料加载: 优先文件、缺失回退, 两条路径都验证一遍
+    file_psg, file_src = load_corpus()
+    check(len(file_psg) >= 8, f"语料加载非空({len(file_psg)} 段, 来源: {file_src})")
+    missing_psg, missing_src = load_corpus(os.path.join(HERE, "corpus", "_nonexistent_.txt"))
+    check(missing_psg == _FALLBACK_PASSAGES and missing_src == "内置回退样本",
+          "语料文件缺失时正确回退到内置样本")
 
     # 2. 生成文件(用 __file__ 相对的 OUTDIR, 不受运行目录影响)
     outdir = OUTDIR

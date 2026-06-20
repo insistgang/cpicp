@@ -16,7 +16,7 @@ PYBIN="$(pick_py)"
 echo "解释器: $PYBIN ($("$PYBIN" --version 2>&1))"
 
 # 无参自测(直接 python f.py)
-for f in anomaly_score patchcore_lite aoi_metrics fewshot_protocol latency_bench illegal_build_pipeline feature_backend; do
+for f in anomaly_score patchcore_lite aoi_metrics fewshot_protocol latency_bench illegal_build_pipeline feature_backend online_learning; do
   echo "=== $f ==="; "$PYBIN" "$f.py"
 done
 # --selftest 形式

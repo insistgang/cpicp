@@ -20,6 +20,19 @@ from typing import List, Dict, Tuple
 CREDENTIAL_RE = re.compile(
     r'(?i)["\']?(api[_-]?key|token|password|secret|auth|credential|private[_-]?key|access[_-]?key)["\']?\s*[:=]\s*["\']?([^"\'\s\n,}]{4,})["\']?'
 )
+# 安全引用占位符:值不是硬编码明文,而是对环境变量/密钥管理的引用,不应误判为硬编码凭据。
+# 覆盖 ${VAR} / $VAR / %VAR% / {{VAR}} / env:NAME / vault:... / secretRef 等推荐安全写法。
+# 注意:CREDENTIAL_RE 的值捕获组以 } 为终止符,${VAR} 会被截成 "${VAR"(无尾括号),
+# 故 ${ / {{ / % / < 等开括号分支不强制匹配闭合符,只看前缀即可判定为引用。
+CREDENTIAL_PLACEHOLDER_RE = re.compile(
+    r'(?i)^(\$\{|\$[a-z_]|%[a-z_]|\{\{|<[a-z_]|env:|vault:|secret(ref|_ref)?:|aws:|gcp:|azure:|xxx+|changeme|your[-_]?\w*|\*+|placeholder)',
+)
+
+
+def _is_placeholder_credential(value: str) -> bool:
+    """判断凭据值是否为环境变量引用/占位符(安全写法),而非硬编码明文。"""
+    v = value.strip().strip('"\'')
+    return bool(v) and bool(CREDENTIAL_PLACEHOLDER_RE.match(v))
 # 危险命令行
 DANGEROUS_CMD_RE = re.compile(
     r'(?i)(bash\s+-c|sh\s+-c|cmd\.exe|powershell|curl\s+.*\||wget\s+.*\||eval\s*\(|exec\s*\()'
@@ -70,8 +83,10 @@ class ConfigRiskScanner:
         lines = text.splitlines()
 
         for i, line in enumerate(lines, 1):
-            # 1. 明文凭据
+            # 1. 明文凭据(排除环境变量引用/占位符等安全写法,避免误报)
             for m in CREDENTIAL_RE.finditer(line):
+                if _is_placeholder_credential(m.group(2)):
+                    continue
                 findings.append({
                     "type": "hardcoded_credential",
                     "line": i,
@@ -233,6 +248,23 @@ def _selftest():
 }"""
     benign_findings = ConfigRiskScanner().scan_text(benign_config, source="benign.json")
     check(len(benign_findings) == 0, f"良性配置零误报({len(benign_findings)})")
+
+    # 安全引用(环境变量/密钥管理占位符)不应误判为硬编码凭据(对齐官方 误报<5%)
+    secure_refs = """{
+  "api_key": "${OPENAI_API_KEY}",
+  "token": "env:GITHUB_TOKEN",
+  "password": "$DB_PASS",
+  "secret": "vault:kv/data/app#token",
+  "access_key": "<YOUR_ACCESS_KEY>"
+}"""
+    sf = ConfigRiskScanner().scan_text(secure_refs, source="secure.json")
+    sf_cred = [x for x in sf if x["type"] == "hardcoded_credential"]
+    check(len(sf_cred) == 0, f"环境变量/占位符引用零误报(误报={len(sf_cred)}条)")
+    # 但真正硬编码的明文凭据仍必须被抓到(不能因放过占位符而漏掉真凭据)
+    real = ConfigRiskScanner().scan_text('{"api_key": "sk-live-abcd1234efgh"}')
+    check(any(x["type"] == "hardcoded_credential" for x in real), "真硬编码明文凭据仍被检出")
+    check(_is_placeholder_credential("${X}") and not _is_placeholder_credential("sk-1234abcd"),
+          "占位符判定:引用为真、明文为假")
 
     print("\n" + ("✅ config_risk_scanner 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)

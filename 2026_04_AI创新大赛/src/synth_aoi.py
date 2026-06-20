@@ -78,18 +78,22 @@ def gen_dataset(n_normal=60, n_defect=40, size=256, seed=0):
     每张图的 seed 由顶层 seed 派生且分段隔离:不同的顶层 seed 产出**互不重叠**的件
     (训练/测试用不同 seed 调本函数即可保证无泄漏)。同一 seed 可完全复现。
     """
-    # 顶层 seed 派生出正常/缺陷两条互不相交的件级 seed 序列;
-    # 不同顶层 seed 的件级 seed 段不重叠(每段预留 1e6 容量,远大于任何数据集规模)。
-    normal_base = 1_000_000 + seed * 1_000_000
-    defect_base = 500_000_000 + seed * 1_000_000
+    # 顶层 seed 派生出正常/缺陷两条**证明互不相交**的件级 seed 序列。
+    # 把 (seed, index) 唯一编码成 cell=seed*1e6+index(index<1e6),件级 seed 再按
+    # 流(正常/缺陷)取不同奇偶:normal=2*cell+BASE、defect=2*cell+BASE+1。
+    # 两流恒差 1 个奇偶位 → 对任意 seed/index 都**不可能**碰撞(此前同 stride 的
+    # normal_base/defect_base 在大 seed 下会 alias,如 seed=999 正常 vs seed=500 缺陷)。
+    BASE = 1_000_000_000
+    def _cell(s, idx):
+        return s * 1_000_000 + idx                 # idx<1e6,(seed,idx) 唯一
     images, labels, metas = [], [], []
     for i in range(n_normal):
-        images.append(make_normal(size, seed=normal_base + i))
+        images.append(make_normal(size, seed=2 * _cell(seed, i) + BASE))
         labels.append(0)
         metas.append({"kind": "normal", "bbox": None})
     for j in range(n_defect):
         kind = DEFECT_KINDS[j % len(DEFECT_KINDS)]   # 4 类均匀覆盖
-        img, bbox, k = make_defect(size, seed=defect_base + j, kind=kind)
+        img, bbox, k = make_defect(size, seed=2 * _cell(seed, j) + BASE + 1, kind=kind)
         images.append(img)
         labels.append(1)
         metas.append({"kind": k, "bbox": bbox})
@@ -161,6 +165,15 @@ def _selftest():
     a_set = {im.tobytes() for im in a_imgs}
     overlap = sum(1 for im in b_imgs if im.tobytes() in a_set)
     check(overlap == 0, f"不同 seed 数据集逐张无重叠(seed0 vs seed777 重叠={overlap})")
+    # 回归锁:旧的"同 stride"件级 seed 方案下,seed=999 的正常件级 seed 段会 alias
+    # seed=500 的缺陷件级 seed 段(1e9 处),致正常底图与某缺陷底图同源。新奇偶编码后必为 0。
+    # 直接比对两段件级 seed 生成的底图(缺陷件去缺陷前即 make_normal)。
+    from_normal = {make_normal(48, seed=2 * (999 * 1_000_000 + i) + 1_000_000_000).tobytes()
+                   for i in range(600)}
+    from_defect_base = {make_normal(48, seed=2 * (500 * 1_000_000 + j) + 1_000_000_000 + 1).tobytes()
+                        for j in range(600)}
+    check(len(from_normal & from_defect_base) == 0,
+          f"奇偶编码后 seed999正常底图 vs seed500缺陷底图 件级seed 零碰撞(共享底图={len(from_normal & from_defect_base)})")
     # 同 seed 必须完全复现
     c_imgs, _, _ = gen_dataset(n_normal=5, n_defect=5, size=64, seed=0)
     d_imgs, _, _ = gen_dataset(n_normal=5, n_defect=5, size=64, seed=0)

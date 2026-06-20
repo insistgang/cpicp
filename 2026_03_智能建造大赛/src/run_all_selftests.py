@@ -9,11 +9,12 @@ run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU
 
 覆盖模块:
   - geolocate.py      (8项几何自测)
-  - track_filter.py   (5项时序滤波自测)
+  - track_filter.py   (7项时序滤波自测)
   - augment_water.py  (5项增广自测)
   - losses_smalltarget.py (9项损失自测)
+  - trt_infer_orin.py (10项解码自测:postprocess布局/xywh→xyxy/conf过滤/NMS,纯numpy)
   - stream_qgc.py     (模块接线 + GStreamer 检查)
-  - crossdomain_eval.py (随机特征域差流程)
+  - crossdomain_eval.py (域差度量数学性质,带断言)
   - prepare_data.py   (guide 输出格式检查)
   - tools/gen_water_scene.py    (合成海面+GT-Glint 增广配图自测)
   - tools/gen_report_figs.py    (分桶召回/PR/FPS-精度 图表自测)
@@ -21,8 +22,9 @@ run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU
   - tools/gen_perf_report_docx.py (性能报告 docx 结构/OOXML/内嵌图自测)
   - configs/*.yaml    (YAML 语法合法性)
 
-注意: train.py / eval.py / export_onnx.py / trt_infer_orin.py 需真实数据/GPU/Orin,
-      不在本地自测范围内(由 Makefile 在 Docker 中跑)。
+注意: train.py / eval.py / export_onnx.py 需真实数据/GPU(由 Makefile 在 Docker 中跑)。
+      trt_infer_orin.py 的引擎构建/测速需 Orin,但其纯 numpy 解码逻辑(postprocess/_nms)
+      已可本地 --selftest(见上),preprocess 需 cv2 仍在 Orin 上 --benchmark 验。
 """
 import subprocess
 import sys
@@ -35,8 +37,9 @@ TESTS = [
     ("track_filter",     [sys.executable, "track_filter.py"]),
     ("augment_water",    [sys.executable, "augment_water.py", "--selftest"]),
     ("losses_smalltarget", [sys.executable, "losses_smalltarget.py"]),
+    ("trt_infer_orin_decode", [sys.executable, "trt_infer_orin.py", "--selftest"]),
     ("stream_qgc",       [sys.executable, "stream_qgc.py", "--selftest"]),
-    ("crossdomain_eval", [sys.executable, "crossdomain_eval.py", "--demo"]),
+    ("crossdomain_eval", [sys.executable, "crossdomain_eval.py", "--selftest"]),
     ("prepare_data_guide", [sys.executable, "prepare_data.py", "--root", "./datasets", "--step", "guide"]),
     ("gen_water_scene",  [sys.executable, "tools/gen_water_scene.py", "--selftest"]),
     ("gen_report_figs",  [sys.executable, "tools/gen_report_figs.py", "--selftest"]),

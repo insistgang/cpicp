@@ -190,6 +190,10 @@ def render_diffusion(name="fig_diffusion.png"):
     return _save(fig, name)
 
 
+# 词云铺满率统计(render_wordcloud 写, _selftest 读取并断言)
+LAST_WORDCLOUD_FILL = {"drawn": 0, "total": 0}
+
+
 # ============================================================
 # 3. 教化主题词云(权重→字号, 无需 wordcloud 库)
 #    采用矩形 bbox 螺旋放置 + 真实碰撞检测(基于估算文本框), 保证不重叠且铺满。
@@ -253,6 +257,8 @@ def render_wordcloud(name="fig_wordcloud.png", topk=30):
     ax.set_title("教化主题词云 · TF-IDF 字-bigram 提取",
                  fontproperties=fp(15, bold=True), color=C_DARK, pad=10)
     p = _save(fig, name)
+    LAST_WORDCLOUD_FILL["drawn"] = drawn
+    LAST_WORDCLOUD_FILL["total"] = len(data)
     print(f"     (词云放置 {drawn}/{len(data)} 词)")
     return p
 
@@ -406,6 +412,14 @@ def _selftest():
         exists = os.path.exists(p)
         size = os.path.getsize(p) if exists else 0
         check(exists and size > 2000, f"{name} 生成且非空 ({size} bytes)")
+
+    # 词云铺满率: 螺旋碰撞放置不应大量丢词(否则字号/螺旋参数回归).
+    # 默认语料应近乎全放; 设 ≥90% 阈值, 既能抓真实回归又不脆.
+    drawn = LAST_WORDCLOUD_FILL["drawn"]
+    total = LAST_WORDCLOUD_FILL["total"]
+    fill = drawn / total if total else 0.0
+    check(total > 0 and fill >= 0.90,
+          f"词云铺满率 {drawn}/{total} = {fill:.0%} (阈值≥90%)")
 
     print("\n" + ("✅ render_figures 自测通过" if ok else "❌ render_figures 自测未通过"))
     sys.exit(0 if ok else 1)
