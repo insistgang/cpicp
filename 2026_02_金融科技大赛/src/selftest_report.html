@@ -19,15 +19,15 @@
 <div class="card">
   <h1>赛题#23 金融影像智能相似度检测 · 全模块自测报告</h1>
   <div class="summary">
-    <b>11/11</b> 模块通过 · 状态: ✅ 全部通过
+    <b>11/11</b> 模块通过 · 状态: [OK] 全部通过
   </div>
   <table>
     <tr><th>模块</th><th>状态</th><th>耗时</th><th>输出(末尾500字)</th><th>错误</th></tr>
     
         <tr>
           <td><b>prepare_data</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.03s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>0.05s</td>
           <td><pre>  ✅ 合成清单 103 条影像
   ✅ 分类集:面签 16/103(正负都有)
   ✅ 相似度对:正 92 / 负 184
@@ -43,8 +43,8 @@
         
         <tr>
           <td><b>metrics</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.09s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>0.14s</td>
           <td><pre>  ✅ 可分场景 AUC≈1(=1.0000)
   ✅ 最优F1阈值 F1>0.9(thr=0.580, F1=1.000)
   ✅ 目标精度≥0.99 可满足(P=0.990, R=1.000)
@@ -64,8 +64,8 @@
         
         <tr>
           <td><b>similarity</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.05s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>0.13s</td>
           <td><pre>  ✅ 跨客户套用(base↔reused,客户A↔B)被标为 cross_customer_misuse
   ✅ 同客户重复(base↔dup,都客户A)被标为 same_customer_repeat
   ✅ 不相干影像未被误报
@@ -79,8 +79,8 @@
         
         <tr>
           <td><b>app_demo</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.05s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>0.15s</td>
           <td><pre>### 检测汇总(阈值 0.9)
 - 可疑相似对总数:**3**
 - ⚠️ 跨客户套用(最严重):**2**
@@ -99,8 +99,8 @@
         
         <tr>
           <td><b>features</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>1.04s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>1.26s</td>
           <td><pre>  ✅ 单图特征维度 176
   ✅ 单图特征全有限(无 NaN/Inf)
   ✅ 批量嵌入 N=3(shape=(3, 2))
@@ -117,26 +117,26 @@
         
         <tr>
           <td><b>synth_images</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.18s</td>
-          <td><pre>  ✅ 生成 48 条影像记录
-  ✅ manifest.csv 已写出
-  ✅ 所有 PNG 文件存在且非空
-  ✅ PNG 可被 PIL 读取(size=(128, 128), mode=RGB)
-  ✅ 含跨客户套用 group 5 个(同组异客户)
-  ✅ 类型多样(['合同文档', '权属证明', '证件', '面签照片'])
-  ✅ 同组副本像素相似 > 跨组(0.995 > 0.889)—生成器有效
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>0.34s</td>
+          <td><pre>  [OK] 生成 48 条影像记录
+  [OK] manifest.csv 已写出
+  [OK] 所有 PNG 文件存在且非空
+  [OK] PNG 可被 PIL 读取(size=(128, 128), mode=RGB)
+  [OK] 含跨客户套用 group 5 个(同组异客户)
+  [OK] 类型多样(['合同文档', '权属证明', '证件', '面签照片'])
+  [OK] 同组副本像素相似 > 跨组(0.994 > 0.874)—生成器有效
 
-✅ synth_images 自测通过
+[OK] synth_images 自测通过
 </pre></td>
           <td><pre>(无)</pre></td>
         </tr>
         
         <tr>
           <td><b>classify</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>1.18s</td>
-          <td><pre>  torch 可用: False(False 时走经典线性探针回退)
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>3.36s</td>
+          <td><pre>  torch 可用: True(False 时走经典线性探针回退)
   ✅ 数据:面签 21/117(正负都有)
   [classify] torch/CLIP 不可用 → 经典特征线性探针回退(baseline)
   ✅ 对测试集全部出预测
@@ -150,14 +150,14 @@
         
         <tr>
           <td><b>embed</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>0.88s</td>
-          <td><pre>  torch 可用: False(False 时走经典特征回退)
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>2.96s</td>
+          <td><pre>  torch 可用: True(False 时走经典特征回退)
   [embed] torch/CLIP 不可用 → 回退到经典 CPU 特征(baseline,非 CLIP)
   ✅ 经典回退提取 (33, 32) 行数=图数
   ✅ 嵌入全有限
-  ✅ 经典嵌入:同组 0.960 > 跨组 0.422
-✓ 保存 (33, 32) → /var/folders/_7/s7jfcqsj62j5d883txcgyy8h0000gn/T/tmpz_ejk7ij/emb.npy / .json
+  ✅ 经典嵌入:同组 0.956 > 跨组 0.448
+✓ 保存 (33, 32) → C:\Users\ADMINI~1\AppData\Local\Temp\tmpkln5no7n\emb.npy / .json
   ✅ 嵌入 .npy/.json 落盘非空
 
 ✅ embed 自测通过
@@ -167,20 +167,20 @@
         
         <tr>
           <td><b>pipeline</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>1.00s</td>
-          <td><pre>cqsj62j5d883txcgyy8h0000gn/T/tmprcsn0bsw/synth)
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>1.63s</td>
+          <td><pre>\ADMINI~1\AppData\Local\Temp\tmpmeln8524\synth)
 [2/6] 分类筛面签: 28/101 张面签照片
 [3/6] 经典特征(PIL+sklearn baseline)提取(真实像素): (28, 28)
 [4/6] 相似度对(group_id 真值): 正 15 / 负 30
-[5/6] 阈值分析(真实特征余弦,非随机): AUC=1.0000 | 最优 F1 阈值=0.251 (P=1.000,R=1.000,F1=1.000) | Top-1 同组检索=1.0000
-[6/6] 去重检测(阈值 0.251(自动选)): 可疑对 31 | ⚠️跨客户套用 30 | 同客户重复 1
+[5/6] 阈值分析(真实特征余弦,非随机): AUC=1.0000 | 最优 F1 阈值=0.210 (P=1.000,R=1.000,F1=1.000) | Top-1 同组检索=1.0000
+[6/6] 去重检测(阈值 0.210(自动选)): 可疑对 42 | ⚠️跨客户套用 41 | 同客户重复 1
   ✅ 真实像素流水线完成
   ✅ 嵌入行数=面签照片数(真实像素提取)
   ✅ 真实像素 AUC>0.9(=1.000)—特征非随机
   ✅ 真实像素最优 F1>0.85(=1.000)
   ✅ 真实像素 Top-1 同组检索>0.85(=1.000)
-  ✅ 真实像素检出跨客户套用 30 对
+  ✅ 真实像素检出跨客户套用 41 对
 
 ✅ pipeline 端到端自测通过(模拟向量 + 真实像素)
 </pre></td>
@@ -189,25 +189,25 @@
         
         <tr>
           <td><b>viz_dedup</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>1.38s</td>
-          <td><pre>  ✅ 真实像素流水线产出 res
-  ✅ 可视化 PNG 生成且非空(351495 字节)
-  ✅ PNG 合法可读(format=PNG, size=(1467, 886))
-  ✅ 无可疑对场景也能出图(不崩)
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>2.20s</td>
+          <td><pre>  [OK] 真实像素流水线产出 res
+  [OK] 可视化 PNG 生成且非空(315745 字节)
+  [OK] PNG 合法可读(format=PNG, size=(1457, 892))
+  [OK] 无可疑对场景也能出图(不崩)
 
-✅ viz_dedup 自测通过
+[OK] viz_dedup 自测通过
 </pre></td>
           <td><pre>(无)</pre></td>
         </tr>
         
         <tr>
           <td><b>ablation</b></td>
-          <td style="color:#2ecc71">✅ 通过</td>
-          <td>1.28s</td>
+          <td style="color:#2ecc71">[OK] 通过</td>
+          <td>1.94s</td>
           <td><pre>  ✅ 特征组成消融出 4 行(color/grad/block/all)
-  ✅ 各特征成分单独都可分 AUC>0.7({'color': 0.9968, 'grad': 1.0, 'block': 1.0, 'all': 1.0})
-  ✅ 全拼接 AUC≥最弱单成分(all=1.0, min_single=0.9968)
+  ✅ 各特征成分单独都可分 AUC>0.7({'color': 0.9952, 'grad': 0.9992, 'block': 1.0, 'all': 1.0})
+  ✅ 全拼接 AUC≥最弱单成分(all=1.0, min_single=0.9952)
   ✅ PCA 维度消融 4 个维度全跑通且 AUC 有限
   ✅ 各 PCA 维度 AUC>0.8({0: 1.0, 16: 1.0, 32: 1.0, 64: 1.0})
   ✅ 标准化消融 on/off 两行,AUC 有限([(False, 1.0), (True, 1.0)])
@@ -220,7 +220,7 @@
         </tr>
         
   </table>
-  <div class="timestamp">生成时间: 2026-06-20 14:25:06</div>
+  <div class="timestamp">生成时间: 2026-06-24 23:44:14</div>
 </div>
 </body>
 </html>

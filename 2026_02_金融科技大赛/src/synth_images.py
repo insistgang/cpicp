@@ -234,7 +234,7 @@ def _selftest():
 
     def check(c, m):
         nonlocal ok
-        print(("  ✅ " if c else "  ❌ ") + m); ok = ok and c
+        print(("  [OK] " if c else "  [FAIL] ") + m); ok = ok and c
 
     with tempfile.TemporaryDirectory() as td:
         out = os.path.join(td, "synth")
@@ -249,9 +249,9 @@ def _selftest():
 
         # 是真实可读图像(非占位)
         sample = records[0]["image_path"]
-        im = Image.open(os.path.join(out, sample))
-        check(im.size == (128, 128) and im.mode in ("RGB", "RGBA"),
-              f"PNG 可被 PIL 读取(size={im.size}, mode={im.mode})")
+        with Image.open(os.path.join(out, sample)) as im:
+            check(im.size == (128, 128) and im.mode in ("RGB", "RGBA"),
+                  f"PNG 可被 PIL 读取(size={im.size}, mode={im.mode})")
 
         # 必须构造出跨客户套用(同 group 不同 customer)
         from collections import defaultdict
@@ -288,7 +288,7 @@ def _selftest():
         check(s_same > s_other,
               f"同组副本像素相似 > 跨组({s_same:.3f} > {s_other:.3f})—生成器有效")
 
-    print("\n" + ("✅ synth_images 自测通过" if ok else "❌ synth_images 自测未通过"))
+    print("\n" + ("[OK] synth_images 自测通过" if ok else "[FAIL] synth_images 自测未通过"))
     sys.exit(0 if ok else 1)
 
 
@@ -305,7 +305,7 @@ def main():
         return
     records, mpath = generate(a.out, n_groups=a.n_groups, reuse_frac=a.reuse_frac, seed=a.seed)
     n_face = sum(1 for r in records if r["type_label"] == "面签照片")
-    print(f"✓ 生成 {len(records)} 张合成影像 → {os.path.abspath(a.out)}")
+    print(f"[OK] 生成 {len(records)} 张合成影像 -> {os.path.abspath(a.out)}")
     print(f"  面签照片 {n_face} 张 | manifest: {mpath}")
     print(f"  下一步: python pipeline.py --real-images {a.out}")
 

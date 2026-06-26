@@ -45,26 +45,38 @@ MODULES = [
 ]
 
 
+def safe_console(text):
+    """Return text printable on the current console without UnicodeEncodeError."""
+    enc = sys.stdout.encoding or "utf-8"
+    return str(text).encode(enc, errors="replace").decode(enc, errors="replace")
+
+
 def run_module(name, cmd, verbose=False):
     """运行单个模块,返回 (通过?, stdout, stderr, 耗时秒)。"""
     if verbose:
         print(f"\n{'='*60}")
-        print(f"▶ 运行 {name} …")
+        print(f"[RUN] {name}")
         print(f"  命令: {' '.join(cmd)}")
     t0 = time.time()
+    child_env = os.environ.copy()
+    child_env["PYTHONIOENCODING"] = "utf-8"
+    child_env["PYTHONUTF8"] = "1"
     proc = subprocess.run(
         cmd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=os.path.dirname(os.path.abspath(__file__)),
+        env=child_env,
     )
     elapsed = time.time() - t0
     passed = proc.returncode == 0
     if verbose:
-        print(proc.stdout)
+        print(safe_console(proc.stdout))
         if proc.stderr:
-            print("[stderr]", proc.stderr)
-        print(f"  结果: {'✅ 通过' if passed else '❌ 失败'} ({elapsed:.2f}s)")
+            print("[stderr]", safe_console(proc.stderr))
+        print(f"  结果: {'[OK]' if passed else '[FAIL]'} ({elapsed:.2f}s)")
     return passed, proc.stdout, proc.stderr, elapsed
 
 
@@ -74,7 +86,7 @@ def generate_html_report(results, out_path="selftest_report.html"):
     passed = sum(1 for r in results if r["passed"])
     rows = ""
     for r in results:
-        status = "✅ 通过" if r["passed"] else "❌ 失败"
+        status = "[OK] 通过" if r["passed"] else "[FAIL] 失败"
         color = "#2ecc71" if r["passed"] else "#e74c3c"
         stderr = r["stderr"] or "(无)"
         rows += f"""
@@ -108,7 +120,7 @@ def generate_html_report(results, out_path="selftest_report.html"):
 <div class="card">
   <h1>赛题#23 金融影像智能相似度检测 · 全模块自测报告</h1>
   <div class="summary">
-    <b>{passed}/{total}</b> 模块通过 · 状态: {'✅ 全部通过' if passed == total else '❌ 存在失败'}
+    <b>{passed}/{total}</b> 模块通过 · 状态: {'[OK] 全部通过' if passed == total else '[FAIL] 存在失败'}
   </div>
   <table>
     <tr><th>模块</th><th>状态</th><th>耗时</th><th>输出(末尾500字)</th><th>错误</th></tr>
@@ -120,7 +132,7 @@ def generate_html_report(results, out_path="selftest_report.html"):
 </html>"""
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"\n📄 HTML 报告已生成: {os.path.abspath(out_path)}")
+    print(f"\n[OK] HTML 报告已生成: {os.path.abspath(out_path)}")
 
 
 def main():
@@ -147,19 +159,19 @@ def main():
         })
         all_passed = all_passed and passed
         if not a.verbose:
-            status = "✅" if passed else "❌"
+            status = "[OK]" if passed else "[FAIL]"
             print(f"  {status} {name:12s} ({elapsed:.2f}s)")
 
     print("\n" + "=" * 60)
     passed_count = sum(1 for r in results if r["passed"])
     total = len(results)
     if all_passed:
-        print(f"✅ 全部 {total} 个模块自测通过")
+        print(f"[OK] 全部 {total} 个模块自测通过")
     else:
-        print(f"❌ {passed_count}/{total} 通过,存在失败模块")
+        print(f"[FAIL] {passed_count}/{total} 通过,存在失败模块")
         for r in results:
             if not r["passed"]:
-                print(f"   → {r['name']}: 返回码非0")
+                print(f"   -> {r['name']}: 返回码非0")
                 if r["stderr"]:
                     print(f"     stderr: {r['stderr'][:200]}")
     print("=" * 60)

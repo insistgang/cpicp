@@ -16,6 +16,10 @@ import sys
 
 # 中文字体(matplotlib 默认无中文,显式注册避免豆腐块)
 _FONT_CANDIDATES = [
+    "Microsoft YaHei",
+    "SimHei",
+    "Noto Sans CJK SC",
+    "Source Han Sans SC",
     "/System/Library/Fonts/STHeiti Light.ttc",
     "/System/Library/Fonts/Hiragino Sans GB.ttc",
     "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
@@ -35,6 +39,11 @@ def _setup_cn_font():
                 return name
             except Exception:
                 continue
+        if c in {f.name for f in font_manager.fontManager.ttflist}:
+            matplotlib.rcParams["font.family"] = c
+            matplotlib.rcParams["axes.unicode_minus"] = False
+            return c
+    matplotlib.rcParams["axes.unicode_minus"] = False
     return None
 
 
@@ -76,7 +85,8 @@ def visualize(res, out_path="dedup_viz.png", image_dir=None, max_pairs=4):
         if image_dir:
             p = os.path.join(image_dir, img_id)
             if os.path.exists(p):
-                return np.asarray(Image.open(p).convert("RGB").resize((96, 96)))
+                with Image.open(p) as im:
+                    return np.asarray(im.convert("RGB").resize((96, 96))).copy()
         return np.full((96, 96, 3), 200, np.uint8)
 
     if show_pairs:
@@ -115,7 +125,7 @@ def _selftest():
 
     def check(c, m):
         nonlocal ok
-        print(("  ✅ " if c else "  ❌ ") + m); ok = ok and c
+        print(("  [OK] " if c else "  [FAIL] ") + m); ok = ok and c
 
     with tempfile.TemporaryDirectory() as td:
         # 用真实流水线产出 res(真实像素),再可视化
@@ -134,9 +144,9 @@ def _selftest():
 
         # 验证是合法 PNG
         from PIL import Image
-        im = Image.open(png)
-        check(im.format == "PNG" and im.size[0] > 200,
-              f"PNG 合法可读(format={im.format}, size={im.size})")
+        with Image.open(png) as im:
+            check(im.format == "PNG" and im.size[0] > 200,
+                  f"PNG 合法可读(format={im.format}, size={im.size})")
 
         # 无可疑对的退化场景也不崩
         res2 = dict(res); res2["suspicious"] = []; res2["n_cross"] = 0; res2["n_same"] = 0
@@ -144,7 +154,7 @@ def _selftest():
         visualize(res2, out_path=png2)
         check(os.path.getsize(png2) > 1000, "无可疑对场景也能出图(不崩)")
 
-    print("\n" + ("✅ viz_dedup 自测通过" if ok else "❌ viz_dedup 自测未通过"))
+    print("\n" + ("[OK] viz_dedup 自测通过" if ok else "[FAIL] viz_dedup 自测未通过"))
     sys.exit(0 if ok else 1)
 
 
@@ -165,7 +175,7 @@ def main():
     res = run_pipeline_real_images(a.images, threshold=a.threshold)
     if res:
         path = visualize(res, out_path=a.out)
-        print(f"📊 去重可视化已保存: {path}")
+        print(f"[OK] 去重可视化已保存: {path}")
 
 
 if __name__ == "__main__":
