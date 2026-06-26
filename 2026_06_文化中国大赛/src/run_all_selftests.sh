@@ -35,11 +35,11 @@ run_test() {
     if "$PY" "$SRC_DIR/$mod"; then
         echo ""
         echo "  ✅ $mod 通过"
-        ((PASS++))
+        ((++PASS))
     else
         echo ""
         echo "  ❌ $mod 失败"
-        ((FAIL++))
+        ((++FAIL))
     fi
     echo ""
 }

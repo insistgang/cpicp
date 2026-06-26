@@ -24,6 +24,7 @@ import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, Polygon, Circle
 import matplotlib.patheffects as pe
@@ -38,31 +39,46 @@ _FONT_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Songti.ttc",   # 宋体, 古风
     "/System/Library/Fonts/Hiragino Sans GB.ttc",      # 黑体
     "/System/Library/Fonts/STHeiti Medium.ttc",
+    "STFangsong",
+    "Microsoft YaHei",
+    "SimSun",
+    "SimHei",
+    "Noto Sans CJK SC",
+    "Source Han Sans SC",
 ]
 _SERIF_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Songti.ttc",
     "/System/Library/Fonts/STHeiti Light.ttc",
     "/System/Library/Fonts/Hiragino Sans GB.ttc",
+    "STFangsong",
+    "SimSun",
+    "KaiTi",
+    "Microsoft YaHei",
 ]
 
 
 def _pick(cands):
+    installed = {f.name for f in fm.fontManager.ttflist}
     for p in cands:
         if os.path.exists(p):
-            return p
+            return {"fname": p, "label": p}
+        if p in installed:
+            return {"family": p, "label": p}
     return None
 
 
-_FONT_PATH = _pick(_FONT_CANDIDATES)
-_SERIF_PATH = _pick(_SERIF_CANDIDATES)
-if _FONT_PATH is None:
+_FONT_SPEC = _pick(_FONT_CANDIDATES)
+_SERIF_SPEC = _pick(_SERIF_CANDIDATES)
+if _FONT_SPEC is None:
     raise RuntimeError("未找到可用中文字体, 无法渲染中文 PNG")
 
 
 def fp(size, serif=False, bold=False):
-    path = _SERIF_PATH if (serif and _SERIF_PATH) else _FONT_PATH
+    spec = _SERIF_SPEC if (serif and _SERIF_SPEC) else _FONT_SPEC
     weight = "bold" if bold else "normal"
-    return FontProperties(fname=path, size=size, weight=weight)
+    if "fname" in spec:
+        return FontProperties(fname=spec["fname"], size=size, weight=weight)
+    return FontProperties(family=spec["family"], size=size, weight=weight)
 
 
 # ---- 配色 ----
@@ -405,7 +421,7 @@ def _selftest():
         print(("  ✅ " if c else "  ❌ ") + m)
         ok = ok and c
 
-    check(_FONT_PATH is not None, f"找到中文字体: {_FONT_PATH}")
+    check(_FONT_SPEC is not None, f"找到中文字体: {_FONT_SPEC['label']}")
     paths = render_all()
     for name, _ in FIGURES:
         p = os.path.join(OUTDIR, name)
