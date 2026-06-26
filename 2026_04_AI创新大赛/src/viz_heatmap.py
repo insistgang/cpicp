@@ -196,7 +196,7 @@ def _selftest():
         ok = ok and c
 
     r = run(n_normal=40, n_defect=20, n_test_normal=80, n_test_defect=60,
-            size=128, grid=8, save=False, verbose=False)
+            size=128, grid=8, save=False, verbose=False, prefer_real=False)
     arr = r["_arrays"]
 
     # patch 异常图:缺陷件峰值应高于正常件峰值

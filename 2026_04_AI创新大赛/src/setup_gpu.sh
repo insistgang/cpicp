@@ -116,7 +116,7 @@ PYEOF
 # -----------------------------------------------------------------------------
 echo "============================================================"
 echo "[4/5] run_real_pipeline.py(真特征档:get_backend 自动切 TimmBackend)"
-$PY run_real_pipeline.py
+$PY run_real_pipeline.py --real
 echo "  (报告落盘: ../output/pipeline_report.json,is_real_feature 应为 true)"
 
 # -----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ echo "  (报告落盘: ../output/pipeline_report.json,is_real_feature 应为 tru
 # -----------------------------------------------------------------------------
 echo "============================================================"
 echo "[5/5] bench_latency_gpu.py(2500×2500 真特征延时,红线 <200ms@2060)"
-$PY bench_latency_gpu.py --size 2500 --runs 20
+$PY bench_latency_gpu.py --real --size 2500 --runs 20
 
 echo "============================================================"
 echo "✅ GPU 真特征档全部就绪。"
