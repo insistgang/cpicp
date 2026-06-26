@@ -114,7 +114,7 @@ def _selftest():
 
     def check(c, m):
         nonlocal ok
-        print(("  ✅ " if c else "  ❌ ") + m); ok = ok and c
+        print(("  [OK] " if c else "  [FAIL] ") + m); ok = ok and c
 
     same = [50, 50, 20, 20]
     check(abs(bbox_iou(same, same) - 1.0) < 1e-6, "相同框 IoU=1")
@@ -135,7 +135,7 @@ def _selftest():
     n_near = float(nwd(tiny, [52, 50, 4, 4])); n_far = float(nwd(tiny, [60, 50, 4, 4]))
     check(n_near > n_far, f"NWD 随偏移单调下降({n_near:.3f}>{n_far:.3f})")
 
-    print("\n" + ("✅ losses_smalltarget 自测通过" if ok else "❌ 自测未通过"))
+    print("\n" + ("[OK] losses_smalltarget 自测通过" if ok else "[FAIL] 自测未通过"))
     print(INTEGRATION_NOTE)
     sys.exit(0 if ok else 1)
 

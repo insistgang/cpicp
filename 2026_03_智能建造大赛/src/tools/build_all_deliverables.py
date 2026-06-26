@@ -29,19 +29,19 @@ def main():
 
     print("\n[1/4] 合成海面 + GT-Anchored Glint 增广对比图 ...")
     for p, nb, npx in gen_water_scene.generate(n=2, seed=7):
-        print(f"  ✓ {p.name}  ({nb} GT, +{npx} glint, {p.stat().st_size}B)")
+        print(f"  [OK] {p.name}  ({nb} GT, +{npx} glint, {p.stat().st_size}B)")
 
     print("\n[2/4] 性能报告图表(分桶召回 / PR 曲线 / FPS-精度)...")
     for k, p in gen_report_figs.generate().items():
-        print(f"  ✓ {k}: {p.name}  ({p.stat().st_size}B)")
+        print(f"  [OK] {k}: {p.name}  ({p.stat().st_size}B)")
 
     print("\n[3/4] 技术方案 Word 初稿(交付物①,内嵌配图)...")
     out = gen_tech_plan_docx.generate()
-    print(f"  ✓ {out.name}  ({out.stat().st_size}B)")
+    print(f"  [OK] {out.name}  ({out.stat().st_size}B)")
 
     print("\n[4/4] 性能评估报告 Word 初稿(交付物③,内嵌 3 张性能图)...")
     out = gen_perf_report_docx.generate()
-    print(f"  ✓ {out.name}  ({out.stat().st_size}B)")
+    print(f"  [OK] {out.name}  ({out.stat().st_size}B)")
 
     print("\n" + "=" * 60)
     print("全部交付物草稿已生成 → output/figs (PNG) + output/docx (Word)")

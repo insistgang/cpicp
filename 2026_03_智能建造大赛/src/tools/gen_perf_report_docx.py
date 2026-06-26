@@ -309,7 +309,7 @@ def main():
         sys.exit(0 if _selftest() else 1)
     out = generate(a.out)
     figs_in = sum(1 for f in PERF_FIGS if (FIG_DIR / f).exists())
-    print(f"✓ 生成 {out}  ({os.path.getsize(out)} bytes, 内嵌 {figs_in}/{len(PERF_FIGS)} 张性能图)")
+    print(f"[OK] 生成 {out}  ({os.path.getsize(out)} bytes, 内嵌 {figs_in}/{len(PERF_FIGS)} 张性能图)")
 
 
 if __name__ == "__main__":

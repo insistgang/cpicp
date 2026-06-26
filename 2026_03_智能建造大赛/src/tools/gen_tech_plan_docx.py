@@ -271,7 +271,7 @@ def main():
     figs_in = sum(1 for f in ["report_fig1_bucket_recall.png", "augment_water_before_after_0.png",
                               "report_fig3_fps_accuracy.png", "report_fig2_pr_curves.png"]
                   if (FIG_DIR / f).exists())
-    print(f"✓ 生成 {out}  ({os.path.getsize(out)} bytes, 内嵌 {figs_in}/4 张配图)")
+    print(f"[OK] 生成 {out}  ({os.path.getsize(out)} bytes, 内嵌 {figs_in}/4 张配图)")
 
 
 if __name__ == "__main__":

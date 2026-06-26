@@ -172,15 +172,29 @@ def render_pair(img_before, img_after, boxes, placed, out_path, title_suffix="")
 
 
 def _setup_cjk_font():
-    """让 matplotlib 能渲染中文(macOS 常见字体回退);失败也不致命。"""
+    """让 matplotlib 能渲染中文；按本机已安装字体选择，失败也不致命。"""
     import matplotlib
-    for f in ["Heiti TC", "Songti SC", "STHeiti", "Arial Unicode MS", "PingFang SC"]:
-        try:
+    try:
+        from matplotlib import font_manager
+        installed = {f.name for f in font_manager.fontManager.ttflist}
+    except Exception:
+        installed = set()
+    for f in [
+        "Microsoft YaHei",
+        "SimHei",
+        "Noto Sans CJK SC",
+        "Source Han Sans SC",
+        "Heiti TC",
+        "Songti SC",
+        "STHeiti",
+        "Arial Unicode MS",
+        "PingFang SC",
+    ]:
+        if not installed or f in installed:
             matplotlib.rcParams["font.sans-serif"] = [f]
             matplotlib.rcParams["axes.unicode_minus"] = False
             return f
-        except Exception:
-            continue
+    matplotlib.rcParams["axes.unicode_minus"] = False
     return None
 
 
@@ -250,7 +264,7 @@ def main():
     made = generate(a.n, a.seed, a.out)
     for p, nb, np_ in made:
         sz = os.path.getsize(p)
-        print(f"✓ 生成 {p}  ({nb} 个GT, +{np_} glint, {sz} bytes)")
+        print(f"[OK] 生成 {p}  ({nb} 个GT, +{np_} glint, {sz} bytes)")
     print(f"\n共 {len(made)} 张 before/after 对比图 → {a.out}")
 
 

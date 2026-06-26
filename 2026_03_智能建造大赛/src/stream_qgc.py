@@ -97,7 +97,7 @@ def _selftest():
 
     def check(c, m):
         nonlocal ok
-        print(("  ✅ " if c else "  ⚠️  ") + m); ok = ok and c
+        print(("  [OK] " if c else "  [WARN] ") + m); ok = ok and c
 
     # 模块接线(无 GPU 也应能 import)
     try:
@@ -111,15 +111,15 @@ def _selftest():
         import cv2
         info = cv2.getBuildInformation()
         has_gst = "GStreamer" in info and "YES" in info.split("GStreamer")[1][:40]
-        print(("  ✅ " if has_gst else "  ⚠️  ") +
+        print(("  [OK] " if has_gst else "  [WARN] ") +
               f"OpenCV {cv2.__version__} GStreamer 后端: {'YES' if has_gst else '未启用(Orin 上需带 GStreamer 的 OpenCV)'}")
     except Exception as e:
-        print(f"  ⚠️  OpenCV 未安装(Orin 上必装): {e}")
+        print(f"  [WARN] OpenCV 未安装(Orin 上必装): {e}")
 
     print("\n  将使用的输出管线(Orin Nano 软编码 H265 → RTSP):")
     print("    " + GST_OUT.format(bitrate=4000, host="127.0.0.1", port=5600))
     print("  QGC 配置:Application Settings → Video → Source=RTSP,URL=rtsp://<orin-ip>:8554/...,开 Low Latency")
-    print("\n" + ("✅ stream_qgc 自检通过(骨架就绪,真跑需上 Orin)" if ok else "⚠️ 自检有警告(Mac 上正常,Orin 上需补依赖)"))
+    print("\n" + ("[OK] stream_qgc 自检通过(骨架就绪,真跑需上 Orin)" if ok else "[WARN] 自检有警告(Mac 上正常,Orin 上需补依赖)"))
     sys.exit(0)
 
 

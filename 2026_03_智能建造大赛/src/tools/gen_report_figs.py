@@ -79,13 +79,27 @@ PLACEHOLDER_FPS_ACC = [
 
 def _setup_cjk_font():
     import matplotlib
-    for f in ["Heiti TC", "Songti SC", "STHeiti", "Arial Unicode MS", "PingFang SC"]:
-        try:
+    try:
+        from matplotlib import font_manager
+        installed = {f.name for f in font_manager.fontManager.ttflist}
+    except Exception:
+        installed = set()
+    for f in [
+        "Microsoft YaHei",
+        "SimHei",
+        "Noto Sans CJK SC",
+        "Source Han Sans SC",
+        "Heiti TC",
+        "Songti SC",
+        "STHeiti",
+        "Arial Unicode MS",
+        "PingFang SC",
+    ]:
+        if not installed or f in installed:
             matplotlib.rcParams["font.sans-serif"] = [f]
             matplotlib.rcParams["axes.unicode_minus"] = False
             return f
-        except Exception:
-            continue
+    matplotlib.rcParams["axes.unicode_minus"] = False
     return None
 
 
@@ -284,7 +298,7 @@ def main():
         sys.exit(0 if _selftest() else 1)
     paths = generate(a.out)
     for k, p in paths.items():
-        print(f"✓ {k}: {p}  ({os.path.getsize(p)} bytes)")
+        print(f"[OK] {k}: {p}  ({os.path.getsize(p)} bytes)")
     print(f"\n共 3 张报告图表 → {a.out}")
 
 

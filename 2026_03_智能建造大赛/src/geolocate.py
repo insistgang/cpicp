@@ -136,9 +136,9 @@ def _selftest():
     def approx(a, b, tol=0.5, msg=""):
         nonlocal ok
         if abs(a - b) > tol:
-            ok = False; print(f"  ❌ {msg}: 得 {a:.3f} 期望 {b:.3f}")
+            ok = False; print(f"  [FAIL] {msg}: 得 {a:.3f} 期望 {b:.3f}")
         else:
-            print(f"  ✅ {msg}: {a:.3f} ≈ {b:.3f}")
+            print(f"  [OK] {msg}: {a:.3f} ~= {b:.3f}")
 
     # A. nadir 正下方,中心像素 → 偏移≈0
     r = geolocate(intr.cx, intr.cy, intr, Pose(**base))
@@ -171,7 +171,7 @@ def _selftest():
     print(f"\n  示例 框[900,500,960,560]@80m,航向45°,前倾20° → "
           f"目标≈({demo['lat']:.6f},{demo['lon']:.6f}), 距本艇 {demo['ground_dist_m']:.1f}m")
 
-    print("\n" + ("✅ 全部几何自测通过" if ok else "❌ 自测未通过"))
+    print("\n" + ("[OK] 全部几何自测通过" if ok else "[FAIL] 自测未通过"))
     sys.exit(0 if ok else 1)
 
 

@@ -163,7 +163,7 @@ def convert(root: Path):
                     img_dir = sds / "images"            # 兼容扁平 images/ 目录
                 coco_to_yolo(jp, img_dir,
                              out / "images" / split, out / "labels" / split)
-    print(f"\n✓ 海域(target)数据集就绪: {out}")
+    print(f"\n[OK] 海域(target)数据集就绪: {out}")
     print("  下一步: python train.py --data configs/searescue.yaml --p2")
     print("  陆域(source)数据置于 raw/source_land/，供 crossdomain_eval.py 使用")
 

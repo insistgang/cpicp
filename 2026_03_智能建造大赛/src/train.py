@@ -34,7 +34,7 @@ def build_model(use_p2: bool, model_arg: str):
             path = str(HERE / rel) if rel.startswith("configs/") else rel
             try:
                 m = YOLO(path)
-                print(f"[model] ✓ 实际加载: {desc}  <-- {path}")
+                print(f"[model] [OK] 实际加载: {desc}  <-- {path}")
                 if is_fallback:
                     print(f"[model][WARN] 未加载到 yolo12-p2，已回退到「{desc}」。"
                           f" 请核对 ultralytics 版本与 yaml（见 README）后再正式训练。")
@@ -72,7 +72,7 @@ def main():
         name="train",
         exist_ok=True,
     )
-    print("✓ 训练完成。best 权重在 runs/detect/train/weights/best.pt")
+    print("[OK] 训练完成。best 权重在 runs/detect/train/weights/best.pt")
     print("  下一步: python eval.py --weights runs/detect/train/weights/best.pt --data", args.data)
     # 官方指标(已核实 P81)：各类 PR 曲线 + 必须在边缘端实测 ≥30FPS；评分以现场答辩+性能报告为准。
 

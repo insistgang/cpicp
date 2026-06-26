@@ -269,13 +269,13 @@ def benchmark(runner, imgsz, source=None, warmup=20, iters=200):
     print(f"\n=== Orin Nano 端到端测速 (imgsz={imgsz}, iters={iters}) ===")
     print(f"{'档位':<28}{'时延ms':>10}{'FPS':>9}{'  vs 30FPS红线'}")
     for name, ms, f in rows:
-        verdict = "✅ PASS" if f >= FPS_GATE else "❌ FAIL(出局风险)"
+        verdict = "[PASS]" if f >= FPS_GATE else "[FAIL](出局风险)"
         print(f"{name:<28}{ms:>10.2f}{f:>9.1f}   {verdict}")
     print(f"\n  显存: {(total-free)/1024/1024:.0f} / {total/1024/1024:.0f} MB")
-    print("  ⚠️ 报告请以『③ 含编码』为准;实战 RTSP/H265 软编码(Orin Nano 无NVENC)比JPEG更重,")
+    print("  [WARN] 报告请以『③ 含编码』为准;实战 RTSP/H265 软编码(Orin Nano 无NVENC)比JPEG更重,")
     print("     最终含编码端到端 FPS 请用 stream_qgc.py 实测,并旁路 tegrastats 记功耗。")
     if rows[2][2] < FPS_GATE:
-        print(f"\n  🔴 含编码 {rows[2][2]:.1f}FPS < {FPS_GATE} → 启动降级链:768→640 / 关P2 / 砍P5 / INT8 / Super Mode / 抽帧")
+        print(f"\n  [REDLINE] 含编码 {rows[2][2]:.1f}FPS < {FPS_GATE} → 启动降级链:768→640 / 关P2 / 砍P5 / INT8 / Super Mode / 抽帧")
 
 
 # ----------------------------- 解码逻辑自测(纯 numpy,无需 Orin/cv2/TRT) -----------------------------

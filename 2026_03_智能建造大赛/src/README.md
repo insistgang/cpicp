@@ -83,11 +83,11 @@ python crossdomain_eval.py --source-weights <陆域权重> --target-data configs
 - SeaDronesSee：https://github.com/Ben93kie/SeaDronesSee ｜ https://seadronessee.cs.uni-tuebingen.de/
 - AFO：https://universe.roboflow.com/large-benchmark-datasets/afo-aerial-dataset-of-floating-object （选 YOLOv8 格式导出，含 data.yaml）
 
-## 快速自测（Mac 本地，无 GPU/数据）
+## 快速自测（本地 Windows/macOS/Linux，无 GPU/数据）
 
 ```bash
 cd src
-python3 run_all_selftests.py
+python run_all_selftests.py
 ```
 
 覆盖：geolocate(8项) / track_filter(7项) / augment_water(5项) / losses_smalltarget(9项) / **trt_infer_orin 解码(10项,纯numpy)** / stream_qgc(接线检查) / crossdomain_eval(域差度量数学性质,带断言) / prepare_data(guide) / **tools 四件交付物生成器(合成海面增广配图 / 报告图表 / 技术方案docx / 性能报告docx)** / configs YAML 语法(3 个) —— **15 项全通过**即本地可推进部分就绪。
@@ -96,7 +96,7 @@ python3 run_all_selftests.py
 
 ```bash
 cd src
-python3 tools/build_all_deliverables.py
+python tools/build_all_deliverables.py
 #  → output/figs/augment_water_before_after_*.png  (GT-Glint 增广 before/after 配图)
 #  → output/figs/report_fig{1,2,3}_*.png           (分桶召回 / PR曲线 / FPS-精度+30FPS红线)
 #  → output/docx/技术方案_初稿.docx                (§0–§8 章节+表格,内嵌上面4张图,`___` 待真值)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU 环境）
+run_all_selftests.py · 一键运行所有本地可执行的自测（本地无 GPU/数据环境）
 
 用法:
   python3 run_all_selftests.py
@@ -28,6 +28,7 @@ run_all_selftests.py · 一键运行所有本地可执行的自测（Mac 无 GPU
 """
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -61,6 +62,9 @@ def check_yaml(path: Path):
 def main():
     results = []
     fails = 0
+    child_env = os.environ.copy()
+    child_env["PYTHONIOENCODING"] = "utf-8"
+    child_env["PYTHONUTF8"] = "1"
 
     print("=" * 60)
     print("03 智能建造大赛 · 本地自测总控")
@@ -69,7 +73,16 @@ def main():
     for name, cmd in TESTS:
         print(f"\n>>> [{name}] {' '.join(cmd)}")
         try:
-            r = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True, timeout=60)
+            r = subprocess.run(
+                cmd,
+                cwd=HERE,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=60,
+                env=child_env,
+            )
             ok = r.returncode == 0
             if not ok:
                 fails += 1
@@ -84,11 +97,11 @@ def main():
                     print(f"  [stderr] {err[:200]}")
             results.append((name, ok))
         except subprocess.TimeoutExpired:
-            print(f"  ❌ {name} 超时")
+            print(f"  [TIMEOUT] {name} 超时")
             fails += 1
             results.append((name, False))
         except Exception as e:
-            print(f"  ❌ {name} 异常: {e}")
+            print(f"  [FAIL] {name} 异常: {e}")
             fails += 1
             results.append((name, False))
 
@@ -98,14 +111,14 @@ def main():
         ok, msg = check_yaml(yf)
         if not ok:
             fails += 1
-        print(f"  {'✅' if ok else '❌'} {msg}")
+        print(f"  {'[OK]' if ok else '[FAIL]'} {msg}")
         results.append((yf.name, ok))
 
     # 汇总
     print("\n" + "=" * 60)
     print("汇总:")
     for name, ok in results:
-        print(f"  {'✅' if ok else '❌'} {name}")
+        print(f"  {'[OK]' if ok else '[FAIL]'} {name}")
     print(f"\n  总计: {len(results)} 项, 通过 {len(results)-fails} 项, 失败 {fails} 项")
     print("=" * 60)
     sys.exit(0 if fails == 0 else 1)

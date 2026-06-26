@@ -203,9 +203,9 @@ python3 trt_infer_orin.py \
 ```
 === Orin Nano 端到端测速 (imgsz=640, iters=200) ===
 档位                              时延ms      FPS   vs 30FPS红线
-① 裸推理                          x.xx     xx.x   ✅ PASS / ❌ FAIL
-② 含后处理(解码+NMS+画框)          x.xx     xx.x   ✅ PASS / ❌ FAIL
-③ 含编码(实战代理)                 x.xx     xx.x   ✅ PASS / ❌ FAIL   ← 看这行
+① 裸推理                          x.xx     xx.x   [PASS] / [FAIL]
+② 含后处理(解码+NMS+画框)          x.xx     xx.x   [PASS] / [FAIL]
+③ 含编码(实战代理)                 x.xx     xx.x   [PASS] / [FAIL]   ← 看这行
   显存: xxxx / 7xxx MB
 ```
 
@@ -238,14 +238,14 @@ python3 stream_qgc.py --selftest
 ```
 真实输出（Mac 上 cv2 缺失属正常，Orin 上应显示 GStreamer: YES）：
 ```
-  ✅ track_filter / geolocate 模块可导入(接线正常)
-  ⚠️  OpenCV 未安装(Orin 上必装): No module named 'cv2'   ← Orin 上应为 GStreamer 后端: YES
+  [OK] track_filter / geolocate 模块可导入(接线正常)
+  [WARN] OpenCV 未安装(Orin 上必装): No module named 'cv2'   ← Orin 上应为 GStreamer 后端: YES
 
   将使用的输出管线(Orin Nano 软编码 H265 → RTSP):
     appsrc ! videoconvert ! x265enc tune=zerolatency bitrate=4000 speed-preset=ultrafast ! rtph265pay config-interval=1 pt=96 ! udpsink host=127.0.0.1 port=5600
   QGC 配置:Application Settings → Video → Source=RTSP,URL=rtsp://<orin-ip>:8554/...,开 Low Latency
 
-✅ stream_qgc 自检通过(骨架就绪,真跑需上 Orin)
+[OK] stream_qgc 自检通过(骨架就绪,真跑需上 Orin)
 ```
 
 ### 4.1 真跑：推理 + 推流 + 同时录屏存证（双轨保底）

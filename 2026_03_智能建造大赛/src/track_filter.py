@@ -89,7 +89,7 @@ def _selftest():
 
     def check(cond, msg):
         nonlocal ok
-        print(("  ✅ " if cond else "  ❌ ") + msg)
+        print(("  [OK] " if cond else "  [FAIL] ") + msg)
         ok = ok and cond
 
     # 场景1:持续目标,min_hits=3 → 第3帧确认
@@ -121,7 +121,7 @@ def _selftest():
     check(all(t.tid != tid for t in still) and all(t.tid != tid for t in tf3._tracks),
           "滑行超过 max_age 帧后目标被删除(不再显示)")
 
-    print("\n" + ("✅ track_filter 自测通过" if ok else "❌ 自测未通过"))
+    print("\n" + ("[OK] track_filter 自测通过" if ok else "[FAIL] 自测未通过"))
     sys.exit(0 if ok else 1)
 
 

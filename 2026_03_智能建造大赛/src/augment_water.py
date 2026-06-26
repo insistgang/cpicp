@@ -110,7 +110,7 @@ def batch_offline(img_dir, lbl_dir, n_per_img, use_albu, seed=0):
             open(dst_lbl, "w", encoding="utf-8").write(
                 open(src_lbl, encoding="utf-8").read() if os.path.exists(src_lbl) else "")
             made += 1
-    print(f"✓ 离线增广生成 {made} 张 _glint 副本(标签随原图,glint 为背景难负样本)")
+    print(f"[OK] 离线增广生成 {made} 张 _glint 副本(标签随原图,glint 为背景难负样本)")
 
 
 def _selftest():
@@ -119,7 +119,7 @@ def _selftest():
 
     def check(c, m):
         nonlocal ok
-        print(("  ✅ " if c else "  ❌ ") + m); ok = ok and c
+        print(("  [OK] " if c else "  [FAIL] ") + m); ok = ok and c
 
     H, W = 360, 640
     img = np.full((H, W, 3), 60, np.uint8)          # 暗灰"水面"
@@ -140,7 +140,7 @@ def _selftest():
     out2, _ = add_glint(img, boxes, n=4, rng=_rng(42))
     check(np.array_equal(out, out2), "同 seed 可复现")
 
-    print("\n" + ("✅ augment_water 自测通过" if ok else "❌ 自测未通过"))
+    print("\n" + ("[OK] augment_water 自测通过" if ok else "[FAIL] 自测未通过"))
     sys.exit(0 if ok else 1)
 
 

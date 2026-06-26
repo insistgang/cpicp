@@ -34,7 +34,7 @@ def main():
     # Ultralytics 原生导出（已含 onnxsim 简化）；nms=True 时内置 EfficientNMS(TRT)
     onnx_path = m.export(format="onnx", imgsz=a.imgsz, opset=a.opset,
                          simplify=a.simplify, dynamic=False, nms=a.nms)
-    print(f"✓ 导出 ONNX: {onnx_path}  (内置NMS={a.nms})")
+    print(f"[OK] 导出 ONNX: {onnx_path}  (内置NMS={a.nms})")
     if a.nms:
         print("  注意:内置NMS的输出张量布局与无NMS不同,trt_infer_orin.py 的 postprocess 需相应切换")
 
