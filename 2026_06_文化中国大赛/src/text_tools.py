@@ -14,7 +14,9 @@ import re
 from collections import Counter
 
 SENT_RE = re.compile(r"[^。！？；!?;\n]+[。！？；!?;]?")
-STOP = set("之乎者也而其以于与為为则乃且夫矣焉哉耳兮的了是在和有不人我你他")
+STOP = set("之乎者也而其以于与為为则乃且夫矣焉哉耳兮的了是在和有不人我你他"
+           "所可如自此故亦皆若使为又即既"  # 补:常见文言虚词,避免在词云里盖过教化主题词
+           )
 
 
 def split_sentences(text):

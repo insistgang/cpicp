@@ -1,202 +1,202 @@
 [
   {
     "text": "学",
-    "weight": 1.1938
-  },
-  {
-    "text": "所",
-    "weight": 0.8687
-  },
-  {
-    "text": "下",
-    "weight": 0.7481
-  },
-  {
-    "text": "教",
-    "weight": 0.7455
-  },
-  {
-    "text": "益",
-    "weight": 0.6929
-  },
-  {
-    "text": "求",
-    "weight": 0.6503
-  },
-  {
-    "text": "求益",
-    "weight": 0.6503
-  },
-  {
-    "text": "可",
-    "weight": 0.6411
-  },
-  {
-    "text": "自",
-    "weight": 0.636
-  },
-  {
-    "text": "如",
-    "weight": 0.6125
-  },
-  {
-    "text": "行",
-    "weight": 0.594
-  },
-  {
-    "text": "书",
-    "weight": 0.4756
-  },
-  {
-    "text": "伎",
-    "weight": 0.4222
-  },
-  {
-    "text": "父",
-    "weight": 0.377
-  },
-  {
-    "text": "严",
-    "weight": 0.377
+    "weight": 1.7244
   },
   {
     "text": "子",
-    "weight": 0.377
+    "weight": 1.2148
   },
   {
-    "text": "无",
-    "weight": 0.3765
+    "text": "教",
+    "weight": 1.0802
   },
   {
-    "text": "读",
-    "weight": 0.3456
+    "text": "行",
+    "weight": 1.0688
   },
   {
-    "text": "上",
-    "weight": 0.3426
+    "text": "益",
+    "weight": 1.0581
   },
   {
-    "text": "同",
-    "weight": 0.3422
+    "text": "名",
+    "weight": 0.9703
   },
   {
-    "text": "信",
-    "weight": 0.3422
+    "text": "求",
+    "weight": 0.9583
   },
   {
-    "text": "能",
-    "weight": 0.329
+    "text": "求益",
+    "weight": 0.9583
   },
   {
-    "text": "兄",
-    "weight": 0.3251
+    "text": "父",
+    "weight": 0.9355
   },
   {
-    "text": "弟",
-    "weight": 0.3251
-  },
-  {
-    "text": "分",
-    "weight": 0.3251
-  },
-  {
-    "text": "形",
-    "weight": 0.3251
-  },
-  {
-    "text": "连",
-    "weight": 0.3251
-  },
-  {
-    "text": "气",
-    "weight": 0.3251
-  },
-  {
-    "text": "兄弟",
-    "weight": 0.3251
-  },
-  {
-    "text": "分形",
-    "weight": 0.3251
-  },
-  {
-    "text": "形连",
-    "weight": 0.3251
-  },
-  {
-    "text": "连气",
-    "weight": 0.3251
-  },
-  {
-    "text": "身",
-    "weight": 0.3107
+    "text": "下",
+    "weight": 0.8694
   },
   {
     "text": "后",
-    "weight": 0.2851
+    "weight": 0.8501
   },
   {
-    "text": "天",
-    "weight": 0.2846
+    "text": "爱",
+    "weight": 0.8406
   },
   {
-    "text": "未",
-    "weight": 0.2846
+    "text": "形",
+    "weight": 0.8325
   },
   {
-    "text": "遍",
-    "weight": 0.2846
+    "text": "兄",
+    "weight": 0.8132
   },
   {
-    "text": "得",
-    "weight": 0.2846
-  },
-  {
-    "text": "妄",
-    "weight": 0.2846
-  },
-  {
-    "text": "雌",
-    "weight": 0.2846
-  },
-  {
-    "text": "黄",
-    "weight": 0.2846
-  },
-  {
-    "text": "天下",
-    "weight": 0.2846
-  },
-  {
-    "text": "下书",
-    "weight": 0.2846
-  },
-  {
-    "text": "书未",
-    "weight": 0.2846
-  },
-  {
-    "text": "未遍",
-    "weight": 0.2846
-  },
-  {
-    "text": "得妄",
-    "weight": 0.2846
-  },
-  {
-    "text": "妄下",
-    "weight": 0.2846
-  },
-  {
-    "text": "下雌",
-    "weight": 0.2846
-  },
-  {
-    "text": "雌黄",
-    "weight": 0.2846
+    "text": "弟",
+    "weight": 0.8132
   },
   {
     "text": "古",
-    "weight": 0.2709
+    "weight": 0.7907
+  },
+  {
+    "text": "身",
+    "weight": 0.7901
+  },
+  {
+    "text": "妇",
+    "weight": 0.7565
+  },
+  {
+    "text": "言",
+    "weight": 0.714
+  },
+  {
+    "text": "一",
+    "weight": 0.7121
+  },
+  {
+    "text": "多",
+    "weight": 0.6913
+  },
+  {
+    "text": "士",
+    "weight": 0.6669
+  },
+  {
+    "text": "善",
+    "weight": 0.6455
+  },
+  {
+    "text": "无",
+    "weight": 0.6421
+  },
+  {
+    "text": "能",
+    "weight": 0.6421
+  },
+  {
+    "text": "犹",
+    "weight": 0.6387
+  },
+  {
+    "text": "书",
+    "weight": 0.6257
+  },
+  {
+    "text": "父子",
+    "weight": 0.6232
+  },
+  {
+    "text": "上",
+    "weight": 0.6219
+  },
+  {
+    "text": "兄弟",
+    "weight": 0.6137
+  },
+  {
+    "text": "伎",
+    "weight": 0.5973
+  },
+  {
+    "text": "贵",
+    "weight": 0.5829
+  },
+  {
+    "text": "世",
+    "weight": 0.5641
+  },
+  {
+    "text": "孝",
+    "weight": 0.5483
+  },
+  {
+    "text": "实",
+    "weight": 0.5476
+  },
+  {
+    "text": "影",
+    "weight": 0.5476
+  },
+  {
+    "text": "实犹",
+    "weight": 0.5476
+  },
+  {
+    "text": "犹形",
+    "weight": 0.5476
+  },
+  {
+    "text": "少",
+    "weight": 0.5476
+  },
+  {
+    "text": "执",
+    "weight": 0.5476
+  },
+  {
+    "text": "少善",
+    "weight": 0.5476
+  },
+  {
+    "text": "执一",
+    "weight": 0.5476
+  },
+  {
+    "text": "欲",
+    "weight": 0.5367
+  },
+  {
+    "text": "先",
+    "weight": 0.5127
+  },
+  {
+    "text": "同",
+    "weight": 0.5111
+  },
+  {
+    "text": "信",
+    "weight": 0.5111
+  },
+  {
+    "text": "严",
+    "weight": 0.502
+  },
+  {
+    "text": "志",
+    "weight": 0.4991
+  },
+  {
+    "text": "薄",
+    "weight": 0.483
+  },
+  {
+    "text": "用",
+    "weight": 0.4792
   }
 ]
