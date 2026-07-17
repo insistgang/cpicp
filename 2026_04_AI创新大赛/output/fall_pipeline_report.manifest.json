@@ -1,0 +1,201 @@
+{
+  "task": "huawei_enterprise_7_low_power_visual_fall_detection",
+  "mode": "manifest_eval",
+  "scorer": "rule_baseline",
+  "source_manifest": "/Users/insistgang/Downloads/cpicp/2026_04_AI创新大赛/output/fall_omnifall_ofsyn_sample_manifest.csv",
+  "note": "manifest_eval 使用本地公开视频或抽帧目录;若使用公开数据,可作为正式公开实验基础。",
+  "dataset": {
+    "n_clips": 72,
+    "n_fall": 24,
+    "n_nonfall": 48,
+    "n_frames_per_clip": 32,
+    "input_size": {
+      "width": 160,
+      "height": 120
+    },
+    "by_source": {
+      "omnifall_ofsyn_sample": {
+        "n": 72,
+        "n_fall": 24,
+        "mean_score": 0.114761,
+        "max_score": 0.116667
+      }
+    },
+    "by_scenario": {
+      "fall": {
+        "n": 12,
+        "n_fall": 12,
+        "mean_score": 0.116319,
+        "max_score": 0.116667
+      },
+      "fallen": {
+        "n": 12,
+        "n_fall": 12,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "lie_down": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "lying": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.111111,
+        "max_score": 0.116667
+      },
+      "other": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "sit_down": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "sitting": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "stand_up": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.10005,
+        "max_score": 0.116667
+      },
+      "standing": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      },
+      "walking": {
+        "n": 6,
+        "n_fall": 0,
+        "mean_score": 0.116667,
+        "max_score": 0.116667
+      }
+    },
+    "n_failed": 0
+  },
+  "metrics": {
+    "precision_at_recall90": 0.342857,
+    "threshold_at_recall90": 0.1125,
+    "precision_at_recall95": 0.342857,
+    "threshold_at_recall95": 0.1125
+  },
+  "profile": {
+    "assumed_params_m": 5.0,
+    "mean_latency_ms_per_clip": 7.341452,
+    "p95_latency_ms_per_clip": 7.828873,
+    "mean_latency_ms_per_frame": 0.22942,
+    "p95_latency_ms_per_frame": 0.244652,
+    "latency_note": "当前计时包含后处理,不包含视频解码;正式端侧需补模型+NPU全链路。"
+  },
+  "competition_score_proxy": {
+    "map_score": 17.142857,
+    "param_score": 32.5,
+    "latency_score": 34.977058,
+    "total_score": 84.619915
+  },
+  "events_preview": [
+    {
+      "clip_id": "lie_down_el_098",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_down_te_046",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_down_to_073",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_down_te_023",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_down_ch_057",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_down_te_055",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "lie_down",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "stand_up_to_090",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "stand_up",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "stand_up_te_158",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "stand_up",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "stand_up_te_011",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "stand_up",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "stand_up_mi_170",
+      "source": "omnifall_ofsyn_sample",
+      "scenario": "stand_up",
+      "label": 0,
+      "score": 0.116667,
+      "alarm_start": -1,
+      "alarm_end": -1
+    }
+  ],
+  "failures_preview": []
+}

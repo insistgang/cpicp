@@ -1,0 +1,5 @@
+Analyzing linklab...                                            
+
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • lib/services/demo_call_service.dart:358:9 • use_null_aware_elements
+
+1 issue found. (ran in 9.2s)

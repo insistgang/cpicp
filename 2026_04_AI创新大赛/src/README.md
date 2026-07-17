@@ -1,4 +1,98 @@
-# AI创新(华为杯)src · 两条线:华为AOI质检 + 开放AI+X违建
+# AI创新(华为杯)src · 当前主线:赛题七低算力视觉跌倒检测
+
+> 当前提交方向:企业赛题七「面向低算力端侧平台基于视觉的实时跌倒检测」。
+> AOI 质检与 AI+X 违建代码保留为历史实验线,不再作为当前 04 主线。
+
+## 线A · 跌倒检测主线(当前推进)
+
+| 文件 | 作用 |
+|---|---|
+| `fall_metrics.py` | Recall=90%/95% 时 precision、参数量得分、延时得分、竞赛分近似 |
+| `fall_synth.py` | 合成 fall/walk/sit/bend/lie 视频片段,无外部数据时做端到端联调 |
+| `fall_features.py` | 纯视觉人体框与时序几何特征:中心下坠、宽高比、面积、速度 |
+| `fall_detector.py` | 轻量后处理 baseline:快速下坠 + 横向姿态 + 报警窗口 |
+| `fall_tiny_model.py` | 9 参数 z-score logistic 时序头,可保存/加载 |
+| `fall_video_io.py` | 读取抽帧目录;本机有 imageio 时可直接读视频 |
+| `fall_public_datasets.py` | OmniFall/Kaggle 本地视频目录 -> `fall_public_manifest.csv` |
+| `fall_data_audit.py` | 公开数据 manifest 分布、路径、可读性和评测准备状态体检 |
+| `train_fall_model.py` | 训练 tiny temporal model,支持合成数据与 manifest |
+| `run_fall_pipeline.py` | 跌倒检测端到端 baseline,支持规则/模型打分 + 合成/manifest 评测 |
+| `viz_fall_report.py` | 生成分数分布、PR 曲线、报警示例拼图 |
+
+### 跌倒检测运行
+
+```bash
+cd /Users/insistgang/Downloads/cpicp/2026_04_AI创新大赛/src
+
+# 一键回归,优先跑跌倒主线,随后跑 AOI 历史线
+MPLCONFIGDIR=/private/tmp/ai04_mpl bash run_all_selftests.sh
+
+# 合成视频片段 baseline(生成 ../output/fall_pipeline_report.json)
+/usr/bin/python3 run_fall_pipeline.py
+
+# 训练 9 参数 tiny temporal model,并用模型分数评测
+/usr/bin/python3 train_fall_model.py
+/usr/bin/python3 run_fall_pipeline.py --model ../output/fall_tiny_model.json --params-m 0.001
+/usr/bin/python3 viz_fall_report.py --model ../output/fall_tiny_model.json
+
+# 单模块自测
+/usr/bin/python3 fall_metrics.py --selftest
+/usr/bin/python3 fall_synth.py --selftest
+/usr/bin/python3 fall_features.py --selftest
+/usr/bin/python3 fall_detector.py --selftest
+/usr/bin/python3 fall_tiny_model.py --selftest
+/usr/bin/python3 fall_video_io.py --selftest
+/usr/bin/python3 fall_public_datasets.py --selftest
+/usr/bin/python3 fall_data_audit.py --selftest
+/usr/bin/python3 train_fall_model.py --selftest
+/usr/bin/python3 run_fall_pipeline.py --selftest
+/usr/bin/python3 viz_fall_report.py --selftest
+
+# 下载并解压公开视频数据后,先生成 clip-level manifest
+/usr/bin/python3 fall_public_datasets.py \
+  --omnifall /path/to/omnifall \
+  --kaggle /path/to/kaggle_fall_video \
+  --out ../output/fall_public_manifest.csv
+
+# 先体检 manifest,确认 ready_for_eval=true 后再跑评测
+/usr/bin/python3 fall_data_audit.py \
+  --manifest ../output/fall_public_manifest.csv \
+  --sample-readable 20 \
+  --out ../output/fall_public_audit.json
+
+# 用公开视频/抽帧目录 manifest 跑评测
+/usr/bin/python3 run_fall_pipeline.py \
+  --manifest ../output/fall_public_manifest.csv \
+  --frames 32 --width 160 --height 120 --skip-errors
+
+# 用公开视频 manifest 训练 tiny model,再评测
+/usr/bin/python3 train_fall_model.py \
+  --manifest ../output/fall_public_manifest.csv \
+  --frames 32 --width 160 --height 120 --skip-errors
+/usr/bin/python3 run_fall_pipeline.py \
+  --manifest ../output/fall_public_manifest.csv \
+  --model ../output/fall_tiny_model.manifest.json \
+  --params-m 0.001 \
+  --frames 32 --width 160 --height 120 --skip-errors
+
+# 公开视频评测后生成可视化
+/usr/bin/python3 viz_fall_report.py \
+  --scores ../output/fall_scores.manifest.npz \
+  --model ../output/fall_tiny_model.manifest.json
+```
+
+主要产物:
+
+- `../output/fall_pipeline_report.json`
+- `../output/fall_tiny_model.json`
+- `../output/fall_tiny_model_report.json`
+- `../output/fall_score_distribution.png`
+- `../output/fall_pr_curve.png`
+- `../output/fall_demo_contact_sheet.png`
+
+当前 `run_fall_pipeline.py` 是 `synthetic_proxy`:用于验证流程、指标和后处理逻辑,不是公开/官方数据成绩。下一步接 OmniFall、Kaggle Fall Video Dataset 和 chaspark 数据。
+
+## 线B · AOI/违建历史实验线(保留)
 
 > ⚠️ 据官方纠偏:华为赛题一是**通用 AOI 组装质检**(few-shot 100正+30负→测1000+,**非**自监督LED芯片);
 > 硬指标 **单图<200ms@2060 / CPU<2s,检测时间占竞赛分30%** → 用 **PatchCore/PaDiM 小模型(特征memory bank+最近邻)**,不堆大检测器。作品截止 **9/1**。
@@ -11,6 +105,7 @@
 | `aoi_metrics.py` | 阈值P/R/F1/AUC + **官方竞赛分加权**(方案50%+准确率20%+检测时间30%) | 02/metrics |
 | `fewshot_protocol.py` | 严格复刻官方 **100正+30缺→测1000+** 评测协议 + per-image延时 | 02/metrics+prepare 思路 |
 | `aoi_prepare.py` | manifest→few-shot切分(100正+30缺/测试1000+)+缺陷分布+合成清单 | 02/prepare 思路 |
+| `public_datasets.py` | **DAGM2007/MVTec AD → manifest** 适配器,统一输出 `image_path,label,defect_type,dataset,category,split` | 真数据接入 |
 | `augment_defect.py` | 合成缺陷增广(划痕/污点/缺件/色变)+bbox,解异常样本稀缺 | 03/augment_water 思想 |
 | `latency_bench.py` | 端到端分档计时,<200ms@GPU / CPU<2s 红线判定(检测时间30%) | 03/trt 计时框架 |
 | `synth_aoi.py` | **PIL 程序化合成 AOI 工件图**(正常组装件纹理 + 4 类缺陷,复用 augment_defect),无真数据先端到端联调 | — |
@@ -76,13 +171,24 @@ GPU 档 `<200ms@2060` 须在 2060 级显卡上跑 `bench_latency_gpu.py --real` 
 
 ## 运行
 ```bash
-bash run_all_selftests.sh                 # 14 模块一键自测(含合成图真实端到端 + 2500px CPU 档延时)
+bash run_all_selftests.sh                 # 一键自测(含公开数据适配器 + 合成图真实端到端 + 2500px CPU 档延时)
 python3 run_real_pipeline.py              # 经典 CPU baseline,离线端到端,打印 AUC/F1 + 落盘 report
 python3 run_real_pipeline.py --real       # GPU 真特征档,需 torch/timm + 已缓存权重
 python3 run_real_pipeline.py --full       # 经典 CPU baseline,测试集放大到 1000+(贴合官方口径)
 python3 viz_heatmap.py                    # 生成异常热力图/分布图/ROC-PR 曲线到 output/
 python3 synth_aoi.py --gen-dir out --n-normal 60 --n-defect 40   # 合成数据集落盘(normal/defect/manifest.csv)
-# 真数据(报名后从 chaspark 领):aoi_prepare 切分 → get_backend(真特征 timm)提特征 → run_real_pipeline 评测
+
+# 公开数据集:先手动下载/解压 DAGM2007、MVTec AD 到本地,再转 manifest
+python3 public_datasets.py --mvtec /path/to/mvtec_ad --out ../output/mvtec_manifest.csv
+python3 public_datasets.py --dagm /path/to/dagm2007 --out ../output/dagm_manifest.csv
+python3 public_datasets.py --mvtec /path/to/mvtec_ad --dagm /path/to/dagm2007 --out ../output/public_manifest.csv
+
+# 用公开数据 manifest 跑 few-shot baseline(默认 100 正 + 30 缺,图像缩放到 256)
+python3 run_real_pipeline.py --manifest ../output/public_manifest.csv
+# 单类别/小样本不够时可调小 few-shot 数量
+python3 run_real_pipeline.py --manifest ../output/mvtec_manifest.csv --n-normal 20 --n-defect 10 --size 256
+
+# 真数据(报名后从 chaspark 领):同样转成 manifest → get_backend(真特征 timm)提特征 → run_real_pipeline 评测
 ```
 
 ## 阻塞(你来/等官方)

@@ -20,7 +20,11 @@ for f in anomaly_score patchcore_lite aoi_metrics fewshot_protocol latency_bench
   echo "=== $f ==="; "$PYBIN" "$f.py"
 done
 # --selftest 形式
-for f in aoi_prepare augment_defect synth_aoi run_real_pipeline viz_heatmap bench_latency_gpu; do
+for f in fall_metrics fall_synth fall_features fall_detector fall_tiny_model fall_video_io fall_public_datasets fall_data_audit train_fall_model run_fall_pipeline viz_fall_report; do
+  echo "=== $f --selftest ==="; "$PYBIN" "$f.py" --selftest
+done
+# AOI 历史实验线 --selftest 形式
+for f in aoi_prepare public_datasets augment_defect synth_aoi run_real_pipeline viz_heatmap bench_latency_gpu; do
   echo "=== $f --selftest ==="; "$PYBIN" "$f.py" --selftest
 done
 echo "✅ 04 全部自测通过"

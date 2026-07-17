@@ -1,0 +1,2 @@
+"metric","mode","runs","median_ms","p95_ms","min_ms","max_ms","note"
+"LLM 单样本真实调用","real Zhipu glm-4-flash","160","3697.280000","6234.099000","1590.879000","8888.757000","逐条调用智谱 Chat Completions；含网络往返、模型生成与 JSON 解析前耗时。"

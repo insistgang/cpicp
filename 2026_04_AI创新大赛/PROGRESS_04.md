@@ -1,5 +1,7 @@
 # 04 AI 创新大赛 · 项目进展报告
 
+> 重要更新：04 当前主线已切换为 **企业赛题七「面向低算力端侧平台基于视觉的实时跌倒检测」**。跌倒检测最新进度见 `PROGRESS_FALL_DETECTION.md`。下方 AOI/违建内容保留为历史实验记录。
+
 > 报告时间：2026-06-19
 > 项目路径：`/Users/insistgang/Downloads/cpicp/2026_04_AI创新大赛`
 
@@ -28,7 +30,7 @@
 | Memory Bank 压缩 | `patchcore_lite.py` | 自测通过 | greedy coreset 子采样，降内存加速 |
 | 评测指标 | `aoi_metrics.py` | 自测通过 | P/R/F1/AUC + 官方竞赛分加权（方案50%+准确率20%+检测时间30%） |
 | 少样本评测协议 | `fewshot_protocol.py` | 自测通过 | 严格复刻 100正+30缺→测1000+ 协议，含 per-image 延时 |
-| 数据准备 | `aoi_prepare.py` | 自测通过 | manifest 切分 + 缺陷分布统计 + 合成清单生成 |
+| 数据准备 | `aoi_prepare.py` / `public_datasets.py` | 自测通过 | manifest 切分 + 缺陷分布统计 + DAGM/MVTec 公开数据适配 |
 | 合成缺陷增广 | `augment_defect.py` | 自测通过 | 划痕/污点/缺件/色变 四种合成缺陷 + bbox |
 | 延时基准 | `latency_bench.py` | 自测通过 | 分档计时，CPU<2s 通过，GPU 红线待复测 |
 | 违建检测管线 | `illegal_build_pipeline.py` | 自测通过 | 复用 03 的 track_filter + geolocate，时序滤波→GPS 航点 |
@@ -132,7 +134,7 @@ AUC=0.9952  F1=0.9631  Recall=0.9375
 ## 五、仍然的卡点
 
 1. **真特征**：当前用经典 CPU 特征(分块颜色+梯度直方图)作 baseline,真实合成图上已达 AUC 0.99;论文级真特征需 `torch + timm/CLIP` 权重(`TimmBackend` 接口已留,装好即切)。
-2. **真数据集**：合成工件图已验证流水线与协议正确,DAGM2007/MVTec AD/华为 chaspark 真数据到位后换 `aoi_prepare` manifest 即可,代码无需改。
+2. **真数据集**：合成工件图已验证流水线与协议正确;DAGM2007/MVTec AD 已补 `public_datasets.py` 转 manifest,华为 chaspark 真数据到位后按同一格式接入。
 3. **GPU 延时验证**：本机无 NVIDIA GPU，`<200ms@2060` 需在异地 GPU 补测(CPU 估算 ~1.1–1.6s@2500px 已满足 <2s)。
 4. **华为 chaspark 数据**：需队长华为账号登录 https://www.chaspark.com 报名后下载。
 5. **报名决策**：需确认 3 人队伍、赛道定夺（华为专项 vs 开放主奖 vs 双报）。
@@ -141,7 +143,7 @@ AUC=0.9952  F1=0.9631  Recall=0.9375
 ## 六、下一步（需要用户/硬件/数据才能继续）
 
 1. **【用户决策】确认队伍成员 + 报名策略**（华为专项奖 / 开放主奖 / 双报）
-2. **【数据】下载 DAGM2007 + MVTec AD**（需注册/同意协议）
+2. **【数据】下载 DAGM2007 + MVTec AD**（需注册/同意协议）,然后运行 `python3 public_datasets.py --mvtec ... --dagm ... --out ../output/public_manifest.csv`
 3. **【环境】安装 torch + timm，跑通真特征提取**（本机 CPU 可跑，慢但可验证逻辑）
 4. **【硬件】在 2060 级 GPU 上验证 <200ms 红线**
 5. **【报名】队长华为账号登录 chaspark，下载真实数据/baseline**

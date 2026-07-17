@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="YOLOv11 architecture diagram without title or bottom link">
+
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+  </marker>
+  <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8"/>
+  </marker>
+  <linearGradient id="bg-soft" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="100%" stop-color="#f8fafc"/>
+  </linearGradient>
+  <linearGradient id="img-grad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#bfdbfe"/>
+    <stop offset="52%" stop-color="#93c5fd"/>
+    <stop offset="53%" stop-color="#bbf7d0"/>
+    <stop offset="100%" stop-color="#e0f2fe"/>
+  </linearGradient>
+  <linearGradient id="cube" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#bfdbfe"/>
+    <stop offset="100%" stop-color="#38bdf8"/>
+  </linearGradient>
+  <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+  </filter>
+</defs>
+
+<g>
+
+<rect x="0" y="0" width="1600" height="900" rx="0" ry="0" fill="url(#bg-soft)" stroke="none" stroke-width="0" opacity="1"/>
+<rect x="40" y="45" width="390" height="620" rx="12" ry="12" fill="#ffffff" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="7 6" opacity="0.95"/>
+<rect x="455" y="45" width="650" height="620" rx="12" ry="12" fill="#ffffff" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="7 6" opacity="0.95"/>
+<rect x="1130" y="45" width="430" height="620" rx="12" ry="12" fill="#ffffff" stroke="#f97316" stroke-width="1.2" stroke-dasharray="7 6" opacity="0.95"/>
+<text x="235" y="75" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#111827" text-anchor="middle">Backbone</text>
+<text x="235" y="100" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#111827" text-anchor="middle">Feature Extraction</text>
+<text x="780" y="75" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#111827" text-anchor="middle">Neck</text>
+<text x="780" y="100" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#111827" text-anchor="middle">Feature Fusion (FPN + PAN)</text>
+<text x="1345" y="75" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#111827" text-anchor="middle">Head</text>
+<text x="1345" y="100" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#111827" text-anchor="middle">Detect Head</text>
+<text x="105" y="155" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="middle">Input Image</text>
+<text x="105" y="175" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="middle">640×640×3</text>
+<rect x="90" y="220" width="110" height="90" rx="0" ry="0" fill="#e5e7eb" stroke="#cbd5e1" stroke-width="1" opacity="0.8"/>
+<rect x="80" y="205" width="110" height="90" rx="0" ry="0" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" opacity="0.9"/>
+<rect x="70" y="190" width="110" height="90" rx="2" ry="2" fill="url(#img-grad)" stroke="#94a3b8" stroke-width="1.5" opacity="1"/>
+<path d="M70 255 L105 215 L132 245 L150 225 L180 255 Z" fill="#1e3a8a" opacity="0.8"/>
+<path d="M70 255 L105 235 L132 258 L154 242 L180 260 L180 280 L70 280 Z" fill="#0369a1" opacity="0.65"/>
+<line x1="70" y1="255" x2="180" y2="255" stroke="#e0f2fe" stroke-width="2"/>
+<line x1="180" y1="235" x2="220" y2="235" stroke="#111827" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<rect x="220" y="120" width="125" height="34" rx="6" ry="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="142.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Conv 3×3 s=2</text>
+<rect x="220" y="165" width="125" height="34" rx="6" ry="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="187.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Conv 3×3 s=2</text>
+<rect x="220" y="210" width="125" height="34" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="232.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="220" y="255" width="125" height="34" rx="6" ry="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="277.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Conv 3×3 s=2</text>
+<rect x="220" y="300" width="125" height="34" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="322.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="220" y="345" width="125" height="34" rx="6" ry="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="367.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Conv 3×3 s=2</text>
+<rect x="220" y="390" width="125" height="34" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="412.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="220" y="435" width="125" height="34" rx="6" ry="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="457.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Conv 3×3 s=2</text>
+<rect x="220" y="480" width="125" height="34" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="502.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="220" y="525" width="125" height="34" rx="6" ry="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="547.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">SPPF</text>
+<rect x="220" y="570" width="125" height="34" rx="6" ry="6" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.2" opacity="1"/>
+<text x="282.5" y="592.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C2PSA</text>
+<line x1="282.5" y1="154" x2="282.5" y2="165" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="199" x2="282.5" y2="210" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="244" x2="282.5" y2="255" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="289" x2="282.5" y2="300" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="334" x2="282.5" y2="345" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="379" x2="282.5" y2="390" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="424" x2="282.5" y2="435" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="469" x2="282.5" y2="480" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="514" x2="282.5" y2="525" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<line x1="282.5" y1="559" x2="282.5" y2="570" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="370" y="307.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">P3 / 8</text>
+<text x="370" y="330.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#111827" text-anchor="middle">80×80×C</text>
+<text x="370" y="397.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">P4 / 16</text>
+<text x="370" y="420.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#111827" text-anchor="middle">40×40×C</text>
+<text x="370" y="577.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">P5 / 32</text>
+<text x="370" y="600.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#111827" text-anchor="middle">20×20×C</text>
+<line x1="345" y1="317.0" x2="530" y2="317.0" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="345" y1="407.0" x2="530" y2="407.0" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="345" y1="587.0" x2="730" y2="587.0" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<rect x="535" y="277" width="95" height="46" rx="6" ry="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2" opacity="1"/>
+<text x="582.5" y="305.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Upsample ×2</text>
+<rect x="535" y="385" width="95" height="46" rx="6" ry="6" fill="#dcfce7" stroke="#22c55e" stroke-width="1.2" opacity="1"/>
+<text x="582.5" y="413.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Upsample ×2</text>
+<rect x="740" y="277" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="787.5" y="305.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Concat</text>
+<rect x="905" y="277" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="952.5" y="305.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="740" y="385" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="787.5" y="413.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Concat</text>
+<rect x="905" y="385" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="952.5" y="413.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="740" y="565" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="787.5" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">Concat</text>
+<rect x="905" y="565" width="95" height="46" rx="6" ry="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2" opacity="1"/>
+<text x="952.5" y="593.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<line x1="530" y1="300" x2="740" y2="300" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="530" y1="408" x2="740" y2="408" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="730" y1="588" x2="740" y2="588" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<polyline points="620,588 620,473 582,431" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="630" y1="408" x2="740" y2="408" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<polyline points="1000,408 1040,408 1040,235 582,277" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="630" y1="300" x2="740" y2="300" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="835" y1="300" x2="905" y2="300" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="835" y1="408" x2="905" y2="408" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<line x1="835" y1="588" x2="905" y2="588" stroke="#111827" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+<rect x="735" y="350" width="110" height="44" rx="6" ry="6" fill="#fee2e2" stroke="#f87171" stroke-width="1.2" opacity="1"/>
+<text x="790.0" y="377.0" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#111827" text-anchor="middle">Downsample Conv s=2</text>
+<rect x="735" y="500" width="110" height="44" rx="6" ry="6" fill="#fee2e2" stroke="#f87171" stroke-width="1.2" opacity="1"/>
+<text x="790.0" y="527.0" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#111827" text-anchor="middle">Downsample Conv s=2</text>
+<polyline points="1000,300 1040,300 1040,372 845,372" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<polyline points="790,394 790,385" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<polyline points="1000,408 1040,408 1040,522 845,522" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<polyline points="790,544 790,565" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="1065" y="292" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="end">P3_out</text>
+<text x="1065" y="314" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="end">80×80×C</text>
+<line x1="1000" y1="300" x2="1168" y2="300" stroke="#111827" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<text x="1065" y="400" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="end">P4_out</text>
+<text x="1065" y="422" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="end">40×40×C</text>
+<line x1="1000" y1="408" x2="1168" y2="408" stroke="#111827" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<text x="1065" y="580" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="end">P5_out</text>
+<text x="1065" y="602" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="end">20×20×C</text>
+<line x1="1000" y1="588" x2="1168" y2="588" stroke="#111827" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+<polygon points="1198,262 1265,262 1265,319 1198,319" fill="url(#cube)" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,280 1198,262 1198,319 1180,337" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,280 1198,262 1265,262 1247,280" fill="#bae6fd" stroke="#0369a1" stroke-width="1.3"/>
+<line x1="1211.4" y1="262" x2="1211.4" y2="319" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1224.8" y1="262" x2="1224.8" y2="319" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1238.2" y1="262" x2="1238.2" y2="319" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1251.6" y1="262" x2="1251.6" y2="319" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="276.25" x2="1265" y2="276.25" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="290.5" x2="1265" y2="290.5" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="304.75" x2="1265" y2="304.75" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1265" y1="300" x2="1305" y2="300" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="1305" y="252" width="145" height="96" rx="6" ry="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" opacity="1"/>
+<text x="1377" y="276" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Detect Head</text>
+<text x="1320" y="300" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Box Regression</text>
+<text x="1320" y="318" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Classification</text>
+<line x1="1450" y1="300" x2="1505" y2="300" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="1518" y="287" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="start">P3 / 8</text>
+<text x="1518" y="311" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Small</text>
+<text x="1518" y="327" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Objects</text>
+<polygon points="1198,370 1265,370 1265,427 1198,427" fill="url(#cube)" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,388 1198,370 1198,427 1180,445" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,388 1198,370 1265,370 1247,388" fill="#bae6fd" stroke="#0369a1" stroke-width="1.3"/>
+<line x1="1211.4" y1="370" x2="1211.4" y2="427" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1224.8" y1="370" x2="1224.8" y2="427" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1238.2" y1="370" x2="1238.2" y2="427" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1251.6" y1="370" x2="1251.6" y2="427" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="384.25" x2="1265" y2="384.25" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="398.5" x2="1265" y2="398.5" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="412.75" x2="1265" y2="412.75" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1265" y1="408" x2="1305" y2="408" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="1305" y="360" width="145" height="96" rx="6" ry="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" opacity="1"/>
+<text x="1377" y="384" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Detect Head</text>
+<text x="1320" y="408" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Box Regression</text>
+<text x="1320" y="426" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Classification</text>
+<line x1="1450" y1="408" x2="1505" y2="408" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="1518" y="395" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="start">P4 / 16</text>
+<text x="1518" y="419" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Medium</text>
+<text x="1518" y="435" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Objects</text>
+<polygon points="1198,550 1265,550 1265,607 1198,607" fill="url(#cube)" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,568 1198,550 1198,607 1180,625" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.3"/>
+<polygon points="1180,568 1198,550 1265,550 1247,568" fill="#bae6fd" stroke="#0369a1" stroke-width="1.3"/>
+<line x1="1211.4" y1="550" x2="1211.4" y2="607" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1224.8" y1="550" x2="1224.8" y2="607" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1238.2" y1="550" x2="1238.2" y2="607" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1251.6" y1="550" x2="1251.6" y2="607" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="564.25" x2="1265" y2="564.25" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="578.5" x2="1265" y2="578.5" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1198" y1="592.75" x2="1265" y2="592.75" stroke="#0284c7" stroke-width="0.6" opacity="0.7"/>
+<line x1="1265" y1="588" x2="1305" y2="588" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<rect x="1305" y="540" width="145" height="96" rx="6" ry="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" opacity="1"/>
+<text x="1377" y="564" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Detect Head</text>
+<text x="1320" y="588" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Box Regression</text>
+<text x="1320" y="606" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Classification</text>
+<line x1="1450" y1="588" x2="1505" y2="588" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="1518" y="575" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="start">P5 / 32</text>
+<text x="1518" y="599" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Large</text>
+<text x="1518" y="615" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="400" fill="#111827" text-anchor="start">Objects</text>
+<rect x="40" y="695" width="150" height="160" rx="7" ry="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" opacity="1"/>
+<text x="115" y="720" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">Conv</text>
+<rect x="80" y="745" width="70" height="28" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="115.0" y="763.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">Conv2d</text>
+<line x1="115" y1="773" x2="115" y2="785" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="80" y="787" width="70" height="28" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="115.0" y="805.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">BN</text>
+<line x1="115" y1="815" x2="115" y2="827" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="80" y="829" width="70" height="24" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="115.0" y="845.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">SiLU</text>
+<rect x="210" y="695" width="340" height="160" rx="7" ry="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" opacity="1"/>
+<text x="380" y="720" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">C3k2</text>
+<rect x="230" y="773" width="70" height="34" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="265.0" y="794.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">Conv</text>
+<line x1="300" y1="790" x2="325" y2="790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="325" y="745" width="105" height="35" rx="5" ry="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1" opacity="1"/>
+<text x="377" y="767" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" fill="#111827" text-anchor="middle">k× Bottleneck</text>
+<rect x="325" y="800" width="105" height="35" rx="5" ry="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1" opacity="1"/>
+<text x="377" y="822" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" fill="#111827" text-anchor="middle">k× Bottleneck</text>
+<polyline points="300,790 315,790 315,762 325,762" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<polyline points="315,790 315,817 325,817" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="430" y1="762" x2="465" y2="790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="430" y1="817" x2="465" y2="790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="465" y="773" width="55" height="34" rx="5" ry="5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="492" y="794" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" fill="#111827" text-anchor="middle">Concat</text>
+<line x1="520" y1="790" x2="535" y2="790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="570" y="695" width="270" height="160" rx="7" ry="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" opacity="1"/>
+<text x="705" y="720" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">SPPF</text>
+<rect x="665" y="740" width="80" height="30" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="705.0" y="759.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">Conv</text>
+<rect x="610" y="790" width="70" height="30" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="645.0" y="809.0" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#111827" text-anchor="middle">MaxPool</text>
+<rect x="700" y="790" width="70" height="30" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="735.0" y="809.0" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#111827" text-anchor="middle">MaxPool</text>
+<rect x="790" y="790" width="70" height="30" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="825.0" y="809.0" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#111827" text-anchor="middle">MaxPool</text>
+<polyline points="705,770 705,780 645,780 645,790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="705" y1="770" x2="705" y2="790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<polyline points="705,780 825,780 825,790" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="665" y="825" width="80" height="24" rx="5" ry="5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="705" y="841" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" fill="#111827" text-anchor="middle">Concat</text>
+<rect x="860" y="695" width="150" height="160" rx="7" ry="7" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" opacity="1"/>
+<text x="935" y="720" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111827" text-anchor="middle">C2PSA</text>
+<rect x="895" y="740" width="80" height="28" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="935.0" y="758.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">Conv</text>
+<line x1="935" y1="768" x2="935" y2="783" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="895" y="785" width="80" height="35" rx="5" ry="5" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1" opacity="1"/>
+<text x="935" y="807" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" fill="#111827" text-anchor="middle">PSA</text>
+<text x="935" y="821" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#111827" text-anchor="middle">Attention</text>
+<line x1="935" y1="820" x2="935" y2="833" stroke="#111827" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<rect x="895" y="835" width="80" height="20" rx="5" ry="5" fill="#dbeafe" stroke="#60a5fa" stroke-width="1" opacity="1"/>
+<text x="935.0" y="849.0" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#111827" text-anchor="middle">Conv</text>
+<rect x="1035" y="695" width="250" height="160" rx="7" ry="7" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="6 5" opacity="1"/>
+<text x="1065" y="723" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="start">Legend</text>
+<line x1="1060" y1="747" x2="1100" y2="747" stroke="#111827" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+<text x="1115" y="751" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">Data flow</text>
+<rect x="1060" y="757" width="40" height="12" rx="2" ry="2" fill="#dbeafe" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="1115" y="769" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">Conv layer</text>
+<rect x="1060" y="775" width="40" height="12" rx="2" ry="2" fill="#fef3c7" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="1115" y="787" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">C3k2 / Concat</text>
+<rect x="1060" y="793" width="40" height="12" rx="2" ry="2" fill="#dcfce7" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="1115" y="805" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">Upsample / SPPF</text>
+<rect x="1060" y="811" width="40" height="12" rx="2" ry="2" fill="#fee2e2" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="1115" y="823" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">Downsample</text>
+<rect x="1060" y="829" width="40" height="12" rx="2" ry="2" fill="#ede9fe" stroke="#94a3b8" stroke-width="1" opacity="1"/>
+<text x="1115" y="841" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">C2PSA</text>
+<rect x="1310" y="695" width="250" height="160" rx="7" ry="7" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="6 5" opacity="1"/>
+<text x="1330" y="723" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#111827" text-anchor="start">YOLOv11 Key Points</text>
+<text x="1330" y="750" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Backbone: C3k2, SPPF, C2PSA</text>
+<text x="1330" y="772" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Neck: FPN + PAN feature fusion</text>
+<text x="1330" y="794" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Head: multi-scale detection</text>
+<text x="1330" y="816" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="400" fill="#111827" text-anchor="start">• Outputs: P3, P4, P5</text>
+</g>
+</svg>

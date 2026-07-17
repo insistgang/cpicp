@@ -1,0 +1,39 @@
+{
+  "mode": "synthetic_train",
+  "dataset": {
+    "n_clips": 120,
+    "n_fall": 24,
+    "n_nonfall": 96
+  },
+  "model": {
+    "type": "zscore_logistic",
+    "features": [
+      "max_aspect",
+      "final_aspect",
+      "max_down_velocity",
+      "total_down_shift",
+      "min_height",
+      "final_height",
+      "max_area",
+      "visible_ratio"
+    ],
+    "params": 9
+  },
+  "metrics": {
+    "n_train": 84,
+    "n_val": 36,
+    "train": {
+      "precision_at_recall90": 1.0,
+      "precision_at_recall95": 1.0,
+      "total_score_proxy": 119.8995
+    },
+    "val": {
+      "precision_at_recall90": 1.0,
+      "precision_at_recall95": 1.0,
+      "total_score_proxy": 119.8995
+    }
+  },
+  "profile": {
+    "train_ms": 11.180583
+  }
+}

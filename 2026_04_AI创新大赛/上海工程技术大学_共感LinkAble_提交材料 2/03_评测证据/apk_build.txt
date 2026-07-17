@@ -1,0 +1,10 @@
+command: JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home ANDROID_HOME=/opt/homebrew/share/android-commandlinetools ANDROID_SDK_ROOT=/opt/homebrew/share/android-commandlinetools flutter build apk --release
+attempt_time: 2026-06-27 21:31 CST
+status: succeeded
+result: Built build/app/outputs/flutter-apk/app-release.apk (92.1MB)
+build_log: eval/results/flutter_build_apk.txt
+
+apk_path: build/app/outputs/flutter-apk/app-release.apk
+apk_mtime: Jun 27 21:31:51 2026
+apk_sha256: d35cfead0fec1afa7a995dcc45dd3c506474a1365d3a218f85c69b788bc7de62
+submission_apk: 04_APK/app-release.apk

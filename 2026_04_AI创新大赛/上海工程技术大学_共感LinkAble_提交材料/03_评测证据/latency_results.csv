@@ -1,0 +1,6 @@
+"metric","mode","runs","median_ms","p95_ms","min_ms","max_ms","note"
+"首屏可见响应","DemoMode widget-test","20","11.472000","254.005000","9.206000","254.005000","包含 initializeCompetitionDemoApp + pumpWidget 到首页主文案可见；非线上冷启动。"
+"AI 完整响应","DemoMode local deterministic response","20","608.789000","797.990000","252.622000","797.990000","走 AgentServiceFacade -> DemoAIService；含生产模拟延迟，不是真实 LLM 时延。"
+"50 人候选 Top5 匹配耗时","DemoMode production matching engine","20","0.531000","18.563000","0.215000","18.563000","直接调用 DemoMatchingEngineService.matchTopVolunteers, volunteerPool=50。"
+"Demo Call 建立","DemoMode production state machine","20","3007.721000","3018.264000","3006.227000","3018.264000","DemoCallService.startCall 固定包含 1s connecting + 2s ringing。"
+"SOS 触发到撤销窗口","DemoMode production state machine","20","0.027000","0.796000","0.023000","0.796000","测量 DemoSOSService.triggerSOS 调用后 isActive=true；撤销窗口 UI 文案在页面层展示。"

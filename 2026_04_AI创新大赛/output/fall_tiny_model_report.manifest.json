@@ -1,0 +1,42 @@
+{
+  "mode": "manifest_train",
+  "source_manifest": "/Users/insistgang/Downloads/cpicp/2026_04_AI创新大赛/output/fall_omnifall_ofsyn_sample_manifest.csv",
+  "dataset": {
+    "n_clips": 72,
+    "n_fall": 24,
+    "n_nonfall": 48,
+    "n_failed": 0
+  },
+  "model": {
+    "type": "zscore_logistic",
+    "features": [
+      "max_aspect",
+      "final_aspect",
+      "max_down_velocity",
+      "total_down_shift",
+      "min_height",
+      "final_height",
+      "max_area",
+      "visible_ratio"
+    ],
+    "params": 9
+  },
+  "metrics": {
+    "n_train": 50,
+    "n_val": 22,
+    "train": {
+      "precision_at_recall90": 0.326531,
+      "precision_at_recall95": 0.326531,
+      "total_score_proxy": 86.226031
+    },
+    "val": {
+      "precision_at_recall90": 0.363636,
+      "precision_at_recall95": 0.363636,
+      "total_score_proxy": 88.081318
+    }
+  },
+  "profile": {
+    "train_ms": 32.385042
+  },
+  "failures_preview": []
+}

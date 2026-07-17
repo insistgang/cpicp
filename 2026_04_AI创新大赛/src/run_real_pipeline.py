@@ -23,12 +23,15 @@ fewshot_protocol / anomaly_score / aoi_metrics)接到 synth_aoi 程序化生成�
 `python run_real_pipeline.py --selftest` 自测(小规模,校验真实可分性 + 产物落盘)
 """
 import argparse
+import csv
 import json
 import os
+import tempfile
 import time
 
 import numpy as np
 
+from aoi_prepare import split_fewshot
 from synth_aoi import gen_dataset, DEFECT_KINDS
 from feature_backend import get_backend
 from patchcore_lite import build_memory_bank
@@ -41,6 +44,41 @@ OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "output")
 def build_features(images, backend):
     """对每张图抽 patch 特征。返回 list[(P,D)] 与 image-level 网格形状。"""
     return [backend.image_patches(im) for im in images]
+
+
+def load_manifest_records(manifest_path):
+    """读取 manifest,相对 image_path 按 manifest 所在目录解析成绝对路径。"""
+    manifest_path = os.path.abspath(manifest_path)
+    base = os.path.dirname(manifest_path)
+    with open(manifest_path, encoding="utf-8") as f:
+        records = [dict(r) for r in csv.DictReader(f)]
+    for r in records:
+        p = r.get("image_path", "")
+        if p and not os.path.isabs(p):
+            r["image_path"] = os.path.abspath(os.path.join(base, p))
+    return records
+
+
+def load_images(records, size):
+    """manifest records -> PIL images / labels / metas。"""
+    from PIL import Image
+
+    images, labels, metas = [], [], []
+    for r in records:
+        path = r["image_path"]
+        with Image.open(path) as im:
+            im = im.convert("RGB")
+            if size and im.size != (size, size):
+                im = im.resize((size, size))
+            images.append(im.copy())
+        label = int(r["label"])
+        labels.append(label)
+        metas.append({
+            "kind": r.get("defect_type") or ("normal" if label == 0 else "defect"),
+            "category": r.get("category", ""),
+            "path": path,
+        })
+    return images, np.asarray(labels), metas
 
 
 def run(n_normal=100, n_defect=30, n_test_normal=400, n_test_defect=200,
@@ -157,6 +195,114 @@ def run(n_normal=100, n_defect=30, n_test_normal=400, n_test_defect=200,
     return result
 
 
+def run_from_manifest(manifest, n_normal=100, n_defect=30, size=256, grid=8,
+                      coreset_ratio=0.3, seed=0, save=True, verbose=True,
+                      report_name="pipeline_report.public.json",
+                      scores_name="pipeline_scores.public.npz",
+                      prefer_real=False):
+    """用 DAGM/MVTec/华为数据转换后的 manifest 跑同一套 few-shot 流水线。"""
+    backend, is_real = get_backend(prefer_real=prefer_real, grid=grid)
+    records = load_manifest_records(manifest)
+    train_records, test_records = split_fewshot(records, n_normal=n_normal,
+                                               n_defect=n_defect, seed=seed)
+    if not train_records or not test_records:
+        raise ValueError("manifest 数据不足: few-shot 切分后 train/test 不能为空,可调小 --n-normal/--n-defect")
+
+    train_imgs, train_labs, train_metas = load_images(train_records, size)
+    test_imgs, test_labs, test_metas = load_images(test_records, size)
+    if (train_labs == 0).sum() < 2 or (train_labs == 1).sum() < 1:
+        raise ValueError("训练集至少需要 2 张正常图和 1 张缺陷图")
+    if len(set(test_labs.tolist())) < 2:
+        raise ValueError("测试集需要同时包含正常和缺陷样本,否则无法计算 AUC/F1")
+
+    t_feat = time.perf_counter()
+    train_patch = build_features(train_imgs, backend)
+    test_patch = build_features(test_imgs, backend)
+    feat_ms = (time.perf_counter() - t_feat) * 1000
+
+    normal_idx = np.where(train_labs == 0)[0]
+    n_cal = max(1, int(len(normal_idx) * 0.2)) if len(normal_idx) >= 5 else 1
+    bank_normal_idx = normal_idx[n_cal:]
+    if len(bank_normal_idx) == 0:
+        bank_normal_idx = normal_idx
+    cal_normal_idx = normal_idx[:n_cal]
+    defect_idx = np.where(train_labs == 1)[0]
+
+    normal_patch_pool = np.vstack([train_patch[i] for i in bank_normal_idx])
+    bank = build_memory_bank(normal_patch_pool, coreset_ratio=coreset_ratio, seed=seed)
+
+    cal_imgs_idx = list(cal_normal_idx) + list(defect_idx)
+    cal_scores = np.array([nn_distance(train_patch[i], bank).max() for i in cal_imgs_idx])
+    cal_labels = np.array([train_labs[i] for i in cal_imgs_idx])
+    thr = best_threshold(cal_scores, cal_labels, objective="f1")["thr"]
+
+    test_scores = np.empty(len(test_imgs))
+    lat = []
+    for i, p in enumerate(test_patch):
+        t0 = time.perf_counter()
+        test_scores[i] = nn_distance(p, bank).max()
+        lat.append((time.perf_counter() - t0) * 1000)
+    lat = np.array(lat)
+
+    auc = roc_auc(test_scores, test_labs)
+    m = pr_at_threshold(test_scores, test_labs, thr)
+    test_kinds = [mt["kind"] for mt in test_metas]
+    per_class = {}
+    for kind in sorted({k for k in test_kinds if k and k != "normal"}):
+        idx = [i for i, k in enumerate(test_kinds) if k == kind]
+        if idx:
+            detected = int((test_scores[idx] >= thr).sum())
+            per_class[kind] = {"n": len(idx), "detected": detected,
+                               "recall": round(detected / len(idx), 4)}
+
+    scale = (2500.0 / size) ** 2
+    est_full_ms = float(lat.mean() * scale + feat_ms / len(test_imgs) * scale)
+    comp = compute_competition_score(accuracy=m["accuracy"], latency_ms=est_full_ms,
+                                     plan_completeness=0.9, budget_ms=2000.0)
+
+    result = {
+        "backend": backend.name, "is_real_feature": is_real,
+        "feat_dim": backend.feat_dim,
+        "source_manifest": os.path.abspath(manifest),
+        "fewshot": {"n_normal_train": int((train_labs == 0).sum()),
+                    "n_defect_train": int((train_labs == 1).sum()),
+                    "n_test": len(test_imgs),
+                    "n_test_defect": int((test_labs == 1).sum())},
+        "bank_size": int(len(bank)),
+        "threshold": round(float(thr), 6),
+        "auc": round(float(auc), 4),
+        "f1": round(float(m["f1"]), 4),
+        "recall": round(float(m["recall"]), 4),
+        "precision": round(float(m["precision"]), 4),
+        "accuracy": round(float(m["accuracy"]), 4),
+        "per_class_recall": per_class,
+        "latency_ms_per_image_score": {"mean": round(float(lat.mean()), 4),
+                                       "p95": round(float(np.percentile(lat, 95)), 4)},
+        "est_latency_2500px_cpu_ms": round(est_full_ms, 1),
+        "competition_score": {k: round(v, 4) for k, v in comp.items()},
+    }
+
+    if verbose:
+        _print_report(result)
+
+    if save:
+        os.makedirs(OUT_DIR, exist_ok=True)
+        with open(os.path.join(OUT_DIR, report_name), "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        np.savez(os.path.join(OUT_DIR, scores_name),
+                 scores=test_scores, labels=test_labs,
+                 kinds=np.array(test_kinds), threshold=thr)
+        if verbose:
+            print(f"\n✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, report_name))}")
+            print(f"✓ 产物:{os.path.abspath(os.path.join(OUT_DIR, scores_name))}")
+
+    result["_arrays"] = {"test_scores": test_scores, "test_labels": test_labs,
+                         "test_kinds": test_kinds, "bank": bank, "backend": backend,
+                         "test_patch": test_patch, "test_imgs": test_imgs,
+                         "test_metas": test_metas}
+    return result
+
+
 def _gen_test(n_normal, n_defect, size, seed):
     """测试集:正常 + 4 类均匀缺陷,seed 段与训练不重叠。"""
     return gen_dataset(n_normal, n_defect, size, seed=seed)
@@ -183,6 +329,7 @@ def _print_report(r):
 
 def _selftest():
     import sys
+    from PIL import Image, ImageDraw
     ok = True
 
     def check(c, m):
@@ -209,6 +356,33 @@ def _selftest():
     check(os.path.getsize(rep) > 0, "pipeline_report.selftest.json 已落盘且非空")
     check(os.path.getsize(npz) > 0, "pipeline_scores.selftest.npz 已落盘且非空")
 
+    with tempfile.TemporaryDirectory() as td:
+        manifest = os.path.join(td, "manifest.csv")
+        img_dir = os.path.join(td, "toy")
+        os.makedirs(img_dir, exist_ok=True)
+        rows = []
+        for i in range(8):
+            im = Image.new("RGB", (64, 64), (118 + i % 3, 124, 130))
+            path = os.path.join(img_dir, f"normal_{i}.png")
+            im.save(path)
+            rows.append({"image_path": path, "label": "0", "defect_type": ""})
+        for i in range(6):
+            im = Image.new("RGB", (64, 64), (118, 124, 130))
+            d = ImageDraw.Draw(im)
+            d.rectangle((18, 18, 46, 46), fill=(220, 40, 40))
+            path = os.path.join(img_dir, f"defect_{i}.png")
+            im.save(path)
+            rows.append({"image_path": path, "label": "1", "defect_type": "toy:red_patch"})
+        with open(manifest, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=["image_path", "label", "defect_type"])
+            w.writeheader()
+            w.writerows(rows)
+        r_pub = run_from_manifest(manifest, n_normal=4, n_defect=2, size=64, grid=4,
+                                  save=False, verbose=False, prefer_real=False)
+        check(r_pub["auc"] > 0.85, f"manifest 公开数据入口 AUC>0.85(={r_pub['auc']})")
+        check(r_pub["fewshot"]["n_normal_train"] == 4 and r_pub["fewshot"]["n_defect_train"] == 2,
+              "manifest 入口按指定 few-shot 数量切分")
+
     print(f"\n  小规模真实指标:AUC={r['auc']} F1={r['f1']} recall={r['recall']}")
     print("\n" + ("✅ run_real_pipeline 自测通过" if ok else "❌ 自测未通过"))
     sys.exit(0 if ok else 1)
@@ -219,9 +393,17 @@ def main():
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--full", action="store_true", help="测试集放大到 1000+(贴合官方口径)")
     ap.add_argument("--real", action="store_true", help="启用 timm 真特征(需 torch/timm + 已缓存权重)")
+    ap.add_argument("--manifest", help="公开数据/华为数据转换后的 manifest.csv")
+    ap.add_argument("--n-normal", type=int, default=100, help="few-shot 训练正常样本数")
+    ap.add_argument("--n-defect", type=int, default=30, help="few-shot 训练缺陷样本数")
+    ap.add_argument("--size", type=int, default=256, help="manifest 图像统一缩放尺寸")
     a = ap.parse_args()
     if a.selftest:
         _selftest()
+    elif a.manifest:
+        print("=== run_real_pipeline (PUBLIC MANIFEST) ===")
+        run_from_manifest(a.manifest, n_normal=a.n_normal, n_defect=a.n_defect,
+                          size=a.size, grid=8, prefer_real=a.real)
     elif a.full:
         print("=== run_real_pipeline (FULL, 测试集 1000+) ===")
         run(n_normal=100, n_defect=30, n_test_normal=700, n_test_defect=320,

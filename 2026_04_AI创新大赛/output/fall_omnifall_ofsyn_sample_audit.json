@@ -1,0 +1,45 @@
+{
+  "manifest": "/Users/insistgang/Downloads/cpicp/2026_04_AI创新大赛/output/fall_omnifall_ofsyn_sample_manifest.csv",
+  "summary": {
+    "n_clips": 72,
+    "n_fall": 24,
+    "n_nonfall": 48,
+    "has_both_classes": true,
+    "ready_for_eval": true
+  },
+  "distribution": {
+    "by_source": {
+      "omnifall_ofsyn_sample": 72
+    },
+    "by_scenario": {
+      "fall": 12,
+      "fallen": 12,
+      "lie_down": 6,
+      "lying": 6,
+      "other": 6,
+      "sit_down": 6,
+      "sitting": 6,
+      "stand_up": 6,
+      "standing": 6,
+      "walking": 6
+    },
+    "by_path_kind": {
+      "video": 72
+    }
+  },
+  "path_checks": {
+    "n_missing": 0,
+    "n_unsupported": 0,
+    "missing_preview": [],
+    "unsupported_preview": []
+  },
+  "readability": {
+    "checked": 12,
+    "readable": 12,
+    "failed": 0,
+    "failures_preview": []
+  },
+  "next_actions": [
+    "manifest 通过基础体检:可以运行 run_fall_pipeline.py --manifest 进行公开视频评测。"
+  ]
+}

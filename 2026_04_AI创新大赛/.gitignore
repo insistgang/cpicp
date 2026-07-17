@@ -4,6 +4,11 @@ output/synth/
 output/**/img_*.png
 *.npz
 
+# 公开/官方视频数据体积大且可能受协议限制,只提交 manifest/报告,不提交原始数据。
+data/
+datasets/
+raw_data/
+
 # 自测产生的小规模临时产物(不是交付物,勿入库;交付物是标准规模的同名文件)
 output/selftest/
 output/pipeline_report.selftest.json

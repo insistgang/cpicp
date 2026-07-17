@@ -1,0 +1,150 @@
+{
+  "task": "huawei_enterprise_7_low_power_visual_fall_detection",
+  "mode": "synthetic_proxy",
+  "scorer": "tiny_model",
+  "note": "当前为合成片段+几何时序后处理 baseline;公开/官方数据成绩需接入真实视频后重跑。",
+  "dataset": {
+    "n_clips": 100,
+    "n_fall": 20,
+    "n_nonfall": 80,
+    "n_frames_per_clip": 32,
+    "input_size": {
+      "width": 160,
+      "height": 120
+    },
+    "kinds": {
+      "bend": {
+        "n": 20,
+        "label": 0,
+        "mean_score": 0.000189,
+        "max_score": 0.000767
+      },
+      "fall": {
+        "n": 20,
+        "label": 1,
+        "mean_score": 0.980853,
+        "max_score": 0.993989
+      },
+      "lie": {
+        "n": 20,
+        "label": 0,
+        "mean_score": 0.021778,
+        "max_score": 0.049468
+      },
+      "sit": {
+        "n": 20,
+        "label": 0,
+        "mean_score": 0.00591,
+        "max_score": 0.011585
+      },
+      "walk": {
+        "n": 20,
+        "label": 0,
+        "mean_score": 0.000815,
+        "max_score": 0.00134
+      }
+    }
+  },
+  "metrics": {
+    "precision_at_recall90": 1.0,
+    "threshold_at_recall90": 0.95023,
+    "precision_at_recall95": 1.0,
+    "threshold_at_recall95": 0.936939
+  },
+  "profile": {
+    "assumed_params_m": 0.001,
+    "mean_latency_ms_per_clip": 11.173235,
+    "p95_latency_ms_per_clip": 11.811844,
+    "mean_latency_ms_per_frame": 0.349164,
+    "p95_latency_ms_per_frame": 0.36912,
+    "latency_note": "当前为 CPU 上规则后处理耗时,最终端侧耗时需包含检测/姿态模型和 NPU 实测。"
+  },
+  "competition_score_proxy": {
+    "map_score": 50.0,
+    "param_score": 34.9995,
+    "latency_score": 34.965084,
+    "total_score": 119.964584
+  },
+  "events_preview": [
+    {
+      "clip_id": "walk_019",
+      "kind": "walk",
+      "label": 0,
+      "score": 0.00134,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "walk_017",
+      "kind": "walk",
+      "label": 0,
+      "score": 0.000938,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "bend_019",
+      "kind": "bend",
+      "label": 0,
+      "score": 0.000103,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "walk_008",
+      "kind": "walk",
+      "label": 0,
+      "score": 0.00116,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "sit_019",
+      "kind": "sit",
+      "label": 0,
+      "score": 0.004208,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "bend_016",
+      "kind": "bend",
+      "label": 0,
+      "score": 0.000142,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "lie_017",
+      "kind": "lie",
+      "label": 0,
+      "score": 0.042046,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "bend_009",
+      "kind": "bend",
+      "label": 0,
+      "score": 0.000206,
+      "alarm_start": -1,
+      "alarm_end": -1
+    },
+    {
+      "clip_id": "fall_005",
+      "kind": "fall",
+      "label": 1,
+      "score": 0.980391,
+      "alarm_start": 12,
+      "alarm_end": 31
+    },
+    {
+      "clip_id": "lie_004",
+      "kind": "lie",
+      "label": 0,
+      "score": 0.023372,
+      "alarm_start": -1,
+      "alarm_end": -1
+    }
+  ]
+}

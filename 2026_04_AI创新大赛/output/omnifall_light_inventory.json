@@ -1,0 +1,223 @@
+{
+  "source": "huggingface:simplexsigil2/omnifall",
+  "downloaded_light_files": 292,
+  "label_names": {
+    "0": "walk",
+    "1": "fall",
+    "2": "fallen",
+    "3": "sit_down",
+    "4": "sitting",
+    "5": "lie_down",
+    "6": "lying",
+    "7": "stand_up",
+    "8": "standing",
+    "9": "other",
+    "10": "kneel_down",
+    "11": "kneeling",
+    "12": "squat_down",
+    "13": "squatting",
+    "14": "crawl",
+    "15": "jump"
+  },
+  "label_files": {
+    "GMDCSA24": {
+      "segments": 458,
+      "videos": 160,
+      "labels": {
+        "walk": 65,
+        "fall": 78,
+        "fallen": 77,
+        "sit_down": 22,
+        "sitting": 63,
+        "lie_down": 13,
+        "lying": 14,
+        "stand_up": 17,
+        "standing": 37,
+        "other": 72
+      },
+      "datasets": {
+        "GMDCSA24": 458
+      }
+    },
+    "OOPS": {
+      "segments": 4022,
+      "videos": 818,
+      "labels": {
+        "walk": 467,
+        "fall": 914,
+        "fallen": 464,
+        "sit_down": 15,
+        "sitting": 104,
+        "lie_down": 16,
+        "lying": 20,
+        "stand_up": 365,
+        "standing": 374,
+        "other": 955,
+        "kneel_down": 5,
+        "kneeling": 54,
+        "squat_down": 16,
+        "squatting": 8,
+        "crawl": 6,
+        "jump": 239
+      },
+      "datasets": {
+        "OOPS": 4022
+      }
+    },
+    "caucafall": {
+      "segments": 258,
+      "videos": 100,
+      "labels": {
+        "walk": 47,
+        "fall": 50,
+        "fallen": 48,
+        "sit_down": 10,
+        "sitting": 20,
+        "lie_down": 1,
+        "lying": 1,
+        "stand_up": 16,
+        "standing": 32,
+        "other": 33
+      },
+      "datasets": {
+        "caucafall": 258
+      }
+    },
+    "cmdfall": {
+      "segments": 42143,
+      "videos": 384,
+      "labels": {
+        "walk": 8037,
+        "fall": 5792,
+        "fallen": 4826,
+        "sit_down": 3119,
+        "sitting": 1747,
+        "lie_down": 2024,
+        "lying": 1053,
+        "stand_up": 8763,
+        "standing": 2288,
+        "other": 4494
+      },
+      "datasets": {
+        "cmdfall": 42143
+      }
+    },
+    "edf": {
+      "segments": 508,
+      "videos": 10,
+      "labels": {
+        "walk": 98,
+        "fall": 84,
+        "fallen": 58,
+        "sit_down": 6,
+        "sitting": 12,
+        "lie_down": 8,
+        "lying": 8,
+        "stand_up": 108,
+        "standing": 100,
+        "other": 26
+      },
+      "datasets": {
+        "edf": 508
+      }
+    },
+    "le2i": {
+      "segments": 967,
+      "videos": 190,
+      "labels": {
+        "walk": 264,
+        "fall": 130,
+        "fallen": 123,
+        "sit_down": 52,
+        "sitting": 124,
+        "lie_down": 1,
+        "stand_up": 108,
+        "standing": 37,
+        "other": 128
+      },
+      "datasets": {
+        "le2i": 967
+      }
+    },
+    "mcfd": {
+      "segments": 1352,
+      "videos": 192,
+      "labels": {
+        "walk": 336,
+        "fall": 256,
+        "fallen": 184,
+        "sit_down": 48,
+        "sitting": 64,
+        "lie_down": 16,
+        "lying": 32,
+        "stand_up": 232,
+        "standing": 24,
+        "other": 160
+      },
+      "datasets": {
+        "mcfd": 1352
+      }
+    },
+    "occu": {
+      "segments": 484,
+      "videos": 10,
+      "labels": {
+        "walk": 21,
+        "fall": 84,
+        "fallen": 78,
+        "sit_down": 23,
+        "sitting": 22,
+        "stand_up": 104,
+        "standing": 121,
+        "other": 31
+      },
+      "datasets": {
+        "occu": 484
+      }
+    },
+    "of-syn": {
+      "segments": 19228,
+      "videos": 12000,
+      "labels": {
+        "walk": 1940,
+        "fall": 2148,
+        "fallen": 1449,
+        "sit_down": 1325,
+        "sitting": 2708,
+        "lie_down": 1259,
+        "lying": 2344,
+        "stand_up": 1698,
+        "standing": 2433,
+        "other": 1235,
+        "kneel_down": 28,
+        "kneeling": 182,
+        "squat_down": 43,
+        "squatting": 42,
+        "crawl": 104,
+        "jump": 290
+      },
+      "datasets": {
+        "of-syn": 19228
+      }
+    },
+    "up_fall": {
+      "segments": 2426,
+      "videos": 1118,
+      "labels": {
+        "walk": 202,
+        "fall": 506,
+        "fallen": 456,
+        "sit_down": 8,
+        "sitting": 114,
+        "lie_down": 6,
+        "lying": 118,
+        "stand_up": 4,
+        "standing": 784,
+        "other": 228
+      },
+      "datasets": {
+        "up_fall": 2426
+      }
+    }
+  }
+}
