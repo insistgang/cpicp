@@ -12,3 +12,4 @@ __pycache__/
 
 # 从 src/ 内运行流水线时误落的可重生合成图(各赛 output/ 规则的兜底)
 **/output/**/img_*.png
+LinkLab/
